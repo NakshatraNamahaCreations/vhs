@@ -15,7 +15,13 @@ class serviceManagement {
       sub_subcategory,
       serviceExcludes,
       serviceIncludes,
+ 
+      quantity,
+      servicebelow,
+      servicetitle,
+      homepagetitle
     } = req.body;
+    // const { morepriceData, ...otherData } = req.body;
     let file = req.file.filename;
     let add = new serviceManagementModel({
       serviceImg: file,
@@ -31,6 +37,12 @@ class serviceManagement {
       sub_subcategory: sub_subcategory,
       serviceExcludes:serviceExcludes,
       serviceIncludes:serviceIncludes,
+  
+      quantity:quantity,
+      servicebelow:servicebelow,
+      servicetitle:servicetitle,
+      homepagetitle:homepagetitle
+
     });
     // let save = add.save();
     // Save the user
@@ -49,7 +61,7 @@ class serviceManagement {
  
   async  addadvance(req, res) {
     const id = req.params.id;
-    const { plans, Plansdetails, store_slots } = req.body;
+    const { plans, Plansdetails, store_slots,serviceDirection,morepriceData } = req.body;
   
     try {
       const existingData = await serviceManagementModel.findById(id);
@@ -62,6 +74,10 @@ class serviceManagement {
       existingData.plans = plans || existingData.plans;
       existingData.Plansdetails = Plansdetails || existingData.Plansdetails;
       existingData.store_slots = store_slots || existingData.store_slots;
+      existingData.serviceDirection = serviceDirection || existingData.serviceDirection;
+      existingData.morepriceData = morepriceData || existingData.morepriceData;
+
+
   
       const updatedData = await existingData.save();
   
@@ -129,15 +145,15 @@ class serviceManagement {
   }
 
   async postsubcategory(req, res) {
-    let { serviceCategory } = req.body;
-    console.log(serviceCategory);
+    let { subcategory } = req.body;
+    console.log(subcategory);
 
-    let subcategory = await serviceManagementModel
-      .find({ serviceCategory })
+    let data = await serviceManagementModel
+      .find({ subcategory })
       .sort({ _id: -1 });
 
     if (subcategory) {
-      return res.json({ services: subcategory });
+      return res.json({ subcatdata: data });
     }
   }
 

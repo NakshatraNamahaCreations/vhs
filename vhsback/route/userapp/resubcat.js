@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
 });
 const  upload =multer({storage:storage});
 
-router.post("/addappresubcat",upload.any(""),appresubcatcontroller.addappresubcat);
+router.post("/addappresubcat",upload.any(),appresubcatcontroller.addappresubcat);
 router.get("/getappresubcat",appresubcatcontroller.getappresubcat);
 router.post("/postappresubcat",appresubcatcontroller.postappresubcat);
 router.post("/deleteappresubcat/:id",appresubcatcontroller.deleteappresubcat);

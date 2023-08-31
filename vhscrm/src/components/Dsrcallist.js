@@ -7,6 +7,10 @@ import DSRnav from "./DSRnav";
 import moment from "moment";
 
 function Dsrcallist() {
+const location=useLocation();
+const {data}=location.state || {};
+console.log("yogi",data);
+
   const [treatmentData, settreatmentData] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [dsrdata, setdsrdata] = useState([]);
@@ -18,17 +22,40 @@ function Dsrcallist() {
   const [searchTechName, setSearchTechName] = useState("");
   const [searchJobType, setSearchJobType] = useState("");
   const [searchDesc, setSearchDesc] = useState("");
+  const [vddata, setvddata] = useState([]);
 
   const apiURL = process.env.REACT_APP_API_URL;
   const { date, category } = useParams();
-  console.log("selectedData", date, category);
 
   const today = new Date();
+  
   useEffect(() => {
     getservicedata();
   }, [category]);
 
   useEffect(() => {}, [treatmentData]);
+
+  useEffect(() => {
+    getnameof();
+  }, [category,date,dsrdata,treatmentData]);
+
+  const getnameof = async () => {
+    let res = await axios.get(apiURL + "/getalltechnician");
+    if ((res.status = 200)) {
+      const TDdata = res.data?.technician;
+      const filteredTechnicians = TDdata.filter((technician) => {
+        return technician.category.some((cat) => cat.name === category);
+      });
+
+      setvddata(
+        filteredTechnicians.filter(
+          (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
+        )
+      );
+    }
+  };
+
+  console.log("vddata", vddata);
 
   const getservicedata = async () => {
     let res = await axios.get(apiURL + "/getrunningdata");
@@ -37,18 +64,15 @@ function Dsrcallist() {
 
       const filteredData = data.filter((item) => {
         const formattedDates = item.dividedDates.map((date) =>
-          moment(date).format("YYYY-MM-DD")
+          moment(date.date).format("YYYY-MM-DD")
         );
         return formattedDates.includes(date) && item.category === category;
       });
 
-      console.log("mydata", filteredData);
       settreatmentData(filteredData);
       setSearchResults(filteredData);
-      console.log(filteredData);
     }
   };
-  console.log(treatmentData[0]?.cardNo);
 
   useEffect(() => {
     getAlldata();
@@ -62,15 +86,9 @@ function Dsrcallist() {
           (i) => i.serviceDate === date && i.cardNo == treatmentData[0]?.cardNo
         )
       );
-      console.log(
-        res.data.addcall.filter(
-          (i) => i.serviceDate === date && i.cardNo == treatmentData[0]?.cardNo
-        )
-      );
     }
   };
 
-  console.log("dsrdata-----", dsrdata);
   // filter and search
   useEffect(() => {
     const filterResults = () => {
@@ -340,7 +358,7 @@ function Dsrcallist() {
                       {selectedData.customer[0]?.lnf}
                     </td>
                     <td>{selectedData.customer[0]?.mainContact}</td>
-                    <td>{dsrdata[0]?.techName}</td>
+                    <td>{vddata[0]?.vhsname}</td>
 
                     <td>{dsrdata[0]?.workerName}</td>
                     <td>{selectedData.service}</td>

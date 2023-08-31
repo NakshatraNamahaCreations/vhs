@@ -14,6 +14,7 @@ function Dsrdetails() {
   const [servicedata, setservicedata] = useState([]);
   const [techniciandata, settechniciandata] = useState([]);
   const [PMdata, setPMdata] = useState([]);
+  const [vddata, setvddata] = useState([]);
 
   const apiURL = process.env.REACT_APP_API_URL;
   const [bookingDate, setbookingDate] = useState(data.bookingDate);
@@ -44,10 +45,19 @@ function Dsrdetails() {
   const [workerAmount, setworkerAmount] = useState(dsrdata[0]?.workerAmount);
   const [workerName, setworkerName] = useState(dsrdata[0]?.workerName);
   const [daytoComplete, setdaytoComplete] = useState(dsrdata[0]?.daytoComplete);
-  console.log("type--", dsrdata[0]?.type);
-  
-  const [type, settype] = useState(dsrdata.length > 0 ? dsrdata[0]?.type :"" );
-  const [selectedTechName, setSelectedTechName] = useState(dsrdata[0]?.techName);
+  console.log("type--", vddata[0]?.Type);
+
+  // Determine the initial type value for the radio button
+  const initialType = vddata ? vddata[0]?.Type : "";
+
+  // Initialize the type state based on the initialType value
+  const [type, settype] = useState(initialType);
+  // const [type, settype] = useState(vddata.length > 0 ? vddata[0]?.Type : "");
+
+  const [selectedTechName, setSelectedTechName] = useState(
+    dsrdata[0]?.techName
+  );
+
   const [LatestCardNo, setLatestCardNo] = useState(0);
 
   console.log("new", data);
@@ -90,10 +100,35 @@ function Dsrdetails() {
           (i) => i.city === data.customerData[0]?.city && i.Type === "Vendor"
         )
       );
+      setvddata(
+        filteredTechnicians.filter(
+          (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
+        )
+      );
     }
   };
 
-  console.log("data-----", data);
+  useEffect(() => {
+    getnameof();
+  }, [dsrdata]);
+
+  const getnameof = async () => {
+    let res = await axios.get(apiURL + "/getalltechnician");
+    if ((res.status = 200)) {
+      const TDdata = res.data?.technician;
+      const filteredTechnicians = TDdata.filter((technician) => {
+        return technician.category.some(
+          (cat) => cat.name === data.customerData[0].category
+        );
+      });
+
+      setvddata(
+        filteredTechnicians.filter(
+          (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
+        )
+      );
+    }
+  };
 
   const handleChange = (event) => {
     setShowinapp(event.target.value);
@@ -134,6 +169,7 @@ function Dsrdetails() {
           daytoComplete: daytoComplete,
           backofficerno: admin.contactno,
           techName: techName,
+          TechorPMorVendorID: selectedTechName,
           showinApp: Showinapp,
           sendSms: sendSms,
           jobType: jobType,
@@ -186,6 +222,7 @@ function Dsrdetails() {
           workerAmount: workerAmount,
           workerName: workerName,
           daytoComplete: daytoComplete,
+          TechorPMorVendorID: selectedTechName,
         },
       };
       await axios(config).then(function (response) {
@@ -209,7 +246,7 @@ function Dsrdetails() {
       // console.log("allCustomer----", res.data?.addcall[0]?.complaintRef);
     }
   };
-  console.log("latestCardNo==", LatestCardNo + 1);
+
   const getAlldata = async () => {
     let res = await axios.get(apiURL + "/getaggredsrdata");
     if (res.status === 200) {
@@ -228,7 +265,7 @@ function Dsrdetails() {
       );
     }
   };
-  console.log("data", complaintRef);
+
   let i = 1;
   return (
     <div className="web">
@@ -507,21 +544,7 @@ function Dsrdetails() {
                           data.dateofService
                         )}
                       </td>
-                      {/* <td>
-                        {data.contractType === "AMC" ? (
-                          <td>
-                            {data.dividedamtCharges.length > 0 && (
-                              <div>
-                                <p>{data.dividedamtCharges[0]}</p>
-                              </div>
-                            )}
-                          </td>
-                        ) : (
-                          <td>{data.serviceCharge}</td>
-                        )}
-                      </td> */}
                     </tr>
-                    {/* ))} */}
                   </tbody>
                 </table>
               </div>
@@ -624,9 +647,17 @@ function Dsrdetails() {
                 <p>{admin.contactno}</p>
               </div>
             </div>
-            <div className="col-6 d-flex">
-              {/* <div className="col-1">:</div> */}
-            </div>
+            {dsrdata[0]?.jobAmount ? (
+              <div className="col-6 d-flex">
+                <div className="col-4">Payment amount</div>
+                <div className="col-1">:</div>
+                <div className="group pt-1 col-7">
+                  <p style={{ marginBottom: 0 }}> {dsrdata[0]?.jobAmount}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="col-6 d-flex"></div>
+            )}
           </div>
         </div>
 
@@ -658,7 +689,7 @@ function Dsrdetails() {
                     type="radio"
                     value="TECH"
                     className="custom-radio mx-2"
-                    checked={type === "TECH"}
+                    checked={type == "technician"}
                     onChange={handleChange2}
                   />
                   TECH
@@ -681,26 +712,26 @@ function Dsrdetails() {
                   onChange={handleTechNameChange}
                   value={selectedTechName}
                 >
-                  {dsrdata[0]?.techName ? (
-                    <option>{dsrdata[0]?.techName}</option>
+                  {vddata[0]?.vhsname ? (
+                    <option>{vddata[0]?.vhsname}</option>
                   ) : (
                     <option>--select--</option>
                   )}
                   {type === "TECH" &&
                     techniciandata.map((item) => (
-                      <option key={item.id} value={item.vhsname}>
+                      <option key={item.id} value={item._id}>
                         {item.vhsname}
                       </option>
                     ))}
                   {type === "PM" &&
                     PMdata.map((item) => (
-                      <option key={item.id} value={item.vhsname}>
+                      <option key={item.id} value={item._id}>
                         {item.vhsname}
                       </option>
                     ))}
                   {type === "Vendor" &&
                     vendordata.map((item) => (
-                      <option key={item.id} value={item.vhsname}>
+                      <option key={item.id} value={item._id}>
                         {item.vhsname}
                       </option>
                     ))}
@@ -767,7 +798,13 @@ function Dsrdetails() {
             <div className="col-6 d-flex">
               <div className="col-4">(IN) Sign Date & Time</div>
               <div className="col-1">:</div>
-              <div className="group pt-1 col-7">0000-00-00 00:00:00</div>
+              <div className="group pt-1 col-7">
+                {dsrdata[0]?.startJobTime
+                  ? moment(dsrdata[0]?.startJobTime)
+                      .utc()
+                      .format("YYYY-MM-DD h:mm:ss a")
+                  : "0000-00-00 00:00:00"}
+              </div>
             </div>
 
             <div className="col-6 d-flex">
@@ -776,7 +813,13 @@ function Dsrdetails() {
                 <span className="text-danger">*</span>
               </div>
               <div className="col-1">:</div>
-              <div className="group pt-1 col-7">0000-00-00 00:00:00</div>
+              <div className="group pt-1 col-7">
+                {dsrdata[0]?.endJobTime
+                  ? moment(dsrdata[0]?.endJobTime)
+                      .utc()
+                      .format("YYYY-MM-DD h:mm:ss a")
+                  : "0000-00-00 00:00:00"}
+              </div>
             </div>
           </div>
         </div>

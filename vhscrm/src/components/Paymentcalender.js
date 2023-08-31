@@ -28,7 +28,7 @@ function Paymentcalender() {
 
     const initialFilteredData = dsrdata.filter((item) => {
       return item.dividedamtDates.some((date) => {
-        const month = moment(date).month() + 1;
+        const month = moment(date.date).month() + 1;
         return month === currentMonth;
       });
     });
@@ -51,7 +51,7 @@ function Paymentcalender() {
 
     const newFilteredData = dsrdata.filter((item) => {
       return item.dividedamtDates.some((date) => {
-        const month = moment(date).month() + 1;
+        const month = moment(date.date).month() + 1;
         return month === targetMonth;
       });
     });
@@ -72,10 +72,10 @@ function Paymentcalender() {
     result[dividedamtDates] = item;
     return result;
   }, {});
-  console.log("converted", convertedObject);
+
 
   const newdata = new Date(convertedObject).toLocaleDateString();
-  console.log(newdata);
+
 
   useEffect(() => {
     getAlldsr();
@@ -92,7 +92,7 @@ function Paymentcalender() {
     const newdates = item.dividedamtDates;
 
     newdates.forEach((newdate) => {
-      const formattedDate = moment(newdate).format("YYYY-MM-DD");
+      const formattedDate = moment(newdate.date).format("YYYY-MM-DD");
       console.log("kulli", formattedDate);
 
       counts[formattedDate] = (counts[formattedDate] || 0) + 1;

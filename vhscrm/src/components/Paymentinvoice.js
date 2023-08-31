@@ -176,7 +176,7 @@ function Paymentinvoice() {
                         <td className="text-center">
                           {data.dividedamtCharges.length > 0 && (
                             <div>
-                              <p>{data.dividedamtCharges[0]}</p>
+                              <p>{data.dividedamtCharges[0].charges}</p>
                             </div>
                           )}
                         </td>
@@ -191,7 +191,7 @@ function Paymentinvoice() {
                     Total :{" "}
                     {data.dividedamtCharges.length > 0 && (
                       <>
-                        <>{data.dividedamtCharges[0]}</>
+                        <>{data.dividedamtCharges[0].charge}</>
                       </>
                     )}
                   </h5>
@@ -205,7 +205,7 @@ function Paymentinvoice() {
               <span style={{ fontWeight: 400 }}>
                 {data.dividedamtCharges.length > 0 && (
                   <>
-                    {numberToWords.toWords(data.dividedamtCharges[0]) + " Only"}
+                    {numberToWords.toWords(data.dividedamtCharges[0].charge) + " Only"}
                   </>
                 )}
               </span>

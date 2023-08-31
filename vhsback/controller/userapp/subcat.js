@@ -2,34 +2,54 @@ const appsubcatModel = require("../../model/userapp/subcat");
 
 class appsubcat {
     async addappsubcat(req, res) {
-        let { subcategory, category, videolink } = req.body;
-        let subcatImgFile = req.files.find((file) => file.fieldname === 'subcatimg');
-        let subcatVideoFile = req.files.find((file) => file.fieldname === 'subcatvideo');
-      
-        if (!category || !subcategory || !subcatImgFile || !subcatVideoFile) {
-          return res.status(500).json({ error: 'Fields must not be empty' });
-        } else {
-          let add = new appsubcatModel({
-            subcategory: subcategory,
-            category: category,
-            videolink: videolink,
-            subcatimg: subcatImgFile.filename,
-            subcatvideo: subcatVideoFile.filename,
-          });
-      
-          try {
-            let savedSubcategory = await add.save();
-            if (savedSubcategory) {
-              return res.json({ success: 'Subcategory added successfully' });
-            }
-          } catch (error) {
-            console.error(error);
-            return res.status(500).json({ error: 'Failed to add subcategory' });
-          }
-        }
-      }
+        // let { subcategory, category, videolink } = req.body;
+        // let subcatImgFile = req.files.find((file) => file.fieldname === 'subcatimg');
+        // let subcatVideoFile = req.files.find((file) => file.fieldname === 'subcatvideo');
       
 
+        // let file = req.files[0]?.filename;
+        // let file1 = req.files[1]?.filename;
+        // if (!category || !subcategory || !subcatImgFile || !subcatVideoFile) {
+        //   return res.status(500).json({ error: 'Fields must not be empty' });
+        // } else {
+        //   let add = new appsubcatModel({
+        //     subcategory: subcategory,
+        //     category: category,
+        //     videolink: videolink,
+        //     subcatimg: file,
+        //     subcatvideo: file1,
+        //   });
+      
+        //   try {
+        //     let savedSubcategory = await add.save();
+        //     if (savedSubcategory) {
+        //       return res.json({ success: 'Subcategory added successfully' });
+        //     }
+        //   } catch (error) {
+        //     console.error(error);
+        //     return res.status(500).json({ error: 'Failed to add subcategory' });
+        //   }
+        // }
+
+
+        let { subcategory, category, videolink } = req.body;
+        
+        let file = req.files[0]?.filename;
+        let file1 = req.files[1]?.filename;
+    
+        let add = new appsubcatModel({
+          subcategory: subcategory,
+            category: category,
+            videolink: videolink,
+            subcatimg: file,
+            subcatvideo: file1,
+        });
+        let save = add.save();
+        if (save) {
+          return res.json({ sucess: "Category name added successfully" });
+      }
+      
+    }
     //edit user
     async editappsubcat(req, res) {
       let id = req.params.id;

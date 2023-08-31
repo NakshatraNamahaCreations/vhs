@@ -852,7 +852,7 @@ function Customersearchdetails() {
                       <td>
                         {item.dividedDates.map((a) => (
                           <div>
-                            <p>{new Date(a).toLocaleDateString()}</p>
+                            <p>{new Date(a.date).toLocaleDateString()}</p>
                           </div>
                         ))}
                       </td>
@@ -863,7 +863,7 @@ function Customersearchdetails() {
                       <td>
                         {item.dividedamtDates.map((a) => (
                           <div>
-                            <p>{new Date(a).toLocaleDateString()}</p>
+                            <p>{new Date(a.date).toLocaleDateString()}</p>
                           </div>
                         ))}
                       </td>
@@ -1006,7 +1006,7 @@ function Customersearchdetails() {
                         <td>
                           {item.dividedDates.map((a) => (
                             <div>
-                              <p>{new Date(a).toLocaleDateString()}</p>
+                              <p>{new Date(a.date).toLocaleDateString()}</p>
                             </div>
                           ))}
                         </td>
@@ -1017,7 +1017,7 @@ function Customersearchdetails() {
                         <td>
                           {item.dividedamtDates.map((a) => (
                             <div>
-                              <p>{new Date(a).toLocaleDateString()}</p>
+                              <p>{new Date(a.date).toLocaleDateString()}</p>
                             </div>
                           ))}
                         </td>
@@ -1028,7 +1028,7 @@ function Customersearchdetails() {
                         <td>
                           {item.dividedamtCharges.map((charge, index) => (
                             <div key={index}>
-                              <p>{charge}</p>
+                              <p>{charge.charge}</p>
                             </div>
                           ))}
                         </td>

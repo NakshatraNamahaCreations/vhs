@@ -48,6 +48,29 @@ const serviceManagementSchema = new mongoose.Schema({
   },
   serviceIncludes:{
     type:String
+  },
+  morepriceData: [
+    {
+      pName: String,
+      pofferprice: String,
+      pPrice: String,
+      pservices: String,
+    }
+  ],
+  quantity:{
+    type:String
+  },
+  servicetitle:{
+    type:String
+  },
+  servicebelow:{
+    type:String
+  },
+  homepagetitle:{
+    type:String
+  },
+  serviceDirection:{
+    type:String
   }
 });
 

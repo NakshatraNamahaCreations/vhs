@@ -14,7 +14,7 @@ function DSRcategory() {
   const [categorydata, setcategorydata] = useState([]);
   const [dCategory, setcategory] = useState([]);
   const localizer = momentLocalizer(moment);
-  const [view, setView] = React.useState('month'); // The current view of the calendar
+  const [view, setView] = React.useState("month"); // The current view of the calendar
 
   const navigate = useNavigate();
 
@@ -24,14 +24,12 @@ function DSRcategory() {
   const [totalCount, setTotalCount] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
 
-
-
   useEffect(() => {
     const currentMonth = moment().month() + 1; // Get the current month (1-12)
 
     const initialFilteredData = dsrdata.filter((item) => {
       return item.dividedDates.some((date) => {
-        const month = moment(date).month() + 1;
+        const month = moment(date.date).month() + 1;
         return month === currentMonth;
       });
     });
@@ -54,7 +52,7 @@ function DSRcategory() {
 
     const newFilteredData = dsrdata.filter((item) => {
       return item.dividedDates.some((date) => {
-        const month = moment(date).month() + 1;
+        const month = moment(date.date).month() + 1;
         return month === targetMonth;
       });
     });
@@ -66,22 +64,15 @@ function DSRcategory() {
 
     setTotalCount(count);
     setFilteredData(newFilteredData);
-    // Perform further operations with the filtered data and the total count
   };
 
-
-
-
   const convertedObject = dsrnewdata.reduce((result, item) => {
-    // Assuming each object in the array has a unique name property
     const { dividedDates } = item;
     result[dividedDates] = item;
     return result;
   }, {});
-  console.log("converted",convertedObject);
 
   const newdata = new Date(convertedObject).toLocaleDateString();
-  console.log(newdata);
 
   useEffect(() => {
     getcategory();
@@ -106,7 +97,6 @@ function DSRcategory() {
       });
 
       if (res.status === 200) {
-        console.log("servicedata", res);
         setdsrnewdata(res.data?.servicedetails);
       }
     } catch (error) {
@@ -118,26 +108,15 @@ function DSRcategory() {
   const getcategory = async () => {
     let res = await axios.get(apiURL + "/getcategory");
     if (res.status === 200) {
-      console.log("catagory", res);
       setcategorydata(res.data?.category);
     }
   };
-
-  // const eventCounts = dsrnewdata.reduce((counts, item) => {
-  //   const newdate = item.dividedDates;
-  //   const date=moment(newdate).format("YYYY-MM-DD");
-  //   console.log("kulli",date);
-  //   counts[date] = (counts[date] || 0) + 1;
-  //   return counts;
-  // }, {});
 
   const eventCounts = dsrnewdata.reduce((counts, item) => {
     const newdates = item.dividedDates;
 
     newdates.forEach((newdate) => {
-      const formattedDate = moment(newdate).format("YYYY-MM-DD");
-      console.log("kulli", formattedDate);
-
+      const formattedDate = moment(newdate.date).format("YYYY-MM-DD");
       counts[formattedDate] = (counts[formattedDate] || 0) + 1;
     });
 
@@ -159,9 +138,6 @@ function DSRcategory() {
       state: { data: selectedData },
     });
   };
-
-
-
 
   return (
     <div className="web">

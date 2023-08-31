@@ -7,8 +7,8 @@ const addCallSchema = new mongoose.Schema(
       //collections
       type: Number,
     },
-    serviceDate:{
-      type:String
+    serviceDate: {
+      type: String,
     },
     bookingDate: {
       // collections
@@ -81,6 +81,30 @@ const addCallSchema = new mongoose.Schema(
       type: String,
     },
     jobType: {
+      type: String,
+    },
+    TechorPMorVendorID: {
+      type: String,
+    },
+    startJobTime: {
+      type: Date,
+    },
+    endJobTime: {
+      type: Date,
+    },
+    endJobReason: {
+      type: String,
+    },
+    jobAmount: {
+      type: String,
+    },
+    paymentType: {
+      type: String,
+    },
+    chemicals: {
+      type: String,
+    },
+    remarkOrComments: {
       type: String,
     },
   },

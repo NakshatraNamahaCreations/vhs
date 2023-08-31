@@ -77,6 +77,9 @@ const usubcat = require("./route/userapp/subcat");
 const uresubcat = require("./route/userapp/resubcat");
 const uvoucher = require("./route/userapp/voucher");
 const usuperlogin = require("./route/userapp/superlogin");
+const uofferbanner = require("./route/userapp/offerbanner");
+const uspotlightbanner = require("./route/userapp/spotlight");
+const uhomebanner = require("./route/userapp/homepagebanner");
 
 
 
@@ -132,6 +135,11 @@ app.use("/api/userapp",usubcat);
 app.use("/api/userapp",uresubcat);
 app.use("/api/userapp",uvoucher);
 app.use("/api/super",usuperlogin);
+app.use("/api/userapp",uofferbanner);
+app.use("/api/userapp",uhomebanner);
+
+app.use("/api/userapp",uspotlightbanner);
+
 
 
 

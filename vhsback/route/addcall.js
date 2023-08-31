@@ -8,5 +8,8 @@ router.post("/postdsrcategory",addcallcontroller.postcategory);
 router.post("/updatedsrdata/:id",addcallcontroller.editdsr);
 
 router.get("/getaggredsrdata", addcallcontroller.getallagreedata);
+router.put("/startjob/:id", addcallcontroller.startJob);
+
+router.put("/endjob/:id", addcallcontroller.endJob);
 
 module.exports=router;

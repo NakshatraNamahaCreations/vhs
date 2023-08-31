@@ -9,6 +9,7 @@ class addcall {
       bookingDate,
       jobCategory,
       priorityLevel,
+      TechorPMorVendorID,
       appoDate,
       appoTime,
       customerFeedback,
@@ -51,6 +52,7 @@ class addcall {
         complaintRef: newCardNo,
         priorityLevel,
         appoDate,
+        TechorPMorVendorID,
         appoTime,
         customerFeedback,
         workerName,
@@ -111,6 +113,7 @@ class addcall {
       outSignDateTime,
       jobComplete,
       amount,
+      TechorPMorVendorID,
       jobType
     } = req.body;
     let data = await addcallModel.findOneAndUpdate(
@@ -141,11 +144,68 @@ class addcall {
         outSignDateTime,
         jobComplete,
         amount,
-        jobType
+        jobType,
+        TechorPMorVendorID
       }
     );
     if (data) {
       return res.json({ success: "Updated" });
+    }
+  }
+
+
+
+  // update start time
+  async startJob(req, res) {
+    let callId = req.params.id;
+    try {
+      const updatedCall = await addcallModel.findByIdAndUpdate(
+        callId,
+        { $set: { startJobTime: new Date() } },
+        { new: true }
+      );
+
+      if (!updatedCall) {
+        return res.status(404).json({ error: "Call not found." });
+      }
+
+      res.status(200).json(updatedCall);
+    } catch (error) {
+      res.status(500).json({ error: "Error updating the call data." });
+    }
+  }
+
+  async endJob(req, res) {
+    const callId = req.params.id;
+    const {
+      remarkOrComments,
+      endJobReason,
+      jobAmount,
+      paymentType,
+      chemicals,
+    } = req.body;
+    try {
+      const updatedCall = await addcallModel.findByIdAndUpdate(
+        callId,
+        {
+          $set: {
+            endJobTime: new Date(),
+            remarkOrComments,
+            endJobReason,
+            jobAmount,
+            paymentType,
+            chemicals,
+          },
+        },
+        { new: true }
+      );
+
+      if (!updatedCall) {
+        return res.status(404).json({ error: "Call not found." });
+      }
+      res.status(200).json(updatedCall);
+    } catch (error) {
+      res.status(500).json({ error: "Error updating the call data." });
     }
   }
 

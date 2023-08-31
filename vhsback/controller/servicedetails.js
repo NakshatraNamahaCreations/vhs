@@ -1,6 +1,71 @@
 const servicedetailsmodel = require("../model/servicedetails");
+const { v4: uuidv4 } = require("uuid");
 
 class servicedetails {
+  // async addservicedetails(req, res) {
+  //   try {
+  //     let {
+  //       customerData,
+  //       dCategory,
+  //       cardNo,
+  //       contractType,
+  //       service,
+  //       serviceCharge,
+  //       dateofService,
+  //       desc,
+  //       firstserviceDate,
+  //       serviceFrequency,
+  //       startDate,
+  //       category,
+  //       expiryDate,
+  //       date,
+  //       time,
+  //       dividedDates,
+  //       dividedCharges,
+  //       dividedamtDates,
+  //       dividedamtCharges,
+  //       oneCommunity,
+  //       communityId,
+  //       BackofficeExecutive,
+  //     } = req.body;
+  //     if (!category) {
+  //       return res.status(500).json({ error: "Field must not be empty" });
+  //     } else {
+  //       let add = new servicedetailsmodel({
+  //         customerData,
+  //         cardNo: cardNo,
+  //         dCategory,
+  //         category: category,
+  //         contractType: contractType,
+  //         service: service,
+  //         serviceCharge: serviceCharge,
+  //         dateofService: dateofService,
+  //         desc: desc,
+  //         serviceFrequency: serviceFrequency,
+  //         startDate: startDate,
+  //         expiryDate: expiryDate,
+  //         firstserviceDate: firstserviceDate,
+  //         date: date,
+  //         time: time,
+  //         dividedDates,
+  //         dividedCharges,
+  //         dividedamtDates,
+  //         dividedamtCharges,
+  //         oneCommunity, //store only the communityPercentage
+  //         communityId, //store the communityId
+  //         BackofficeExecutive
+  //       });
+  //       let save = add.save();
+  //       if (save) {
+  //         return res.json({ sucess: "Added successfully" });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log("error", error);
+  //     alert(error, "the error you are getting...");
+  //   }
+  // }
+
   async addservicedetails(req, res) {
     try {
       let {
@@ -23,13 +88,29 @@ class servicedetails {
         dividedCharges,
         dividedamtDates,
         dividedamtCharges,
-        oneCommunity, 
-        communityId, 
+        oneCommunity,
+        communityId,
         BackofficeExecutive,
       } = req.body;
+
       if (!category) {
         return res.status(500).json({ error: "Field must not be empty" });
       } else {
+        const dividedDateObjects = dividedDates.map((date) => {
+          const uniqueId = uuidv4(); // Generate a UUID for the date
+          return { id: uniqueId, date: new Date(date) };
+        });
+
+        const dividedamtDateObjects = dividedamtDates.map((date) => {
+          const uniqueId = uuidv4(); // Generate a UUID for the date
+          return { id: uniqueId, date: new Date(date) };
+        });
+
+        const dividedamtChargeObjects = dividedamtCharges.map((charge) => {
+          const uniqueId = uuidv4(); // Generate a UUID for the charge
+          return { id: uniqueId, charge };
+        });
+
         let add = new servicedetailsmodel({
           customerData,
           cardNo: cardNo,
@@ -46,22 +127,24 @@ class servicedetails {
           firstserviceDate: firstserviceDate,
           date: date,
           time: time,
-          dividedDates,
+          dividedDates: dividedDateObjects, // Store the array of objects with IDs and dates
           dividedCharges,
-          dividedamtDates,
-          dividedamtCharges,
-          oneCommunity, //store only the communityPercentage
-          communityId, //store the communityId
-          BackofficeExecutive
+          dividedamtDates: dividedamtDateObjects,
+          dividedamtCharges: dividedamtChargeObjects,
+          oneCommunity,
+          communityId,
+          BackofficeExecutive,
         });
-        let save = add.save();
+
+        let save = await add.save();
+
         if (save) {
-          return res.json({ sucess: "Added successfully" });
+          return res.json({ success: "Added successfully" });
         }
       }
     } catch (error) {
       console.log("error", error);
-      alert(error, "the error you are getting...");
+      res.status(500).json({ error: "An error occurred" });
     }
   }
   //edit
@@ -176,7 +259,6 @@ class servicedetails {
         },
       ]);
       if (data) {
-        
         return res.json({ runningdata: data });
       }
     } catch (error) {

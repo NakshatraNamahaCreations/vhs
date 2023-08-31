@@ -39,7 +39,7 @@ function Paymentfilterlist() {
 
       const filteredData = data.filter((item) => {
         const formattedDates = item.dividedamtDates.map((date) =>
-          moment(date).format("YYYY-MM-DD")
+          moment(date.date).format("YYYY-MM-DD")
         );
         return formattedDates.includes(date);
       });
@@ -370,7 +370,7 @@ function Paymentfilterlist() {
                   <td>
                     {selectedData.dividedamtCharges.length > 0 && (
                       <div>
-                        <p>{selectedData.dividedamtCharges[0]}</p>
+                        <p>{selectedData.dividedamtCharges[0].charge}</p>
                       </div>
                     )}
                   </td>
