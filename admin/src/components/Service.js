@@ -12,8 +12,22 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
-
+// import { Space, TimePicker } from "antd";
 import { useNavigate } from "react-router-dom";
+// import TimePicker from "react-time-picker";
+import dayjs from "dayjs";
+import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
+import { DesktopTimePicker } from "@mui/x-date-pickers/DesktopTimePicker";
+import { StaticTimePicker } from "@mui/x-date-pickers/StaticTimePicker";
+const onChange = (time, timeString) => {
+  console.log(time, timeString);
+};
+
+// import { useNavigate } from "react-router-dom";
 
 function Services() {
   const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
@@ -21,8 +35,7 @@ function Services() {
   const homepagetitleData =
     JSON.parse(localStorage.getItem("homepagetitle")) || [];
   const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
-  
-  console.log("morepriceData",morepriceData)
+
   const navigate = useNavigate();
 
   const [citydata, setcitydata] = useState([]);
@@ -42,7 +55,10 @@ function Services() {
   const [Subcategory, setSubcategory] = useState("");
   const [offerPrice, setofferPrice] = useState("");
   const [Servicesno, setServicesno] = useState("");
-  const [Slots, setSlots] = useState("");
+  // const [StartTime, setStartTime] = useState("");
+  // const [EndTime, setEndTime] = useState("");
+  const [slotCity, setslotcity] = useState("");
+
   const [Image, setImage] = useState("");
   const [Plans, setPlans] = useState("");
   const [homepagetitle, sethomePagetitle] = useState("");
@@ -58,7 +74,7 @@ function Services() {
   const [pservices, setpservices] = useState("");
   const [servicetitle, setServicetitle] = useState("");
   const [servicebelow, setServicebelow] = useState("");
-  const [titleName, settitleName] = useState("")
+  const [titleName, settitleName] = useState("");
   const formdata = new FormData();
 
   const onImageChange = (event) => {
@@ -151,7 +167,7 @@ function Services() {
       formdata.append("quantity", quantity);
       formdata.append("servicetitle", servicetitle);
       formdata.append("servicebelow", servicebelow);
-   
+
       formdata.append("homepagetitle", homepagetitle);
       formdata.append("offerPrice", op);
       formdata.append("serviceHour", ServiceHour);
@@ -250,10 +266,13 @@ function Services() {
       name: "Service Desc",
       cell: (row) => (
         <div>
-        {row.serviceDesc?.split("\n").slice(0, 2).map((item, index) => (
-          <p key={index}>{item}</p>
-        ))}
-      </div>
+          {row.serviceDesc
+            ?.split("\n")
+            .slice(0, 2)
+            .map((item, index) => (
+              <p key={index}>{item}</p>
+            ))}
+        </div>
       ),
     },
     {
@@ -308,7 +327,7 @@ function Services() {
         data: {
           // cardno: cardno,
           plans: plandata,
-          serviceDirection:serviceDirection,
+          serviceDirection: serviceDirection,
           morepriceData: morepriceData,
           store_slots: existingData,
         },
@@ -336,7 +355,7 @@ function Services() {
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
-    const newData = { Slots, Servicesno };
+    const newData = { StartTime, EndTime, slotCity, Servicesno };
     existingData.push(newData);
     console.log("New Data:", newData);
 
@@ -361,7 +380,8 @@ function Services() {
 
   const handleSaveplans2 = () => {
     // Retrieve existing data from local storage or initialize an empty array
-    const homepagetitleData = JSON.parse(localStorage.getItem("homepagetitle")) || [];
+    const homepagetitleData =
+      JSON.parse(localStorage.getItem("homepagetitle")) || [];
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
@@ -390,6 +410,42 @@ function Services() {
   const handleRowClick = (row) => {
     navigate(`/servicedetails/${row._id}`);
   };
+
+  const handleDeleteCity = (index) => {
+    // Create a copy of the existing data array
+    const updatedData = [...existingData];
+
+    // Remove the item at the specified index
+    updatedData.splice(index, 1);
+
+    // Update local storage with the updated array
+    localStorage.setItem("Store_Slots", JSON.stringify(updatedData));
+
+    window.location.reload();
+  };
+
+  const dataByCity = {};
+
+  // Group data by city
+  existingData.forEach((item) => {
+    const { slotCity, StartTime, EndTime, Servicesno } = item;
+
+    if (!dataByCity[slotCity]) {
+      dataByCity[slotCity] = [];
+    }
+
+    dataByCity[slotCity].push({ StartTime, EndTime, Servicesno });
+  });
+  const [StartTime, setStartTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
+  const [EndTime, setEndTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
+
+  const handleTimeChange = (newTime) => {
+    setStartTime(newTime);
+  };
+  const handleTimeChange1 = (newTime) => {
+    setEndTime(newTime);
+  };
+
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -444,7 +500,6 @@ function Services() {
           <div className="row w-100 float-center card mt-4">
             <h3>Add Service</h3>
             <div className="row m-auto card-body p-6">
-
               <div className="col-md-3">
                 <Card
                   style={{
@@ -555,9 +610,7 @@ function Services() {
                     >
                       <option>--Select title name--</option>
                       {homepagetitleData.map((item) => (
-                        <option value={item.titleName}>
-                          {item.titleName}
-                        </option>
+                        <option value={item.titleName}>{item.titleName}</option>
                       ))}
                     </Form.Select>
                   </InputGroup>
@@ -597,20 +650,65 @@ function Services() {
                         ></i>
                         Add Slot's
                       </Button>{" "}
-
-                      
                       <div
                         style={{
-                          display: "flex",
+                          // display: "flex",
                           gap: "20px",
-                          flexWrap: "wrap",
+                          // flexWrap: "wrap",
                         }}
                       >
-                        {existingData.map((i) => (
-                          <p className="slots">{i.Slots}</p>
-                        ))}
-                      </div>
+                        {Object.entries(dataByCity).map(
+                          ([city, data], index) => (
+                            <div
+                              key={index}
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              <div>
+                                <p>{city}</p>
+                                {data.map((item, subIndex) => {
+                                  // Parse the start and end times using dayjs
+                                  const startTime = dayjs(
+                                    item.StartTime
+                                  ).format("h:mm A");
+                                  const endTime = dayjs(item.EndTime).format(
+                                    "h:mm A"
+                                  );
 
+                                  return (
+                                    <div
+                                      key={subIndex}
+                                      style={{ display: "flex" }}
+                                    >
+                                      <p className="slots">
+                                        {startTime} - {endTime}
+                                      </p>
+                                      <p
+                                        style={{
+                                          backgroundColor: "lightblue",
+                                          padding: "10px",
+                                        }}
+                                      >
+                                        {item.Servicesno}
+                                      </p>
+                                      <i
+                                        className="fa-solid fa-trash"
+                                        style={{
+                                          color: "red",
+                                          padding: "10px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                          handleDeleteCity(subIndex)
+                                        }
+                                      ></i>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
                       <Button
                         variant="light"
                         className="mb-3"
@@ -661,7 +759,7 @@ function Services() {
                       </Button>{" "}
                       <div>
                         {/* <h4>Home Page Title</h4> */}
-                           {homepagetitleData.map((i,index) => (
+                        {homepagetitleData.map((i, index) => (
                           <div
                             style={{
                               display: "flex",
@@ -669,8 +767,9 @@ function Services() {
                               flexWrap: "wrap",
                             }}
                           >
-                            <p style={{color:"brown"}}>{index+1}.{i.titleName}</p>
-                           
+                            <p style={{ color: "brown" }}>
+                              {index + 1}.{i.titleName}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -686,7 +785,9 @@ function Services() {
                             <Form.Select
                               aria-label="Username"
                               aria-describedby="basic-addon1"
-                              onChange={(e)=>setserviceDirection(e.target.value)}
+                              onChange={(e) =>
+                                setserviceDirection(e.target.value)
+                              }
                             >
                               <option>-Select-</option>
 
@@ -804,8 +905,8 @@ function Services() {
                 ) : (
                   <div>
                     <Form>
-                      <h1>Service Information</h1> 
-                    
+                      <h1>Service Information</h1>
+
                       <Row className="mb-3">
                         {" "}
                         <Form.Group as={Col} controlId="formGridState">
@@ -885,7 +986,12 @@ function Services() {
                       </Row>
                       <Row className="mb-3">
                         <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Service Price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
+                          <Form.Label>
+                            Service Price
+                            <span style={{ fontSize: "12px" }}>
+                              (for single price)
+                            </span>{" "}
+                          </Form.Label>
                           <Form.Control
                             type="number"
                             name="Price"
@@ -894,7 +1000,12 @@ function Services() {
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Offer price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
+                          <Form.Label>
+                            Offer price
+                            <span style={{ fontSize: "12px" }}>
+                              (for single price)
+                            </span>{" "}
+                          </Form.Label>
                           <Form.Control
                             type="text"
                             name=""
@@ -925,7 +1036,6 @@ function Services() {
                           </Form.Select>
                         </Form.Group>
                       </Row>
-                     
                     </Form>
                     <Button type="button" variant="outline-primary">
                       Cancel
@@ -951,20 +1061,50 @@ function Services() {
           <Modal.Title>Add Slots</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group as={Col} controlId="formGridEmail">
-            <Form.Label>
-              Slots <span className="text-danger"> *</span>
-            </Form.Label>
-            <Form.Control
-              type="text"
-              name="Price"
-              onChange={(e) => setSlots(e.target.value)}
-            />
-            <p style={{ marginTop: "10px", fontSize: "12px" }}>
-              <b>Example= 10AM-11AM</b>
-            </p>
-          </Form.Group>
+          <Row>
+            <Form.Group as={Col} controlId="formGridEmail">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer
+                  components={[
+                    "TimePicker",
+                    "MobileTimePicker",
+                    "DesktopTimePicker",
+                    "StaticTimePicker",
+                  ]}
+                >
+                  <DemoItem label="Start Time">
+                    <MobileTimePicker
+                      defaultValue={StartTime} // Set the default value
+                      onChange={handleTimeChange} // Handle changes to the selected time
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Form.Group>
+            <Form.Group as={Col} controlId="formGridEmail">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer
+                  components={[
+                    "TimePicker",
+                    "MobileTimePicker",
+                    "DesktopTimePicker",
+                    "StaticTimePicker",
+                  ]}
+                >
+                  <DemoItem label="End Time">
+                    <MobileTimePicker
+                      defaultValue={EndTime} // Set the default value
+                      onChange={handleTimeChange1} // Handle changes to the selected time
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Form.Group>
+          </Row>
 
+          {/* <Space wrap>
+            <TimePicker use12Hours format="h:mm a" onChange={onChange} />
+          </Space> */}
           <Form.Group as={Col} controlId="formGridState">
             <Form.Label>Select City </Form.Label>
 
@@ -972,6 +1112,7 @@ function Services() {
               <Form.Select
                 aria-label="Username"
                 aria-describedby="basic-addon1"
+                onChange={(e) => setslotcity(e.target.value)}
               >
                 <option>-Select-</option>
                 {citydata.map((i) => (
@@ -1037,7 +1178,6 @@ function Services() {
           <Modal.Title>Add</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-         
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>Title Name</Form.Label>
             <Form.Control
@@ -1046,7 +1186,6 @@ function Services() {
               onChange={(e) => settitleName(e.target.value)}
             />
           </Form.Group>
-      
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

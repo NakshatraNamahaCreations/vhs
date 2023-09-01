@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import dayjs from "dayjs";
 import Header from "./Header";
 import Sidenav from "./Sidenav";
 import Button from "react-bootstrap/Button";
@@ -14,6 +14,13 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
+import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
+import { DesktopTimePicker } from "@mui/x-date-pickers/DesktopTimePicker";
+import { StaticTimePicker } from "@mui/x-date-pickers/StaticTimePicker";
 
 function Servicedetails() {
   const navigate = useNavigate();
@@ -23,7 +30,7 @@ function Servicedetails() {
   const homepagetitleData =
     JSON.parse(localStorage.getItem("homepagetitle")) || [];
   const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
-
+  const [slotCity, setslotcity] = useState("");
   const [Servicedata, setServicedata] = useState([]);
   const [show, setShow] = useState(false);
   const [show1, setShow1] = useState(false);
@@ -235,7 +242,6 @@ function Servicedetails() {
     let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/master/getcity");
     if ((res.status = 200)) {
       setcitydata(res.data?.mastercity);
-   
     }
   };
 
@@ -245,7 +251,7 @@ function Servicedetails() {
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
-    const newData = { Slots, Servicesno };
+    const newData = { StartTime, EndTime, slotCity, Servicesno };
     existingData.push(newData);
     console.log("New Data:", newData);
 
@@ -296,7 +302,50 @@ function Servicedetails() {
     localStorage.setItem("plansprice", JSON.stringify(morepriceData));
     handleClose3();
   };
+  const handleDeleteCity = (index) => {
+    // Create a copy of the existing data array
+    const updatedData = [...existingData];
 
+    // Remove the item at the specified index
+    updatedData.splice(index, 1);
+
+    // Update local storage with the updated array
+    localStorage.setItem("Store_Slots", JSON.stringify(updatedData));
+
+    window.location.reload();
+  };
+  const dataByCity = {};
+  // Group data by city
+  existingData.forEach((item) => {
+    const { slotCity, StartTime, EndTime, Servicesno } = item;
+
+    if (!dataByCity[slotCity]) {
+      dataByCity[slotCity] = [];
+    }
+
+    dataByCity[slotCity].push({ StartTime, EndTime, Servicesno });
+  });
+  const [StartTime, setStartTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
+  const [EndTime, setEndTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
+
+  const handleTimeChange = (newTime) => {
+    setStartTime(newTime);
+  };
+  const handleTimeChange1 = (newTime) => {
+    setEndTime(newTime);
+  };
+  function formatTimeRange(startTime, endTime) {
+    const formattedStartTime = dayjs(startTime).format("h:mm A");
+    const formattedEndTime = dayjs(endTime).format("h:mm A");
+    return `${formattedStartTime} - ${formattedEndTime}`;
+  }
+  // Function to format the time
+  function formatTimeRange(startTime, endTime) {
+    const formattedStartTime = dayjs(startTime).format("h:mm A");
+    const formattedEndTime = dayjs(endTime).format("h:mm A");
+    return `${formattedStartTime} - ${formattedEndTime}`;
+  }
+  let currentCity = null;
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -393,7 +442,6 @@ function Servicedetails() {
                     aria-label="max_hrbook"
                     aria-describedby="basic-addon1"
                     type="text"
-           
                     defaultValue={Servicedata[0]?.serviceHour}
                     onChange={(e) => setServiceHour(e.target.value)}
                   ></Form.Control>
@@ -405,7 +453,6 @@ function Servicedetails() {
                     aria-label="maxhr"
                     aria-describedby="basic-addon1"
                     type="number"
-          
                     defaultValue={Servicedata[0]?.NofServiceman}
                     onChange={(e) => setNofServiceman(e.target.value)}
                   ></Form.Control>
@@ -469,57 +516,131 @@ function Servicedetails() {
                         flexWrap: "wrap",
                       }}
                     >
-                      {Servicedata[0]?.store_slots.map((i) => (
-                        <p className="slots">{i.Slots}</p>
-                      ))}
-                      {existingData.map((i) => (
-                        <p className="slots">{i.Slots}</p>
+                      {Servicedata[0]?.store_slots.map((i, index) => {
+                        // Check if the current city is different from the previous slot
+                        const isNewCity = currentCity !== i.slotCity;
+
+                        // If it's a new city, display the city header
+                        if (isNewCity) {
+                          currentCity = i.slotCity;
+                        }
+
+                        return (
+                          <div key={index}>
+                            {isNewCity && <p>{i.slotCity}</p>}
+                            <div style={{ display: "flex", flexWrap: "wrap" }}>
+                              <p className="slots">
+                                {formatTimeRange(i.StartTime, i.EndTime)}
+                              </p>
+                              <p
+                                style={{
+                                  backgroundColor: "lightblue",
+                                  padding: "10px",
+                                }}
+                              >
+                                {i.Servicesno}
+                              </p>
+                              {/* <i
+                                className="fa-solid fa-trash"
+                                style={{
+                                  color: "red",
+                                  padding: "10px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => handleDeleteCity()}
+                              ></i> */}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {Object.entries(dataByCity).map(([city, data], index) => (
+                        <div
+                          key={index}
+                          style={{ display: "flex", alignItems: "center" }}
+                        >
+                          <div>
+                            <p>{city}</p>
+                            {data.map((item, subIndex) => {
+                              // Parse the start and end times using dayjs
+                              const startTime = dayjs(item.StartTime).format(
+                                "h:mm A"
+                              );
+                              const endTime = dayjs(item.EndTime).format(
+                                "h:mm A"
+                              );
+
+                              return (
+                                <div key={subIndex} style={{ display: "flex" }}>
+                                  <p className="slots">
+                                    {startTime} - {endTime}
+                                  </p>
+                                  <p
+                                    style={{
+                                      backgroundColor: "lightblue",
+                                      padding: "10px",
+                                    }}
+                                  >
+                                    {item.Servicesno}
+                                  </p>
+                                  <i
+                                    className="fa-solid fa-trash"
+                                    style={{
+                                      color: "red",
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => handleDeleteCity(subIndex)}
+                                  ></i>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
                       ))}
                     </div>
-
                     <Button
-                        variant="light"
-                        className="mb-3"
-                        style={{ color: "skyblue" }}
-                        onClick={() => handleShow3()}
-                      >
-                        {" "}
-                        <i
-                          class="fa-regular fa-plus"
-                          style={{ color: "rgb(7, 170, 237)" }}
-                        ></i>
-                        Add more price
-                      </Button>{" "}
-                      <div>
-                        <Table striped bordered hover>
-                          <thead>
-                            <tr>
-                              <th>PlanName</th>
-                              <th>Price</th>
-                              <th>OfferPrice</th>
-                              <th>Services</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                      variant="light"
+                      className="mb-3"
+                      style={{ color: "skyblue" }}
+                      onClick={() => handleShow3()}
+                    >
+                      {" "}
+                      <i
+                        class="fa-regular fa-plus"
+                        style={{ color: "rgb(7, 170, 237)" }}
+                      ></i>
+                      Add more price
+                    </Button>{" "}
+                    <div>
+                      <Table striped bordered hover>
+                        <thead>
+                          <tr>
+                            <th>PlanName</th>
+                            <th>Price</th>
+                            <th>OfferPrice</th>
+                            <th>Services</th>
+                          </tr>
+                        </thead>
+                        <tbody>
                           {Servicedata[0]?.morepriceData.map((i) => (
-                              <tr>
-                                <td>{i.pName}</td>
-                                <td>{i.pPrice}</td>
-                                <td>{i.pofferprice}</td>
-                                <td>{i.pservices}</td>
-                              </tr>
-                            ))}
-                            {morepriceData.map((i) => (
-                              <tr>
-                                <td>{i.pName}</td>
-                                <td>{i.pPrice}</td>
-                                <td>{i.pofferprice}</td>
-                                <td>{i.pservices}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </Table>
-                      </div>
+                            <tr>
+                              <td>{i.pName}</td>
+                              <td>{i.pPrice}</td>
+                              <td>{i.pofferprice}</td>
+                              <td>{i.pservices}</td>
+                            </tr>
+                          ))}
+                          {morepriceData.map((i) => (
+                            <tr>
+                              <td>{i.pName}</td>
+                              <td>{i.pPrice}</td>
+                              <td>{i.pofferprice}</td>
+                              <td>{i.pservices}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
                   </Form>
                   <Button
                     variant="light"
@@ -535,7 +656,7 @@ function Servicedetails() {
                     Add Home page title
                   </Button>{" "}
                   <div>
-                  {/* {Servicedata[0]?.homepagetitleData.map((i, index) => (
+                    {/* {Servicedata[0]?.homepagetitleData.map((i, index) => (
                       <div
                         style={{
                           display: "flex",
@@ -562,31 +683,30 @@ function Servicedetails() {
                       </div>
                     ))}
                   </div>
-
                   <Row className="mb-3">
-                        {" "}
-                        <Form.Group as={Col} controlId="formGridState">
-                          <Form.Label>
-                            Select Services redirection{" "}
-                            <span className="text-danger"> *</span>
-                          </Form.Label>
+                    {" "}
+                    <Form.Group as={Col} controlId="formGridState">
+                      <Form.Label>
+                        Select Services redirection{" "}
+                        <span className="text-danger"> *</span>
+                      </Form.Label>
 
-                          <InputGroup className="mb-2 col-3">
-                            <Form.Select
-                              aria-label="Username"
-                              aria-describedby="basic-addon1"
-                              onChange={(e)=>setserviceDirection(e.target.value)}
-                            >
-                              <option>{Servicedata[0]?.serviceDirection}</option>
+                      <InputGroup className="mb-2 col-3">
+                        <Form.Select
+                          aria-label="Username"
+                          aria-describedby="basic-addon1"
+                          onChange={(e) => setserviceDirection(e.target.value)}
+                        >
+                          <option>{Servicedata[0]?.serviceDirection}</option>
 
-                              <option value="Enquiry">Enquiry</option>
-                              <option value="Survey">Survey</option>
-                              <option value="DSR">DSR single service</option>
-                              <option value="AMC">AMC Service</option>
-                            </Form.Select>
-                          </InputGroup>
-                        </Form.Group>
-                        </Row>
+                          <option value="Enquiry">Enquiry</option>
+                          <option value="Survey">Survey</option>
+                          <option value="DSR">DSR single service</option>
+                          <option value="AMC">AMC Service</option>
+                        </Form.Select>
+                      </InputGroup>
+                    </Form.Group>
+                  </Row>
                   <Button type="button" variant="outline-primary">
                     Cancel
                   </Button>
@@ -601,138 +721,145 @@ function Servicedetails() {
                 </div>
               ) : (
                 <div>
-                 <Form>
-                      <h1>Service Information</h1> 
-                    
-                      <Row className="mb-3">
-                        {" "}
-                        <Form.Group as={Col} controlId="formGridState">
-                          <Form.Label>
-                            Service Name <span className="text-danger"> *</span>
-                          </Form.Label>
+                  <Form>
+                    <h1>Service Information</h1>
 
-                          <InputGroup className="mb-3">
-                            <Form.Control
-                              aria-label="max_hrbook"
-                              aria-describedby="basic-addon1"
-                              type="text"
-                              defaultValue={Servicedata[0]?.serviceName}
-                              onChange={(e) => setServiceName(e.target.value)}
-                            ></Form.Control>
-                          </InputGroup>
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridState">
-                          <Form.Label>For title</Form.Label>
-
-                          <InputGroup className="mb-3">
-                            <Form.Control
-                              aria-label="max_hrbook"
-                              aria-describedby="basic-addon1"
-                              type="text"
-                              defaultValue={Servicedata[0]?.servicetitle}
-                              onChange={(e) => setServicetitle(e.target.value)}
-                            ></Form.Control>
-                          </InputGroup>
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridState">
-                          <Form.Label>For below the service </Form.Label>
-
-                          <InputGroup className="mb-3">
-                            <Form.Control
-                              aria-label="max_hrbook"
-                              aria-describedby="basic-addon1"
-                              type="text"
-                              defaultValue={Servicedata[0]?.servicebelow}
-                              onChange={(e) => setServicebelow(e.target.value)}
-                            ></Form.Control>
-                          </InputGroup>
-                        </Form.Group>
-                      </Row>
-                      <Form.Group
-                        className="mb-3"
-                        controlId="exampleForm.ControlTextarea1"
-                      >
+                    <Row className="mb-3">
+                      {" "}
+                      <Form.Group as={Col} controlId="formGridState">
                         <Form.Label>
-                          Service Description{" "}
-                          <span className="text-danger"> *</span>
+                          Service Name <span className="text-danger"> *</span>
                         </Form.Label>
+
+                        <InputGroup className="mb-3">
+                          <Form.Control
+                            aria-label="max_hrbook"
+                            aria-describedby="basic-addon1"
+                            type="text"
+                            defaultValue={Servicedata[0]?.serviceName}
+                            onChange={(e) => setServiceName(e.target.value)}
+                          ></Form.Control>
+                        </InputGroup>
+                      </Form.Group>
+                      <Form.Group as={Col} controlId="formGridState">
+                        <Form.Label>For title</Form.Label>
+
+                        <InputGroup className="mb-3">
+                          <Form.Control
+                            aria-label="max_hrbook"
+                            aria-describedby="basic-addon1"
+                            type="text"
+                            defaultValue={Servicedata[0]?.servicetitle}
+                            onChange={(e) => setServicetitle(e.target.value)}
+                          ></Form.Control>
+                        </InputGroup>
+                      </Form.Group>
+                      <Form.Group as={Col} controlId="formGridState">
+                        <Form.Label>For below the service </Form.Label>
+
+                        <InputGroup className="mb-3">
+                          <Form.Control
+                            aria-label="max_hrbook"
+                            aria-describedby="basic-addon1"
+                            type="text"
+                            defaultValue={Servicedata[0]?.servicebelow}
+                            onChange={(e) => setServicebelow(e.target.value)}
+                          ></Form.Control>
+                        </InputGroup>
+                      </Form.Group>
+                    </Row>
+                    <Form.Group
+                      className="mb-3"
+                      controlId="exampleForm.ControlTextarea1"
+                    >
+                      <Form.Label>
+                        Service Description{" "}
+                        <span className="text-danger"> *</span>
+                      </Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        defaultValue={Servicedata[0]?.serviceDesc}
+                        onChange={(e) => setServiceDesc(e.target.value)}
+                      />
+                    </Form.Group>
+                    <Row className="mb-2">
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>Includes</Form.Label>
                         <Form.Control
                           as="textarea"
                           rows={3}
-                          defaultValue={Servicedata[0]?.serviceDesc}
-                          onChange={(e) => setServiceDesc(e.target.value)}
+                          defaultValue={Servicedata[0]?.serviceIncludes}
+                          onChange={(e) => setserviceIncludes(e.target.value)}
                         />
                       </Form.Group>
-                      <Row className="mb-2">
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Includes</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={3}
-                          defaultValue={Servicedata[0]?.serviceIncludes}
 
-                            onChange={(e) => setserviceIncludes(e.target.value)}
-                          />
-                        </Form.Group>
-
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Excludes</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={3}
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>Excludes</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
                           defaultValue={Servicedata[0]?.serviceExcludes}
-
-                            onChange={(e) => setserviceExcludes(e.target.value)}
-                          />
-                        </Form.Group>
-                      </Row>
-                      <Row className="mb-3 mt-4">
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Service Price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
-                          <Form.Control
-                            type="number"
-                            name="Price"
+                          onChange={(e) => setserviceExcludes(e.target.value)}
+                        />
+                      </Form.Group>
+                    </Row>
+                    <Row className="mb-3 mt-4">
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>
+                          Service Price
+                          <span style={{ fontSize: "12px" }}>
+                            (for single price)
+                          </span>{" "}
+                        </Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="Price"
                           defaultValue={Servicedata[0]?.servicePrice}
-                            onChange={(e) => setServicePrice(e.target.value)}
-                          />
-                        </Form.Group>
+                          onChange={(e) => setServicePrice(e.target.value)}
+                        />
+                      </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Offer price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
-                          <Form.Control
-                            type="text"
-                            name=""
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>
+                          Offer price
+                          <span style={{ fontSize: "12px" }}>
+                            (for single price)
+                          </span>{" "}
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          name=""
                           defaultValue={Servicedata[0]?.offerPrice}
-                            onChange={(e) => setofferPrice(e.target.value)}
-                          />
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Quantity</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name=""
+                          onChange={(e) => setofferPrice(e.target.value)}
+                        />
+                      </Form.Group>
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>Quantity</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name=""
                           defaultValue={Servicedata[0]?.quantity}
-                            onChange={(e) => setquantity(e.target.value)}
-                          />
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>GST Percentage</Form.Label>
+                          onChange={(e) => setquantity(e.target.value)}
+                        />
+                      </Form.Group>
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>GST Percentage</Form.Label>
 
-                          <Form.Select
-                            aria-label="Username"
-                            aria-describedby="basic-addon1"
-                            onChange={(e) => setServiceGst(e.target.value)}
-                          >
-                            <option>---Select GST---</option>
+                        <Form.Select
+                          aria-label="Username"
+                          aria-describedby="basic-addon1"
+                          onChange={(e) => setServiceGst(e.target.value)}
+                        >
+                          <option>---Select GST---</option>
 
-                            <option value="0.05">5%</option>
-                            <option value="0.18">18%</option>
-                            <option value="0.22">22%</option>
-                          </Form.Select>
-                        </Form.Group>
-                      </Row>
-                    
-                    </Form>
+                          <option value="0.05">5%</option>
+                          <option value="0.18">18%</option>
+                          <option value="0.22">22%</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Row>
+                  </Form>
                   <Button type="button" variant="outline-primary">
                     Cancel
                   </Button>
@@ -756,19 +883,46 @@ function Servicedetails() {
           <Modal.Title>Add Slots</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group as={Col} controlId="formGridEmail">
-            <Form.Label>
-              Slots <span className="text-danger"> *</span>
-            </Form.Label>
-            <Form.Control
-              type="text"
-              name="Price"
-              onChange={(e) => setSlots(e.target.value)}
-            />
-            <p style={{ marginTop: "10px", fontSize: "12px" }}>
-              <b>Example= 10AM-11AM</b>
-            </p>
-          </Form.Group>
+          <Row>
+            <Form.Group as={Col} controlId="formGridEmail">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer
+                  components={[
+                    "TimePicker",
+                    "MobileTimePicker",
+                    "DesktopTimePicker",
+                    "StaticTimePicker",
+                  ]}
+                >
+                  <DemoItem label="Start Time">
+                    <MobileTimePicker
+                      defaultValue={StartTime} // Set the default value
+                      onChange={handleTimeChange} // Handle changes to the selected time
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Form.Group>
+            <Form.Group as={Col} controlId="formGridEmail">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer
+                  components={[
+                    "TimePicker",
+                    "MobileTimePicker",
+                    "DesktopTimePicker",
+                    "StaticTimePicker",
+                  ]}
+                >
+                  <DemoItem label="End Time">
+                    <MobileTimePicker
+                      defaultValue={EndTime} // Set the default value
+                      onChange={handleTimeChange1} // Handle changes to the selected time
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Form.Group>
+          </Row>
           <Form.Group as={Col} controlId="formGridState">
             <Form.Label>Select City </Form.Label>
 
@@ -776,6 +930,7 @@ function Servicedetails() {
               <Form.Select
                 aria-label="Username"
                 aria-describedby="basic-addon1"
+                onChange={(e) => setslotcity(e.target.value)}
               >
                 <option>-Select-</option>
                 {citydata.map((i) => (
@@ -784,7 +939,7 @@ function Servicedetails() {
               </Form.Select>
             </InputGroup>
           </Form.Group>
-         
+
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>
               Mention services number <span className="text-danger"> *</span>

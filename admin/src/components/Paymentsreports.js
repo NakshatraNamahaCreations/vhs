@@ -14,7 +14,7 @@ function Paymentsreports() {
       <div className="col-md-10">
         <Header />
 
-        <div className="row " style={{ marginLeft: "-72px" }}>
+        <div className="row " >
           <div className="col-md-12 mt-5">
             <table class="table table-hover table-bordered ">
               <thead>
