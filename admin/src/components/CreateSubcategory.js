@@ -68,7 +68,7 @@ function Subcategory() {
         });
       } catch (error) {
         console.error(error);
-        alert("category  Not Added");
+        alert(" Not Added");
       }
     }
   };
@@ -163,7 +163,7 @@ function Subcategory() {
   const deleteservices = async (id) => {
     axios({
       method: "post",
-      url: apiURL + "/userapp/deleteappresubcat/" + id,
+      url:  "http://api.vijayhomeservicebengaluru.in/api/userapp/deleteappresubcat/" + id,
     })
       .then(function (response) {
         //handle success

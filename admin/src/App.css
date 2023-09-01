@@ -63,6 +63,9 @@
 .pro-sidebar {
   width: 100% !important;
 }
+.pro-sidebar{
+  min-width: 240px !important;
+}
 .pro-sidebar > .pro-sidebar-inner {
   background: white !important;
   position: relative;

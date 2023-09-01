@@ -18,11 +18,14 @@ import { useNavigate } from "react-router-dom";
 function Services() {
   const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
   const plandata = JSON.parse(localStorage.getItem("plans")) || [];
-  const plandetailsdata =
-    JSON.parse(localStorage.getItem("plansdeatils")) || [];
+  const homepagetitleData =
+    JSON.parse(localStorage.getItem("homepagetitle")) || [];
+  const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
+  
+  console.log("morepriceData",morepriceData)
   const navigate = useNavigate();
 
-
+  const [citydata, setcitydata] = useState([]);
   const [selected, setSelected] = useState(false);
   const [categorydata, setcategorydata] = useState([]);
   const [Servicedata, setServicedata] = useState([]);
@@ -42,15 +45,20 @@ function Services() {
   const [Slots, setSlots] = useState("");
   const [Image, setImage] = useState("");
   const [Plans, setPlans] = useState("");
-  const [planName, setplanName] = useState("");
-  const [plansPrice, setplansPrice] = useState("");
-  const [premises, setPremises] = useState("");
-  const [desc, setdesc] = useState("");
-  const [includes, setincludes] = useState("");
+  const [homepagetitle, sethomePagetitle] = useState("");
+  const [serviceDirection, setserviceDirection] = useState("");
   const [search, setsearch] = useState("");
   const [serID, setserID] = useState("");
   const [serviceIncludes, setserviceIncludes] = useState("");
   const [serviceExcludes, setserviceExcludes] = useState("");
+  const [quantity, setquantity] = useState("");
+  const [pName, setpName] = useState("");
+  const [pPrice, setpPrice] = useState("");
+  const [pofferprice, setpofferprice] = useState("");
+  const [pservices, setpservices] = useState("");
+  const [servicetitle, setServicetitle] = useState("");
+  const [servicebelow, setServicebelow] = useState("");
+  const [titleName, settitleName] = useState("")
   const formdata = new FormData();
 
   const onImageChange = (event) => {
@@ -66,13 +74,16 @@ function Services() {
   const [show, setShow] = useState(false);
   const [show1, setShow1] = useState(false);
   const [show2, setShow2] = useState(false);
+  const [show3, setShow3] = useState(false);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const handleClose1 = () => setShow1(false);
   const handleShow1 = () => setShow1(true);
   const handleClose2 = () => setShow2(false);
   const handleShow2 = () => setShow2(true);
-
+  const handleClose3 = () => setShow3(false);
+  const handleShow3 = () => setShow3(true);
   const [toggle, setToggel] = useState(true);
   const [toggle1, setToggel1] = useState(false);
   const [toggle2, setToggel2] = useState(true);
@@ -137,7 +148,11 @@ function Services() {
       formdata.append("Subcategory", Subcategory);
       formdata.append("serviceIncludes", serviceIncludes);
       formdata.append("serviceExcludes", serviceExcludes);
-
+      formdata.append("quantity", quantity);
+      formdata.append("servicetitle", servicetitle);
+      formdata.append("servicebelow", servicebelow);
+   
+      formdata.append("homepagetitle", homepagetitle);
       formdata.append("offerPrice", op);
       formdata.append("serviceHour", ServiceHour);
       formdata.append("serviceDesc", ServiceDesc);
@@ -160,6 +175,7 @@ function Services() {
             alert(success);
             setserID(service._id);
             // Handle the s
+            localStorage.removeItem("plansprice");
             handelgeneralbtn();
 
             // window.location.assign("/Service");
@@ -184,7 +200,6 @@ function Services() {
       console.log(res.data?.service);
     }
   };
-
 
   const deletecategory = async (id) => {
     axios({
@@ -235,10 +250,10 @@ function Services() {
       name: "Service Desc",
       cell: (row) => (
         <div>
-          {row.serviceDesc?.split("\n").map((item, index) => (
-            <p key={index}>{item}</p>
-          ))}
-        </div>
+        {row.serviceDesc?.split("\n").slice(0, 2).map((item, index) => (
+          <p key={index}>{item}</p>
+        ))}
+      </div>
       ),
     },
     {
@@ -269,6 +284,17 @@ function Services() {
     },
   ];
 
+  useEffect(() => {
+    getcity();
+  }, []);
+
+  const getcity = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/master/getcity");
+    if ((res.status = 200)) {
+      setcitydata(res.data?.mastercity);
+      console.log(res.data?.mastercity);
+    }
+  };
   const addadvacedata = async (e) => {
     e.preventDefault();
 
@@ -282,7 +308,8 @@ function Services() {
         data: {
           // cardno: cardno,
           plans: plandata,
-          Plansdetails: plandetailsdata,
+          serviceDirection:serviceDirection,
+          morepriceData: morepriceData,
           store_slots: existingData,
         },
       };
@@ -334,17 +361,30 @@ function Services() {
 
   const handleSaveplans2 = () => {
     // Retrieve existing data from local storage or initialize an empty array
-    const existingData = JSON.parse(localStorage.getItem("plansdeatils")) || [];
+    const homepagetitleData = JSON.parse(localStorage.getItem("homepagetitle")) || [];
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
-    const newData = { planName, plansPrice, premises, desc, includes };
-    existingData.push(newData);
+    const newData = { titleName };
+    homepagetitleData.push(newData);
     console.log("New Data:", newData);
 
     // Update local storage with the updated array
-    localStorage.setItem("plansdeatils", JSON.stringify(existingData));
+    localStorage.setItem("homepagetitle", JSON.stringify(homepagetitleData));
     handleClose2();
+  };
+  const handleSaveplanprice = () => {
+    // Retrieve existing data from local storage or initialize an empty array
+    const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
+
+    // Add new data to the array
+    const newData = { pName, pofferprice, pPrice, pservices };
+    morepriceData.push(newData);
+    console.log("New Data:", newData);
+
+    // Update local storage with the updated array
+    localStorage.setItem("plansprice", JSON.stringify(morepriceData));
+    handleClose3();
   };
 
   const handleRowClick = (row) => {
@@ -366,135 +406,6 @@ function Services() {
 
             <div className="col-md-12">
               <div className="d-flex float-end mt-3 mb-3">
-                <Offcanvas show={show} onHide={handleClose}>
-                  <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>Filter</Offcanvas.Title>
-                  </Offcanvas.Header>
-                  <Offcanvas.Body>
-                    <Offcanvas.Title>Price</Offcanvas.Title>
-                    <ul>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">All deals</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">Under ₹500 </a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">₹500 to ₹1,000</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">₹1,000 to ₹2,000</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">₹2,000 to ₹5,000</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">₹5,000 and Above</a>
-                      </li>
-                    </ul>
-                    <Offcanvas.Title>Discount</Offcanvas.Title>
-                    <ul>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">All deals</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">10% off or more</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">₹25% off or more</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">50% off or more</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">70% off or more</a>
-                      </li>
-                    </ul>
-                    <Offcanvas.Title>Maximum hour </Offcanvas.Title>
-                    <ul>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">All deals</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#"> 4-9 </a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">7-10</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">7-10</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">7-10</a>
-                      </li>
-                      <li
-                        className={selected ? "hyperlink" : "hyperlink active1"}
-                      >
-                        {" "}
-                        <a href="#">7-10</a>
-                      </li>
-                    </ul>
-                  </Offcanvas.Body>
-
-                  <Button
-                    variant="danger"
-                    style={{
-                      width: "200px",
-                      fontSize: "15px",
-                      textAlign: "center",
-                    }}
-                  >
-                    Filter Apply
-                  </Button>
-                </Offcanvas>
                 <Button
                   type="button"
                   variant="danger"
@@ -533,6 +444,7 @@ function Services() {
           <div className="row w-100 float-center card mt-4">
             <h3>Add Service</h3>
             <div className="row m-auto card-body p-6">
+
               <div className="col-md-3">
                 <Card
                   style={{
@@ -572,23 +484,8 @@ function Services() {
                   }}
                 >
                   <Card.Title>Service details</Card.Title>
-                  {/* <Form.Label>
-                    Service category <span className="text-danger"> *</span>
-                  </Form.Label>
-                  <InputGroup className="mb-2">
-                    <Form.Select
-                      aria-label="Username"
-                      aria-describedby="basic-addon1"
-                      onChange={(e) => setCategory(e.target.value)}
-                    >
-                      <option>---Select Category---</option>
-                      {categorydata.map((item) => (
-                        <option value={item.category}>{item.category}</option>
-                      ))}
-                    </Form.Select>
-                  </InputGroup> */}
 
-                  <Form.Label>
+                  <Form.Label className="mt-3">
                     Subcategory <span className="text-danger"> *</span>
                   </Form.Label>
                   <InputGroup className="mb-2">
@@ -605,7 +502,7 @@ function Services() {
                       ))}
                     </Form.Select>
                   </InputGroup>
-                  <Form.Label>
+                  <Form.Label className="mt-3">
                     Sub-subcategory <span className="text-danger"> *</span>
                   </Form.Label>
                   <InputGroup className="mb-2">
@@ -622,11 +519,8 @@ function Services() {
                       ))}
                     </Form.Select>
                   </InputGroup>
-                  {/* <div style={{ color: "#FF0060", textAlign: "end" }}>
-                    <i class="fa-regular fa-plus"></i>
-                    create category
-                  </div> */}
-                  <Form.Label>Service duration</Form.Label>
+
+                  <Form.Label className="mt-3">Service duration</Form.Label>
                   <InputGroup className="mb-3">
                     <Form.Control
                       aria-label="max_hrbook"
@@ -637,7 +531,9 @@ function Services() {
                     ></Form.Control>
                   </InputGroup>
 
-                  <Form.Label>Number of Servicemen </Form.Label>
+                  <Form.Label className="mt-3">
+                    Number of Servicemen{" "}
+                  </Form.Label>
                   <InputGroup className="mb-3">
                     <Form.Control
                       aria-label="maxhr"
@@ -646,6 +542,24 @@ function Services() {
                       placeholder="15"
                       onChange={(e) => setNofServiceman(e.target.value)}
                     ></Form.Control>
+                  </InputGroup>
+
+                  <Form.Label className="mt-3">
+                    Home page title <span className="text-danger"> *</span>
+                  </Form.Label>
+                  <InputGroup className="mb-2">
+                    <Form.Select
+                      aria-label="Username"
+                      aria-describedby="basic-addon1"
+                      onChange={(e) => sethomePagetitle(e.target.value)}
+                    >
+                      <option>--Select title name--</option>
+                      {homepagetitleData.map((item) => (
+                        <option value={item.titleName}>
+                          {item.titleName}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </InputGroup>
                 </Card>
               </div>
@@ -669,8 +583,7 @@ function Services() {
                 {toggle1 ? (
                   <div>
                     <Form>
-                      <h2> Addon's</h2>
-                      <Row className="mb-3"></Row>
+                      {/* <h2> Addon's</h2> */}
                       <Button
                         variant="light"
                         className="mb-3"
@@ -684,6 +597,8 @@ function Services() {
                         ></i>
                         Add Slot's
                       </Button>{" "}
+
+                      
                       <div
                         style={{
                           display: "flex",
@@ -695,12 +610,113 @@ function Services() {
                           <p className="slots">{i.Slots}</p>
                         ))}
                       </div>
+
+                      <Button
+                        variant="light"
+                        className="mb-3"
+                        style={{ color: "skyblue" }}
+                        onClick={() => handleShow3()}
+                      >
+                        {" "}
+                        <i
+                          class="fa-regular fa-plus"
+                          style={{ color: "rgb(7, 170, 237)" }}
+                        ></i>
+                        Add more price
+                      </Button>{" "}
+                      <div>
+                        <Table striped bordered hover>
+                          <thead>
+                            <tr>
+                              <th>PlanName</th>
+                              <th>Price</th>
+                              <th>OfferPrice</th>
+                              <th>Services</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {morepriceData.map((i) => (
+                              <tr>
+                                <td>{i.pName}</td>
+                                <td>{i.pPrice}</td>
+                                <td>{i.pofferprice}</td>
+                                <td>{i.pservices}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                      </div>
+                      <Button
+                        variant="light"
+                        className="mb-3"
+                        style={{ color: "skyblue" }}
+                        onClick={handleShow2}
+                      >
+                        {" "}
+                        <i
+                          class="fa-regular fa-plus"
+                          style={{ color: "rgb(7, 170, 237)" }}
+                        ></i>
+                        Add Home page title
+                      </Button>{" "}
+                      <div>
+                        {/* <h4>Home Page Title</h4> */}
+                           {homepagetitleData.map((i,index) => (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "20px",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <p style={{color:"brown"}}>{index+1}.{i.titleName}</p>
+                           
+                          </div>
+                        ))}
+                      </div>
+                      <Row className="mb-3">
+                        {" "}
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>
+                            Select Services redirection{" "}
+                            <span className="text-danger"> *</span>
+                          </Form.Label>
+
+                          <InputGroup className="mb-2 col-3">
+                            <Form.Select
+                              aria-label="Username"
+                              aria-describedby="basic-addon1"
+                              onChange={(e)=>setserviceDirection(e.target.value)}
+                            >
+                              <option>-Select-</option>
+
+                              <option value="Enquiry">Enquiry</option>
+                              <option value="Survey">Survey</option>
+                              <option value="DSR">DSR single service</option>
+                              <option value="AMC">AMC Service</option>
+                            </Form.Select>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                          {/* <Form.Label>Service label</Form.Label>
+
+                          <InputGroup className="mb-3">
+                            <Form.Control
+                              aria-label="max_hrbook"
+                              aria-describedby="basic-addon1"
+                              type="text"
+                              placeholder="Essential"
+                              onChange={(e) => setServiceName(e.target.value)}
+                            ></Form.Control>
+                          </InputGroup> */}
+                        </Form.Group>
+                      </Row>
                     </Form>
 
                     <Form>
                       {/* <h2> Plans's</h2> */}
                       <Row className="mb-3"></Row>
-                      <Button
+                      {/* <Button
                         variant="light"
                         className="mb-3"
                         style={{ color: "skyblue" }}
@@ -732,7 +748,7 @@ function Services() {
                             {i.Plans}
                           </p>
                         ))}
-                      </div>
+                      </div> */}
                       <div>
                         {/* {plandetailsdata.map((i) => (
                           <div
@@ -747,7 +763,7 @@ function Services() {
                             <p className="">{i.plansPrice}</p>
                           </div>
                         ))} */}
-                        <Table striped bordered hover>
+                        {/* <Table striped bordered hover>
                           <thead>
                             <tr>
                               <th>PlanName</th>
@@ -768,7 +784,7 @@ function Services() {
                               </tr>
                             ))}
                           </tbody>
-                        </Table>
+                        </Table> */}
                       </div>
                     </Form>
 
@@ -788,7 +804,8 @@ function Services() {
                 ) : (
                   <div>
                     <Form>
-                      <h1>Service Information</h1>
+                      <h1>Service Information</h1> 
+                    
                       <Row className="mb-3">
                         {" "}
                         <Form.Group as={Col} controlId="formGridState">
@@ -803,6 +820,32 @@ function Services() {
                               type="text"
                               placeholder="Service Name"
                               onChange={(e) => setServiceName(e.target.value)}
+                            ></Form.Control>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>For title</Form.Label>
+
+                          <InputGroup className="mb-3">
+                            <Form.Control
+                              aria-label="max_hrbook"
+                              aria-describedby="basic-addon1"
+                              type="text"
+                              placeholder="Essential"
+                              onChange={(e) => setServicetitle(e.target.value)}
+                            ></Form.Control>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>For below the service </Form.Label>
+
+                          <InputGroup className="mb-3">
+                            <Form.Control
+                              aria-label="max_hrbook"
+                              aria-describedby="basic-addon1"
+                              type="text"
+                              placeholder="nearby 120 bookings"
+                              onChange={(e) => setServicebelow(e.target.value)}
                             ></Form.Control>
                           </InputGroup>
                         </Form.Group>
@@ -821,7 +864,6 @@ function Services() {
                           onChange={(e) => setServiceDesc(e.target.value)}
                         />
                       </Form.Group>
-
                       <Row className="mb-2">
                         <Form.Group as={Col} controlId="formGridEmail">
                           <Form.Label>Includes</Form.Label>
@@ -843,10 +885,7 @@ function Services() {
                       </Row>
                       <Row className="mb-3">
                         <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>
-                            Service Price{" "}
-                            <span className="text-danger"> *</span>
-                          </Form.Label>
+                          <Form.Label>Service Price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
                           <Form.Control
                             type="number"
                             name="Price"
@@ -855,11 +894,19 @@ function Services() {
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Customer offer price</Form.Label>
+                          <Form.Label>Offer price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
                           <Form.Control
                             type="text"
                             name=""
                             onChange={(e) => setofferPrice(e.target.value)}
+                          />
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Quantity</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name=""
+                            onChange={(e) => setquantity(e.target.value)}
                           />
                         </Form.Group>
                         <Form.Group as={Col} controlId="formGridEmail">
@@ -878,6 +925,7 @@ function Services() {
                           </Form.Select>
                         </Form.Group>
                       </Row>
+                     
                     </Form>
                     <Button type="button" variant="outline-primary">
                       Cancel
@@ -917,6 +965,21 @@ function Services() {
             </p>
           </Form.Group>
 
+          <Form.Group as={Col} controlId="formGridState">
+            <Form.Label>Select City </Form.Label>
+
+            <InputGroup className="mb-2 col-3">
+              <Form.Select
+                aria-label="Username"
+                aria-describedby="basic-addon1"
+              >
+                <option>-Select-</option>
+                {citydata.map((i) => (
+                  <option value={i.city}>{i.city}</option>
+                ))}
+              </Form.Select>
+            </InputGroup>
+          </Form.Group>
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>
               Mention services number <span className="text-danger"> *</span>
@@ -974,27 +1037,37 @@ function Services() {
           <Modal.Title>Add</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+         
           <Form.Group as={Col} controlId="formGridEmail">
-            <Form.Label>
-              Select Plans <span className="text-danger"> *</span>
-            </Form.Label>
-            <Form.Select
-              aria-label="Username"
-              aria-describedby="basic-addon1"
-              onChange={(e) => setplanName(e.target.value)}
-            >
-              <option>-Select -</option>
-              {plandata.map((item) => (
-                <option value={item.Plans}>{item.Plans}</option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-          <Form.Group as={Col} controlId="formGridEmail">
-            <Form.Label>Premises</Form.Label>
+            <Form.Label>Title Name</Form.Label>
             <Form.Control
               type="text"
               name="Price"
-              onChange={(e) => setPremises(e.target.value)}
+              onChange={(e) => settitleName(e.target.value)}
+            />
+          </Form.Group>
+      
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveplans2}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={show3} onHide={handleClose3}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group as={Col} controlId="formGridEmail">
+            <Form.Label>Plan name</Form.Label>
+            <Form.Control
+              type="text"
+              name="Price"
+              onChange={(e) => setpName(e.target.value)}
             />
           </Form.Group>
           <Form.Group as={Col} controlId="formGridEmail">
@@ -1002,23 +1075,23 @@ function Services() {
             <Form.Control
               type="text"
               name="Price"
-              onChange={(e) => setplansPrice(e.target.value)}
+              onChange={(e) => setpPrice(e.target.value)}
             />
           </Form.Group>
           <Form.Group as={Col} controlId="formGridEmail">
-            <Form.Label>Description</Form.Label>
+            <Form.Label>OfferPrice</Form.Label>
             <Form.Control
               type="text"
               name="Price"
-              onChange={(e) => setdesc(e.target.value)}
+              onChange={(e) => setpofferprice(e.target.value)}
             />
           </Form.Group>
           <Form.Group as={Col} controlId="formGridEmail">
-            <Form.Label>Includes</Form.Label>
+            <Form.Label>How many services</Form.Label>
             <Form.Control
               type="text"
               name="Price"
-              onChange={(e) => setincludes(e.target.value)}
+              onChange={(e) => setpservices(e.target.value)}
             />
           </Form.Group>
         </Modal.Body>
@@ -1026,7 +1099,7 @@ function Services() {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSaveplans2}>
+          <Button variant="primary" onClick={handleSaveplanprice}>
             Save Changes
           </Button>
         </Modal.Footer>

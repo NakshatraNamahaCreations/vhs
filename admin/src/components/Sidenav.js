@@ -62,15 +62,24 @@ function Sidenav() {
         </div>
         <Menu iconShape="square">
           <MenuItem>
-            {/* <i className="fa-solid fa-gauge"></i> */}
             Dashboard <Link to="/home" />
           </MenuItem>
+
+          <SubMenu title="Banners">
+            <MenuItem>
+              First Slider <Link to="/banner" />
+            </MenuItem>
+            <MenuItem>
+              Spotlight Banner
+              <Link to="/spotlight" />
+            </MenuItem>
+            <MenuItem>
+             Home page  Banners
+              <Link to="/homepagebanner" />
+            </MenuItem>
+          </SubMenu>
+
           <MenuItem>
-            {/* <i className="fa-solid fa-gauge"></i> */}
-            Banner <Link to="/banner" />
-          </MenuItem>
-          <MenuItem>
-            {/* <i class="fa-solid fa-users"></i> */}
             User Management <Link to="/userManagement" />
           </MenuItem>
           <SubMenu title="Category Management">
@@ -86,40 +95,33 @@ function Sidenav() {
             </MenuItem>
           </SubMenu>
           <MenuItem>
-            {/* <i class="fa-solid fa-wrench"></i>  */}
             Services Management <Link to="/Service" />
           </MenuItem>
-          {/* <span> <i class="fa-solid fa-book"></i></span> */}
-          {/* <SubMenu title="Services Booking"> */}
+
           <MenuItem>
             Services Booking
             <Link to="/ServiceBooking" />
           </MenuItem>
 
-          {/* <MenuItem>
-            Subcategory <Link to="/SSubcategory" />
-          </MenuItem> */}
-          {/* </SubMenu> */}
+          <SubMenu title="Voucher and Discount">
+            <MenuItem>
+              Voucher <Link to="/voucher" />
+            </MenuItem>
+            <MenuItem>
+              Offer Banner
+              <Link to="/offerbanner" />
+            </MenuItem>
+          </SubMenu>
 
-          <MenuItem>
-            Voucher and Discount <Link to="/voucher" />
-          </MenuItem>
           <MenuItem>
             Payments and Reports
             <Link to="/Paymentsreports" />
           </MenuItem>
-          {/* <MenuItem>
-          Review Management <Link to="/review" />{" "}
-        </MenuItem> */}
-          {/* <MenuItem>
-          Content <Link to="/content" />
-        </MenuItem> */}
+
           <MenuItem>
             Vendors Management <Link to="/vendor" />
           </MenuItem>
-          {/* <MenuItem>
-          wallet <Link to="/Wallets" />{" "}
-        </MenuItem> */}
+
           <MenuItem>
             Settings <Link to="/settings" />{" "}
           </MenuItem>
@@ -131,9 +133,6 @@ function Sidenav() {
 
       <div>
         <Modal show={show} onHide={handleClose}>
-          {/* <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
-        </Modal.Header> */}
           <Modal.Body style={{ fontSize: "20px", textAlign: "center" }}>
             Are you sure you wnat to logout
           </Modal.Body>

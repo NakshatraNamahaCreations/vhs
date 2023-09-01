@@ -19,6 +19,8 @@ function Category() {
   const [category1, setcategory1] = useState(data.category);
   const [categoryImg1, setcategoryImg1] = useState(data.categoryImg);
 
+ 
+  
   const formdata = new FormData();
 
   const [show, setShow] = useState(false);
@@ -37,7 +39,7 @@ function Category() {
         const config = {
           url: "/addcategory",
           method: "post",
-          baseURL: apiURL,
+          baseURL: "http://api.vijayhomeservicebengaluru.in/api",
           data: formdata,
         };
         await axios(config).then(function (response) {
@@ -58,7 +60,7 @@ function Category() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get(apiURL + "/getcategory");
+    let res = await axios.get( "http://api.vijayhomeservicebengaluru.in/api/getcategory");
     if ((res.status = 200)) {
       setcategorydata(res.data?.category);
       setfilterdata(res.data?.category);
@@ -72,7 +74,7 @@ function Category() {
       const config = {
         url: `/editcategory/${data._id}`,
         method: "post",
-        baseURL: apiURL,
+        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         headers: { "content-type": "application/json" },
         data: {
           category: category1,
@@ -114,9 +116,9 @@ function Category() {
       name: "Action",
       cell: (row) => (
         <div>
-          <a className="hyperlink" onClick={() => edit(row)}>
+          {/* <a className="hyperlink" onClick={() => edit(row)}>
             Edit |
-          </a>
+          </a> */}
           <a onClick={() => deletecategory(row._id)} className="hyperlink mx-1">
             Delete
           </a>
@@ -140,7 +142,7 @@ function Category() {
   const deletecategory = async (id) => {
     axios({
       method: "post",
-      url: apiURL + "/deletecategory/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/deletecategory/" + id,
     })
       .then(function (response) {
         //handle success
@@ -193,6 +195,7 @@ function Category() {
                             className="col-md-12 vhs-input-value"
                             onChange={(e) => setcategoryImg(e.target.files[0])}
                           />
+                           <b style={{fontSize:"12px"}}>Please select the dimensions Width=50px,Height=50px</b>
                         </div>
                       </div>
 
@@ -268,9 +271,10 @@ function Category() {
                     <input
                       type="file"
                       className="col-md-12 vhs-input-value"
-                      onChange={(e) => setcategoryImg1(e.target.value)}
-                      defaultValue={data.categoryImg}
+                      onChange={(e) => setcategoryImg1(e.target.files[0])}
+                      // defaultValue={data.categoryImg}
                     />
+                   
                   </div>
                 </div>
                 <div className="row pt-3">

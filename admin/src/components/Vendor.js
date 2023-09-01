@@ -83,7 +83,7 @@ function Vendor() {
         const config = {
           url: "/addtechnician",
           method: "post",
-          baseURL: apiURL,
+          baseURL: "http://api.vijayhomeservicebengaluru.in/api",
           // data: formdata,
           headers: { "content-type": "application/json" },
           data: {
@@ -118,7 +118,7 @@ function Vendor() {
   }, []);
 
   const gettechnician = async () => {
-    let res = await axios.get(apiURL + "/getalltechnician");
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getalltechnician");
     if ((res.status = 200)) {
       settechniciandata(res.data?.technician.filter((i)=>i.Type === "Vendor"));
       setfilterdata(res.data?.technician.filter((i)=>i.Type === "Vendor"));
@@ -126,13 +126,13 @@ function Vendor() {
   };
 
   const getcity = async () => {
-    let res = await axios.get(apiURL + "/master/getcity");
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/master/getcity");
     if ((res.status = 200)) {
       setcitydata(res.data?.mastercity);
     }
   };
   const getcategory = async () => {
-    let res = await axios.get(apiURL + "/getcategory");
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
     if ((res.status = 200)) {
       setcategorydata(res.data?.category);
     }
@@ -141,7 +141,7 @@ function Vendor() {
   const deletetechnician = async (id) => {
     axios({
       method: "post",
-      url: apiURL + "/deletetechnician/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/deletetechnician/" + id,
     })
       .then(function (response) {
         //handle success
@@ -241,7 +241,7 @@ function Vendor() {
       const config = {
         url: `/edittechnician/${data._id}`,
         method: "post",
-        baseURL: apiURL,
+        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         headers: { "content-type": "application/json" },
         data: {
           Type: Type1,
@@ -344,9 +344,9 @@ function Vendor() {
         <div className="col-md-12">
           <div className="row justify-content-end pt-3">
             <div className="col-md-1 p-0">
-              <button className="btn-primary-technician-button1">
+              {/* <button className="btn-primary-technician-button1">
                 Technician
-              </button>
+              </button> */}
             </div>
           </div>
           <div className="card" style={{ marginTop: "30px" }}>

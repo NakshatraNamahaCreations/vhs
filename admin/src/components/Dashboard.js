@@ -172,7 +172,7 @@ function Dashboard() {
               options={state.options}
               series={state.series}
               type="bar"
-              width="700"
+              width="100%"
             />
           </div>
         </div>

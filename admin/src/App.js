@@ -29,6 +29,9 @@ import Category from "./components/Category";
 import Subcategory from "./components/Subcategory"
 import Servicedetails from "./components/Servicedetails";
 import Vendordetails from "./components/Vendordetails";
+import Offerbanner from "./components/Offerbanner";
+import Spotlight from "./components/Spotlight";
+import Homepagebanner from "./components/Homepagebanner";
 
 function App() {
   return (
@@ -50,6 +53,9 @@ function App() {
         <Route path="/review" element={<Review />} />
         <Route path="/category" element={<Category />} />
         <Route path="/subcategory" element={<Subcategory />} />
+        <Route path="/offerbanner" element={<Offerbanner />} />
+        <Route path="/spotlight" element={<Spotlight />} />
+        <Route path="/homepagebanner" element={<Homepagebanner />} />
       
         <Route path="/servicedetails/:id" element={<Servicedetails />} />
         <Route path="/vendordetails/:id" element={<Vendordetails />} />

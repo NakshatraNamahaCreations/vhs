@@ -3,6 +3,58 @@ const multer = require("multer");
 const express = require("express");
 const router = express.Router();
 
+
+router.route("/technicianlogin").post(async (req, res) => {
+  const { number, password } = req.body;
+  try {
+    if (!number) {
+      return res.status(400).json({ error: "Please enter your Mobile Number" });
+    }
+    if (!password) {
+      return res.status(400).json({ error: "Please enter your password" });
+    }
+    // Find the user by mobile number
+    const user = await technicianmodel.findOne({ number });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "User not found or invalid password" });
+    }
+    // Check if the user type is "technician"
+    if (user.Type !== "technician") {
+      return res
+        .status(403)
+        .json({ error: "Access denied. You're type is not 'Technician'" });
+    }
+    // Check the password
+    const passwordCheck = await technicianmodel.findOne({ password });
+    if (!passwordCheck) {
+      return res.status(403).json({ error: "Invalid password" });
+    }
+    // Update the technician's status to "Online"
+    await technicianmodel.findOneAndUpdate({ number }, { status: "Online" });
+    return res.json({ success: "Login successful", user });
+  } catch (error) {
+    console.error("Error", error);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+});
+
+router.route("/technicianlogout/:id").get(async (req, res) => {
+  const signoutId = req.params.id;
+  if (!signoutId) {
+    return res.status(400).json({ error: "Invalid signout ID" });
+  }
+  technicianmodel
+    .findOneAndUpdate({ _id: signoutId }, { status: "Offline" })
+    .then(() => {
+      res.status(200).json({ Success: "Signout Successfully" });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ error: "Something went wrong" });
+    });
+});
 //add technician
 router.route("/addtechnician").post(async (req, res) => {
   let {

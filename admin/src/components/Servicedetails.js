@@ -20,23 +20,30 @@ function Servicedetails() {
   const { id } = useParams();
   const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
   const plandata = JSON.parse(localStorage.getItem("plans")) || [];
-  const plandetailsdata =
-    JSON.parse(localStorage.getItem("plansdeatils")) || [];
+  const homepagetitleData =
+    JSON.parse(localStorage.getItem("homepagetitle")) || [];
+  const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
+
   const [Servicedata, setServicedata] = useState([]);
   const [show, setShow] = useState(false);
   const [show1, setShow1] = useState(false);
   const [show2, setShow2] = useState(false);
+  const [show3, setShow3] = useState(false);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const handleClose1 = () => setShow1(false);
   const handleShow1 = () => setShow1(true);
   const handleClose2 = () => setShow2(false);
   const handleShow2 = () => setShow2(true);
+  const handleClose3 = () => setShow3(false);
+  const handleShow3 = () => setShow3(true);
   const [toggle, setToggel] = useState(true);
   const [toggle1, setToggel1] = useState(false);
   const [toggle2, setToggel2] = useState(true);
   const [selected, setSelected] = useState(false);
   const [categorydata, setcategorydata] = useState([]);
+  const [citydata, setcitydata] = useState([]);
 
   const [postservicename, setpostservicename] = useState([]);
   const [filterdata, setfilterdata] = useState([]);
@@ -73,6 +80,17 @@ function Servicedetails() {
   const [serviceExcludes, setserviceExcludes] = useState(
     Servicedata[0]?.serviceExcludes
   );
+  const [quantity, setquantity] = useState(Servicedata[0]?.quantity);
+  const [pName, setpName] = useState("");
+  const [pPrice, setpPrice] = useState("");
+  const [pofferprice, setpofferprice] = useState("");
+  const [pservices, setpservices] = useState("");
+  const [servicetitle, setServicetitle] = useState("");
+  const [servicebelow, setServicebelow] = useState("");
+  const [titleName, settitleName] = useState("");
+  const [homepagetitle, sethomePagetitle] = useState("");
+  const [serviceDirection, setserviceDirection] = useState("");
+
   const formdata = new FormData();
   const handelgeneralbtn = () => {
     setToggel1(true);
@@ -126,8 +144,6 @@ function Servicedetails() {
     }
   };
 
- 
-
   const addadvacedata = async () => {
     try {
       const config = {
@@ -136,8 +152,8 @@ function Servicedetails() {
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         headers: { "content-type": "application/json" },
         data: {
-          plans:  [...plandata, ...Servicedata[0]?.plans],
-          Plansdetails:  [...plandetailsdata, ...Servicedata[0]?.Plansdetails],
+          plans: [...plandata, ...Servicedata[0]?.plans],
+          morepriceData: [...morepriceData, ...Servicedata[0]?.morepriceData],
           store_slots: [...existingData, ...Servicedata[0]?.store_slots],
         },
       };
@@ -149,7 +165,9 @@ function Servicedetails() {
 
         localStorage.removeItem("Store_Slots");
         localStorage.removeItem("plans");
-        localStorage.removeItem("plansdeatils");
+        localStorage.removeItem("homepagetitle");
+        localStorage.removeItem("plansprice");
+
         setserID("");
         handelsavebtn();
         window.location.reload();
@@ -164,15 +182,15 @@ function Servicedetails() {
       // Handle error cases
     }
   };
-console.log("ServiceName",ServiceName)
+  console.log("ServiceName", ServiceName);
   const postformat = async (e) => {
     e.preventDefault();
-  
+
     const a = ServiceGst * ServicePrice;
     const sp = parseInt(a) + parseInt(ServicePrice);
     const b = ServiceGst * offerPrice;
     const op = parseInt(b) + parseInt(offerPrice);
-  
+
     // Create FormData object and append the data
     const formdata = new FormData();
     formdata.append("serviceImg", Image);
@@ -187,7 +205,7 @@ console.log("ServiceName",ServiceName)
     formdata.append("serviceDesc", ServiceDesc);
     formdata.append("serviceGst", ServiceGst);
     formdata.append("NofServiceman", NofServiceman);
-  
+
     try {
       const config = {
         url: `/userapp/editservices/${id}`,
@@ -195,9 +213,9 @@ console.log("ServiceName",ServiceName)
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         data: formdata,
       };
-      
+
       const response = await axios(config);
-  
+
       if (response.status === 200) {
         alert("Successfully Added");
         // Handle success case
@@ -208,7 +226,18 @@ console.log("ServiceName",ServiceName)
       alert("Category Not Added");
     }
   };
-  
+
+  useEffect(() => {
+    getcity();
+  }, []);
+
+  const getcity = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/master/getcity");
+    if ((res.status = 200)) {
+      setcitydata(res.data?.mastercity);
+   
+    }
+  };
 
   const handleSaveChanges = () => {
     // Retrieve existing data from local storage or initialize an empty array
@@ -241,17 +270,31 @@ console.log("ServiceName",ServiceName)
 
   const handleSaveplans2 = () => {
     // Retrieve existing data from local storage or initialize an empty array
-    const existingData = JSON.parse(localStorage.getItem("plansdeatils")) || [];
+    const homepagetitleData =
+      JSON.parse(localStorage.getItem("homepagetitle")) || [];
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
-    const newData = { planName, plansPrice, premises, desc, includes };
-    existingData.push(newData);
+    const newData = { titleName };
+    homepagetitleData.push(newData);
     console.log("New Data:", newData);
 
     // Update local storage with the updated array
-    localStorage.setItem("plansdeatils", JSON.stringify(existingData));
+    localStorage.setItem("homepagetitle", JSON.stringify(homepagetitleData));
     handleClose2();
+  };
+  const handleSaveplanprice = () => {
+    // Retrieve existing data from local storage or initialize an empty array
+    const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
+
+    // Add new data to the array
+    const newData = { pName, pofferprice, pPrice, pservices };
+    morepriceData.push(newData);
+    console.log("New Data:", newData);
+
+    // Update local storage with the updated array
+    localStorage.setItem("plansprice", JSON.stringify(morepriceData));
+    handleClose3();
   };
 
   return (
@@ -350,7 +393,7 @@ console.log("ServiceName",ServiceName)
                     aria-label="max_hrbook"
                     aria-describedby="basic-addon1"
                     type="text"
-                    placeholder="3-5hr"
+           
                     defaultValue={Servicedata[0]?.serviceHour}
                     onChange={(e) => setServiceHour(e.target.value)}
                   ></Form.Control>
@@ -362,10 +405,25 @@ console.log("ServiceName",ServiceName)
                     aria-label="maxhr"
                     aria-describedby="basic-addon1"
                     type="number"
-                    placeholder="15"
+          
                     defaultValue={Servicedata[0]?.NofServiceman}
                     onChange={(e) => setNofServiceman(e.target.value)}
                   ></Form.Control>
+                </InputGroup>
+                <Form.Label className="mt-3">
+                  Home page title <span className="text-danger"> *</span>
+                </Form.Label>
+                <InputGroup className="mb-2">
+                  <Form.Select
+                    aria-label="Username"
+                    aria-describedby="basic-addon1"
+                    onChange={(e) => sethomePagetitle(e.target.value)}
+                  >
+                    <option>{Servicedata[0]?.homepagetitle}</option>
+                    {homepagetitleData.map((item) => (
+                      <option value={item.titleName}>{item.titleName}</option>
+                    ))}
+                  </Form.Select>
                 </InputGroup>
               </Card>
             </div>
@@ -418,88 +476,120 @@ console.log("ServiceName",ServiceName)
                         <p className="slots">{i.Slots}</p>
                       ))}
                     </div>
-                  </Form>
 
-                  <Form>
-                    {/* <h2> Plans's</h2> */}
-                    <Row className="mb-3"></Row>
                     <Button
-                      variant="light"
-                      className="mb-3"
-                      style={{ color: "skyblue" }}
-                      onClick={handleShow1}
-                    >
-                      {" "}
-                      <i
-                        class="fa-regular fa-plus"
-                        style={{ color: "rgb(7, 170, 237)" }}
-                      ></i>
-                      Add Plan and Premises
-                    </Button>{" "}
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "20px",
-                        flexWrap: "wrap",
-                      }}
-                    ></div>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "20px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {Servicedata[0]?.plans?.map((i) => (
-                        <p className="plans" onClick={() => handleShow2(i)}>
-                          {i.Plans}
-                        </p>
-                      ))}
-                      {plandata.map((i) => (
-                        <p className="plans" onClick={() => handleShow2(i)}>
-                          {i.Plans}
-                        </p>
-                      ))}
-                    </div>
-                    <div>
-                      <Table striped bordered hover>
-                        <thead>
-                          <tr>
-                            <th>PlanName</th>
-                            <th>Premises</th>
-                            <th>PlansPrice</th>
-                            <th>Desc</th>
-                            <th>Includes</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {Servicedata[0]?.Plansdetails?.map((i) => (
+                        variant="light"
+                        className="mb-3"
+                        style={{ color: "skyblue" }}
+                        onClick={() => handleShow3()}
+                      >
+                        {" "}
+                        <i
+                          class="fa-regular fa-plus"
+                          style={{ color: "rgb(7, 170, 237)" }}
+                        ></i>
+                        Add more price
+                      </Button>{" "}
+                      <div>
+                        <Table striped bordered hover>
+                          <thead>
                             <tr>
-                              <td>{i.planName}</td>
-                              <td>{i.premises}</td>
-                              <td>{i.plansPrice}</td>
-                              <td>{i.desc}</td>
-                              <td>{i.includes}</td>
+                              <th>PlanName</th>
+                              <th>Price</th>
+                              <th>OfferPrice</th>
+                              <th>Services</th>
                             </tr>
-                          ))}
-                          {plandetailsdata.map((i) => (
-                            <tr>
-                              <td>{i.planName}</td>
-                              <td>{i.premises}</td>
-                              <td>{i.plansPrice}</td>
-                              <td>{i.desc}</td>
-                              <td>{i.includes}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
-                    </div>
+                          </thead>
+                          <tbody>
+                          {Servicedata[0]?.morepriceData.map((i) => (
+                              <tr>
+                                <td>{i.pName}</td>
+                                <td>{i.pPrice}</td>
+                                <td>{i.pofferprice}</td>
+                                <td>{i.pservices}</td>
+                              </tr>
+                            ))}
+                            {morepriceData.map((i) => (
+                              <tr>
+                                <td>{i.pName}</td>
+                                <td>{i.pPrice}</td>
+                                <td>{i.pofferprice}</td>
+                                <td>{i.pservices}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                      </div>
                   </Form>
+                  <Button
+                    variant="light"
+                    className="mb-3"
+                    style={{ color: "skyblue" }}
+                    onClick={handleShow2}
+                  >
+                    {" "}
+                    <i
+                      class="fa-regular fa-plus"
+                      style={{ color: "rgb(7, 170, 237)" }}
+                    ></i>
+                    Add Home page title
+                  </Button>{" "}
+                  <div>
+                  {/* {Servicedata[0]?.homepagetitleData.map((i, index) => (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "20px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <p style={{ color: "brown" }}>
+                          {index + 1}.{i.titleName}
+                        </p>
+                      </div>
+                    ))} */}
+                    {homepagetitleData.map((i, index) => (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "20px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <p style={{ color: "brown" }}>
+                          {index + 1}.{i.titleName}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
 
+                  <Row className="mb-3">
+                        {" "}
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>
+                            Select Services redirection{" "}
+                            <span className="text-danger"> *</span>
+                          </Form.Label>
+
+                          <InputGroup className="mb-2 col-3">
+                            <Form.Select
+                              aria-label="Username"
+                              aria-describedby="basic-addon1"
+                              onChange={(e)=>setserviceDirection(e.target.value)}
+                            >
+                              <option>{Servicedata[0]?.serviceDirection}</option>
+
+                              <option value="Enquiry">Enquiry</option>
+                              <option value="Survey">Survey</option>
+                              <option value="DSR">DSR single service</option>
+                              <option value="AMC">AMC Service</option>
+                            </Form.Select>
+                          </InputGroup>
+                        </Form.Group>
+                        </Row>
                   <Button type="button" variant="outline-primary">
                     Cancel
                   </Button>
-
                   <Button
                     type="button"
                     variant="danger"
@@ -511,103 +601,138 @@ console.log("ServiceName",ServiceName)
                 </div>
               ) : (
                 <div>
-                  <Form>
-                    <h1>Service Information</h1>
-                    <Row className="mb-3">
-                      {" "}
-                      <Form.Group as={Col} controlId="formGridState">
-                        <Form.Label>
-                          Service Name <span className="text-danger"> *</span>
-                        </Form.Label>
+                 <Form>
+                      <h1>Service Information</h1> 
+                    
+                      <Row className="mb-3">
+                        {" "}
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>
+                            Service Name <span className="text-danger"> *</span>
+                          </Form.Label>
 
-                        <InputGroup className="mb-3">
+                          <InputGroup className="mb-3">
+                            <Form.Control
+                              aria-label="max_hrbook"
+                              aria-describedby="basic-addon1"
+                              type="text"
+                              defaultValue={Servicedata[0]?.serviceName}
+                              onChange={(e) => setServiceName(e.target.value)}
+                            ></Form.Control>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>For title</Form.Label>
+
+                          <InputGroup className="mb-3">
+                            <Form.Control
+                              aria-label="max_hrbook"
+                              aria-describedby="basic-addon1"
+                              type="text"
+                              defaultValue={Servicedata[0]?.servicetitle}
+                              onChange={(e) => setServicetitle(e.target.value)}
+                            ></Form.Control>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>For below the service </Form.Label>
+
+                          <InputGroup className="mb-3">
+                            <Form.Control
+                              aria-label="max_hrbook"
+                              aria-describedby="basic-addon1"
+                              type="text"
+                              defaultValue={Servicedata[0]?.servicebelow}
+                              onChange={(e) => setServicebelow(e.target.value)}
+                            ></Form.Control>
+                          </InputGroup>
+                        </Form.Group>
+                      </Row>
+                      <Form.Group
+                        className="mb-3"
+                        controlId="exampleForm.ControlTextarea1"
+                      >
+                        <Form.Label>
+                          Service Description{" "}
+                          <span className="text-danger"> *</span>
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          defaultValue={Servicedata[0]?.serviceDesc}
+                          onChange={(e) => setServiceDesc(e.target.value)}
+                        />
+                      </Form.Group>
+                      <Row className="mb-2">
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Includes</Form.Label>
                           <Form.Control
-                            aria-label="max_hrbook"
-                            aria-describedby="basic-addon1"
-                            type="text"
-                            placeholder="Service Name"
-                            defaultValue={Servicedata[0]?.serviceName}
-                            onChange={(e) => setServiceName(e.target.value)}
-                          ></Form.Control>
-                        </InputGroup>
-                      </Form.Group>
-                    </Row>
-                    <Form.Group
-                      className="mb-3"
-                      controlId="exampleForm.ControlTextarea1"
-                    >
-                      <Form.Label>
-                        Service Description{" "}
-                        <span className="text-danger"> *</span>
-                      </Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        defaultValue={Servicedata[0]?.serviceDesc}
-                        onChange={(e) => setServiceDesc(e.target.value)}
-                      />
-                    </Form.Group>
-
-                    <Row className="mb-2">
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>Includes</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
+                            as="textarea"
+                            rows={3}
                           defaultValue={Servicedata[0]?.serviceIncludes}
-                          onChange={(e) => setserviceIncludes(e.target.value)}
-                        />
-                      </Form.Group>
 
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>Excludes</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
+                            onChange={(e) => setserviceIncludes(e.target.value)}
+                          />
+                        </Form.Group>
+
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Excludes</Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
                           defaultValue={Servicedata[0]?.serviceExcludes}
-                          onChange={(e) => setserviceExcludes(e.target.value)}
-                        />
-                      </Form.Group>
-                    </Row>
-                    <Row className="mb-3">
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>
-                          Service Price <span className="text-danger"> *</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="number"
-                          name="Price"
+
+                            onChange={(e) => setserviceExcludes(e.target.value)}
+                          />
+                        </Form.Group>
+                      </Row>
+                      <Row className="mb-3 mt-4">
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Service Price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
+                          <Form.Control
+                            type="number"
+                            name="Price"
                           defaultValue={Servicedata[0]?.servicePrice}
-                          onChange={(e) => setServicePrice(e.target.value)}
-                        />
-                      </Form.Group>
+                            onChange={(e) => setServicePrice(e.target.value)}
+                          />
+                        </Form.Group>
 
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>Customer offer price</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name=""
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Offer price<span style={{fontSize:"12px"}}>(for single price)</span> </Form.Label>
+                          <Form.Control
+                            type="text"
+                            name=""
                           defaultValue={Servicedata[0]?.offerPrice}
-                          onChange={(e) => setofferPrice(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>GST Percentage</Form.Label>
+                            onChange={(e) => setofferPrice(e.target.value)}
+                          />
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Quantity</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name=""
+                          defaultValue={Servicedata[0]?.quantity}
+                            onChange={(e) => setquantity(e.target.value)}
+                          />
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>GST Percentage</Form.Label>
 
-                        <Form.Select
-                          aria-label="Username"
-                          aria-describedby="basic-addon1"
-                          onChange={(e) => setServiceGst(e.target.value)}
-                        >
-                          <option>{Servicedata[0]?.serviceGst}</option>
+                          <Form.Select
+                            aria-label="Username"
+                            aria-describedby="basic-addon1"
+                            onChange={(e) => setServiceGst(e.target.value)}
+                          >
+                            <option>---Select GST---</option>
 
-                          <option value="0.05">5%</option>
-                          <option value="0.18">18%</option>
-                          <option value="0.22">22%</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Row>
-                  </Form>
+                            <option value="0.05">5%</option>
+                            <option value="0.18">18%</option>
+                            <option value="0.22">22%</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Row>
+                    
+                    </Form>
                   <Button type="button" variant="outline-primary">
                     Cancel
                   </Button>
@@ -644,7 +769,22 @@ console.log("ServiceName",ServiceName)
               <b>Example= 10AM-11AM</b>
             </p>
           </Form.Group>
+          <Form.Group as={Col} controlId="formGridState">
+            <Form.Label>Select City </Form.Label>
 
+            <InputGroup className="mb-2 col-3">
+              <Form.Select
+                aria-label="Username"
+                aria-describedby="basic-addon1"
+              >
+                <option>-Select-</option>
+                {citydata.map((i) => (
+                  <option value={i.city}>{i.city}</option>
+                ))}
+              </Form.Select>
+            </InputGroup>
+          </Form.Group>
+         
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>
               Mention services number <span className="text-danger"> *</span>
@@ -652,7 +792,7 @@ console.log("ServiceName",ServiceName)
             <Form.Control
               type="number"
               name="Price"
-              placeholder="10 "
+              defaultValue="10 "
               onChange={(e) => setServicesno(e.target.value)}
             />
             <p style={{ marginTop: "10px", fontSize: "12px" }}>
@@ -755,6 +895,53 @@ console.log("ServiceName",ServiceName)
             Close
           </Button>
           <Button variant="primary" onClick={handleSaveplans2}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={show3} onHide={handleClose3}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group as={Col} controlId="formGridEmail">
+            <Form.Label>Plan name</Form.Label>
+            <Form.Control
+              type="text"
+              name="Price"
+              onChange={(e) => setpName(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group as={Col} controlId="formGridEmail">
+            <Form.Label>Price</Form.Label>
+            <Form.Control
+              type="text"
+              name="Price"
+              onChange={(e) => setpPrice(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group as={Col} controlId="formGridEmail">
+            <Form.Label>OfferPrice</Form.Label>
+            <Form.Control
+              type="text"
+              name="Price"
+              onChange={(e) => setpofferprice(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group as={Col} controlId="formGridEmail">
+            <Form.Label>How many services</Form.Label>
+            <Form.Control
+              type="text"
+              name="Price"
+              onChange={(e) => setpservices(e.target.value)}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveplanprice}>
             Save Changes
           </Button>
         </Modal.Footer>

@@ -19,6 +19,8 @@ function Banner() {
   const [selected1, setSelected1] = useState(0);
 
   const [banner, setBanner] = useState("");
+  const [header, setheader] = useState("");
+  const [desc, setdesc] = useState("");
   const [bannerdata, setBannerdata] = useState([]);
   const formdata = new FormData();
   const apiURL = process.env.REACT_APP_API_URL;
@@ -32,11 +34,13 @@ function Banner() {
   const postbanner = async (e) => {
     e.preventDefault();
     console.log(banner);
-    formdata.append("banner", banner);
+    formdata.append("icon", banner);
+    formdata.append("header", header);
+    formdata.append("desc", desc);
 
     try {
       const config = {
-        url: "/userapp/addbanner",
+        url: "/userapp/addofferbanner",
         method: "post",
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
 
@@ -45,7 +49,7 @@ function Banner() {
       await axios(config).then(function (response) {
         if (response.status === 200) {
           alert("Successfully Added");
-          window.location.assign("/banner");
+          window.location.assign("/offerbanner");
         }
       });
     } catch (error) {
@@ -59,17 +63,19 @@ function Banner() {
   }, []);
 
   const getbannerimg = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getallbanner");
+    let res = await axios.get(
+      "http://api.vijayhomeservicebengaluru.in/api/userapp/getallofferbanner"
+    );
     if ((res.status = 200)) {
-      setBannerdata(res.data?.banner);
-      console.log(res.data?.banner);
+      setBannerdata(res.data?.offerbanner);
+      console.log(res.data?.offerbanner);
     }
   };
 
   const deletebannerimg = async (id) => {
     axios({
       method: "post",
-      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deletebanner/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deleteofferbanner/" + id,
     })
       .then(function (response) {
         //handle success
@@ -93,7 +99,7 @@ function Banner() {
         <div className="row  set_margin ">
           <div>
             <div className="d-flex  mt-3">
-              <h4 style={{ color: "#FF0060" }}>Home Page Slider Images</h4>
+              <h4 style={{ color: "#FF0060" }}>Offer Banner </h4>
             </div>
           </div>
         </div>
@@ -106,7 +112,7 @@ function Banner() {
                   variant="danger"
                   onClick={handleShow}
                 >
-                  Add Images
+                  Add Offer Banner
                 </Button>
               </div>
             </div>
@@ -123,7 +129,10 @@ function Banner() {
                   <thead>
                     <tr>
                       <th>SI.No</th>
-                      <th>Banner Images</th>
+                      <th>Icon</th>
+                      <th>Header</th>
+                      <th>Desc</th>
+
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -136,11 +145,13 @@ function Banner() {
                           <td>
                             <img
                               className="header_logo"
-                              src={`http://api.vijayhomeservicebengaluru.in/userbanner/${element.banner}`}
-                              width={"100px"}
+                              src={`http://api.vijayhomeservicebengaluru.in/offerbanner/${element.icon}`}
+                              width={"50px"}
                               height={"50px"}
                             />
                           </td>
+                          <td>{element.header}</td>
+                          <td>{element.desc}</td>
 
                           <td>
                             <Button
@@ -169,12 +180,33 @@ function Banner() {
       <>
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Slider Image</Modal.Title>
+            <Modal.Title>Offer Banner</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <input type="file" onChange={(e) => setBanner(e.target.files[0])} />
-            <div className="mt-3" style={{fontSize:"13px"}}>
-              <b>Note :</b> width=350px,height=150px
+            <div className="vhs-input-label mt-3">Icon</div>
+
+            <input
+              type="file"
+              onChange={(e) => setBanner(e.target.files[0])}
+              className="col-md-6 vhs-input-value"
+            />
+            <div className="mt-3" style={{ fontSize: "13px" }}></div>
+
+            <div className="vhs-input-label mt-3">header</div>
+            <div className="group pt-1">
+              <input
+                type="text"
+                className="col-md-6 vhs-input-value"
+                onChange={(e) => setheader(e.target.value)}
+              />
+            </div>
+            <div className="vhs-input-label mt-3">Description</div>
+            <div className="group pt-1">
+              <input
+                type="text"
+                className="col-md-6 vhs-input-value"
+                onChange={(e) => setdesc(e.target.value)}
+              />
             </div>
           </Modal.Body>
           <Modal.Footer>

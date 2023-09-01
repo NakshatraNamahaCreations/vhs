@@ -64,7 +64,7 @@ function Voucher() {
         if (response.status === 200) {
           console.log("success");
           alert("Added");
-          handleClick(0);
+         window.location.reload();
           
         }
       } catch (error) {
@@ -105,7 +105,7 @@ function Voucher() {
       <div className="col-md-10">
         <Header />
 
-        <div className="d-flex float-end  mb-3">
+        <div className="d-flex float-end mt-4 mb-3">
           <button
             className="btn-primary-button mx-2"
             style={selected == 1 ? active : inactive}
@@ -123,7 +123,7 @@ function Voucher() {
           </button>
         </div>
 
-        <div className="row w-100" style={{ marginLeft: "-32px" }}>
+        <div className="row w-100" >
           <div className="col-md-12">
             {selected == 0 ? (
               <>

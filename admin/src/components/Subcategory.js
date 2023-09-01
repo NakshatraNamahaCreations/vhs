@@ -53,12 +53,17 @@ function Subcategory() {
       formdata.append("subcatimg", subcategoryImg);
       formdata.append("subcatvideo", subcatvideo);
 
+      console.log("formdata",formdata)
       try {
         const config = {
           url: "/userapp/addappsubcat",
           method: "post",
           baseURL: "http://api.vijayhomeservicebengaluru.in/api",
           data: formdata,
+          headers: {
+            "Content-Type": "multipart/form-data", // Important for file uploads
+          },
+      
         };
         await axios(config).then(function (response) {
           if (response.status === 200) {
@@ -67,8 +72,20 @@ function Subcategory() {
           }
         });
       } catch (error) {
-        console.error(error);
-        alert("category  Not Added");
+        if (error.response) {
+          // Server responded with a status code outside of the 2xx range
+          alert(error.response.data.error);
+          console.log("Error response data:", error.response.data);
+        } else if (error.request) {
+          // The request was made but no response was received
+          alert("Network error. Please try again later.");
+          console.log("Error response data:", error.response.data);
+          console.log("No response received:", error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          alert("An unexpected error occurred. Please try again later.");
+          console.log("Error:", error.message);
+        }
       }
     }
   };
@@ -103,7 +120,7 @@ function Subcategory() {
       });
     } catch (error) {
       console.error(error);
-      alert("category  Not Added");
+      alert(" Not Added");
     }
   };
   const columns = [
@@ -137,7 +154,7 @@ function Subcategory() {
       cell: (row) => (
         <div>
          
-          <video width="250" height="150" controls>
+          <video width="150" height="150" controls>
             <source
               src={`http://api.vijayhomeservicebengaluru.in/subcat/${row.subcatvideo}`}
               type="video/mp4"
@@ -176,7 +193,7 @@ function Subcategory() {
   const deleteservices = async (id) => {
     axios({
       method: "post",
-      url: apiURL + "/userapp/deleteappsubcat/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deleteappsubcat/" + id,
     })
       .then(function (response) {
         //handle success
