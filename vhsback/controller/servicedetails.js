@@ -92,61 +92,72 @@ class servicedetails {
         communityId,
         BackofficeExecutive,
       } = req.body;
-
-      if (!category) {
-        return res.status(500).json({ error: "Field must not be empty" });
-      } else {
-        const dividedDateObjects = dividedDates.map((date) => {
+  
+      // Initialize the variables as empty arrays
+      let dividedDateObjects = [];
+      let dividedamtDateObjects = [];
+      let dividedamtChargeObjects = [];
+  
+      if (contractType === "AMC") {
+        dividedDateObjects = dividedDates.map((date) => {
           const uniqueId = uuidv4(); // Generate a UUID for the date
           return { id: uniqueId, date: new Date(date) };
         });
-
-        const dividedamtDateObjects = dividedamtDates.map((date) => {
+  
+        dividedamtDateObjects = dividedamtDates.map((date) => {
           const uniqueId = uuidv4(); // Generate a UUID for the date
           return { id: uniqueId, date: new Date(date) };
         });
-
-        const dividedamtChargeObjects = dividedamtCharges.map((charge) => {
+  
+        dividedamtChargeObjects = dividedamtCharges.map((charge) => {
           const uniqueId = uuidv4(); // Generate a UUID for the charge
           return { id: uniqueId, charge };
         });
-
-        let add = new servicedetailsmodel({
-          customerData,
-          cardNo: cardNo,
-          dCategory,
-          category: category,
-          contractType: contractType,
-          service: service,
-          serviceCharge: serviceCharge,
-          dateofService: dateofService,
-          desc: desc,
-          serviceFrequency: serviceFrequency,
-          startDate: startDate,
-          expiryDate: expiryDate,
-          firstserviceDate: firstserviceDate,
-          date: date,
-          time: time,
-          dividedDates: dividedDateObjects, // Store the array of objects with IDs and dates
-          dividedCharges,
-          dividedamtDates: dividedamtDateObjects,
-          dividedamtCharges: dividedamtChargeObjects,
-          oneCommunity,
-          communityId,
-          BackofficeExecutive,
+      }else{
+        dividedDateObjects = dividedDates.map((date) => {
+          const uniqueId = uuidv4(); // Generate a UUID for the date
+          return { id: uniqueId, date: new Date(date) };
         });
+      }
 
-        let save = await add.save();
-
-        if (save) {
-          return res.json({ success: "Added successfully" });
-        }
+    
+  
+      let add = new servicedetailsmodel({
+        customerData,
+        cardNo: cardNo,
+        dCategory,
+        category: category,
+        contractType: contractType,
+        service: service,
+        serviceCharge: serviceCharge,
+        dateofService: dateofService,
+        desc: desc,
+        serviceFrequency: serviceFrequency,
+        startDate: startDate,
+        expiryDate: expiryDate,
+        firstserviceDate: firstserviceDate,
+        date: date,
+        time: time,
+        dividedDates: dividedDateObjects, // Store the array of objects with IDs and dates
+        dividedCharges,
+        dividedamtDates: dividedamtDateObjects,
+        dividedamtCharges: dividedamtChargeObjects,
+        oneCommunity,
+        communityId,
+        BackofficeExecutive,
+      });
+  
+      let save = await add.save();
+  
+      if (save) {
+        return res.json({ success: "Added successfully" });
       }
     } catch (error) {
       console.log("error", error);
       res.status(500).json({ error: "An error occurred" });
     }
   }
+  
   //edit
   async editservicedetails(req, res) {
     let id = req.params.id;

@@ -244,6 +244,14 @@ class addcall {
             as: "quotedata",
           },
         },
+        {
+          $lookup: {
+            from: "technicians",
+            localField: "TechorPMorVendorID",
+            foreignField: "_id",
+            as: "techdata",
+          },
+        },
       ]);
       if (data) {
         return res.json({ addcall: data });

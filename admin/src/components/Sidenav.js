@@ -73,10 +73,21 @@ function Sidenav() {
               Spotlight Banner
               <Link to="/spotlight" />
             </MenuItem>
-            <MenuItem>
+            {/* <MenuItem>
              Home page  Banners
               <Link to="/homepagebanner" />
+            </MenuItem> */}
+          </SubMenu>
+
+          <SubMenu title="User App">
+            <MenuItem>
+              Home Page Title <Link to="/homepagetitle" />
             </MenuItem>
+            <MenuItem>
+              Slots
+              <Link to="/slots" />
+            </MenuItem>
+          
           </SubMenu>
 
           <MenuItem>

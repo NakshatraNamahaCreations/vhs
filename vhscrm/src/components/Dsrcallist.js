@@ -7,9 +7,9 @@ import DSRnav from "./DSRnav";
 import moment from "moment";
 
 function Dsrcallist() {
-const location=useLocation();
-const {data}=location.state || {};
-console.log("yogi",data);
+  const location = useLocation();
+  const { data } = location.state || {};
+  console.log("yogi", data);
 
   const [treatmentData, settreatmentData] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -28,7 +28,7 @@ console.log("yogi",data);
   const { date, category } = useParams();
 
   const today = new Date();
-  
+
   useEffect(() => {
     getservicedata();
   }, [category]);
@@ -37,16 +37,18 @@ console.log("yogi",data);
 
   useEffect(() => {
     getnameof();
-  }, [category,date,dsrdata,treatmentData]);
+  }, [category, date, dsrdata, treatmentData]);
 
   const getnameof = async () => {
     let res = await axios.get(apiURL + "/getalltechnician");
     if ((res.status = 200)) {
       const TDdata = res.data?.technician;
+      console.log("Technician --", res.data?.technician);
       const filteredTechnicians = TDdata.filter((technician) => {
         return technician.category.some((cat) => cat.name === category);
       });
 
+      console.log(filteredTechnicians);
       setvddata(
         filteredTechnicians.filter(
           (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
@@ -54,8 +56,6 @@ console.log("yogi",data);
       );
     }
   };
-
-  console.log("vddata", vddata);
 
   const getservicedata = async () => {
     let res = await axios.get(apiURL + "/getrunningdata");
@@ -79,16 +79,40 @@ console.log("yogi",data);
   }, [treatmentData]);
 
   const getAlldata = async () => {
-    let res = await axios.get(apiURL + "/getaggredsrdata");
-    if (res.status === 200) {
-      setdsrdata(
-        res.data.addcall.filter(
-          (i) => i.serviceDate === date && i.cardNo == treatmentData[0]?.cardNo
-        )
-      );
+    try {
+      const res = await axios.get(apiURL + "/getaggredsrdata");
+
+      if (res.status === 200) {
+        const filteredData = res.data.addcall.filter((i) => {
+          console.log("i.serviceDate:", i.serviceDate);
+          console.log("date:", date);
+          console.log("treatment:", treatmentData);
+
+          const dateMatches = i.serviceDate === date;
+          const cardNoMatches = treatmentData.some((treatmentItem) => {
+            return treatmentItem.cardNo === i.cardNo;
+          });
+
+          console.log("dateMatches:", dateMatches);
+          console.log("cardNoMatches:", cardNoMatches);
+
+          return dateMatches && cardNoMatches;
+        });
+
+        console.log("filteredData:", filteredData);
+
+        setdsrdata(filteredData);
+      }
+    } catch (error) {
+      // Handle any errors from the Axios request
+      console.error("Error fetching data:", error);
     }
   };
 
+  console.log("date", date);
+  console.log("searchResults", searchResults);
+  console.log("dsrdata", dsrdata);
+  console.log("vddata", vddata);
   // filter and search
   useEffect(() => {
     const filterResults = () => {
@@ -179,6 +203,24 @@ console.log("yogi",data);
     searchDesc,
   ]);
 
+  const [Technicians, setTechnicians] = useState([]);
+  // Fetch all technicians from your API
+  const fetchTechnicians = async () => {
+    try {
+      const res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getalltechnician");
+      if (res.status === 200) {
+        setTechnicians(res.data.technician);
+      }
+    } catch (error) {
+      console.error("Error fetching technicians:", error);
+    }
+  };
+
+  // Fetch dsrdata and technicians when the component mounts
+  useEffect(() => {
+    fetchTechnicians(); // Fetch technicians
+    // Your other logic for fetching dsrdata here
+  }, []);
   let i = 1;
   return (
     <div className="web">
@@ -358,7 +400,13 @@ console.log("yogi",data);
                       {selectedData.customer[0]?.lnf}
                     </td>
                     <td>{selectedData.customer[0]?.mainContact}</td>
-                    <td>{vddata[0]?.vhsname}</td>
+                    <td>
+                      {
+                        Technicians.find(
+                          (tech) => tech._id === dsrdata[0]?.TechorPMorVenodrID
+                        )?.vhsname
+                      }
+                    </td>
 
                     <td>{dsrdata[0]?.workerName}</td>
                     <td>{selectedData.service}</td>

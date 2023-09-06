@@ -80,6 +80,8 @@ const usuperlogin = require("./route/userapp/superlogin");
 const uofferbanner = require("./route/userapp/offerbanner");
 const uspotlightbanner = require("./route/userapp/spotlight");
 const uhomebanner = require("./route/userapp/homepagebanner");
+const uhometitle = require("./route/userapp/homepagetiltle");
+const uslots = require("./route/userapp/slots");
 
 
 
@@ -137,8 +139,9 @@ app.use("/api/userapp",uvoucher);
 app.use("/api/super",usuperlogin);
 app.use("/api/userapp",uofferbanner);
 app.use("/api/userapp",uhomebanner);
-
+app.use("/api/userapp",uhometitle);
 app.use("/api/userapp",uspotlightbanner);
+app.use("/api/userapp",uslots);
 
 
 

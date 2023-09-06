@@ -9,7 +9,7 @@ function Dsrdetails() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
   const location = useLocation();
   const { data, data1 } = location.state || {};
-  const [dsrdata, setdsrdata] = useState([]);
+  const [dsrdata, setdsrdata] = useState([]); 
 
   const [servicedata, setservicedata] = useState([]);
   const [techniciandata, settechniciandata] = useState([]);
@@ -44,14 +44,14 @@ function Dsrdetails() {
   const [sendSms, setsendSms] = useState(dsrdata[0]?.sendSms);
   const [workerAmount, setworkerAmount] = useState(dsrdata[0]?.workerAmount);
   const [workerName, setworkerName] = useState(dsrdata[0]?.workerName);
-  const [daytoComplete, setdaytoComplete] = useState(dsrdata[0]?.daytoComplete);
+  const [daytoComplete, setdaytoComplete] = useState(dsrdata[0]?.daytoComplete || "") ;
   console.log("type--", vddata[0]?.Type);
 
   // Determine the initial type value for the radio button
   const initialType = vddata ? vddata[0]?.Type : "";
 
   // Initialize the type state based on the initialType value
-  const [type, settype] = useState(initialType);
+  const [type, settype] = useState(vddata[0]?.Type);
   // const [type, settype] = useState(vddata.length > 0 ? vddata[0]?.Type : "");
 
   const [selectedTechName, setSelectedTechName] = useState(
@@ -687,9 +687,9 @@ function Dsrdetails() {
                 <label className="mx-3">
                   <input
                     type="radio"
-                    value="TECH"
+                    value="technician"
                     className="custom-radio mx-2"
-                    checked={type == "technician"}
+                    checked={type === "technician"}
                     onChange={handleChange2}
                   />
                   TECH
@@ -717,7 +717,7 @@ function Dsrdetails() {
                   ) : (
                     <option>--select--</option>
                   )}
-                  {type === "TECH" &&
+                  {type === "technician" &&
                     techniciandata.map((item) => (
                       <option key={item.id} value={item._id}>
                         {item.vhsname}
@@ -800,9 +800,8 @@ function Dsrdetails() {
               <div className="col-1">:</div>
               <div className="group pt-1 col-7">
                 {dsrdata[0]?.startJobTime
-                  ? moment(dsrdata[0]?.startJobTime)
-                      .utc()
-                      .format("YYYY-MM-DD h:mm:ss a")
+                  ? new Date(dsrdata[0]?.startJobTime)
+                     
                   : "0000-00-00 00:00:00"}
               </div>
             </div>
@@ -863,8 +862,8 @@ function Dsrdetails() {
             </label>
           </div>
         </div>
-      </div>
-      <div className="row pt-3 justify-content-center pb-5 mt-4">
+      
+      <div className="row pt-3  m-auto justify-content-center mt-4">
         <div className="col-md-2">
           {!dsrdata[0] ? (
             <button className="vhs-button" onClick={newdata}>
@@ -895,6 +894,7 @@ function Dsrdetails() {
           <button className="vhs-button">Bill Whatsapp</button>
         </div>
       </div>
+    </div>
     </div>
   );
 }

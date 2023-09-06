@@ -14,17 +14,11 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import { DesktopTimePicker } from "@mui/x-date-pickers/DesktopTimePicker";
-import { StaticTimePicker } from "@mui/x-date-pickers/StaticTimePicker";
 
 function Servicedetails() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const sid = id;
   const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
   const plandata = JSON.parse(localStorage.getItem("plans")) || [];
   const homepagetitleData =
@@ -51,6 +45,8 @@ function Servicedetails() {
   const [selected, setSelected] = useState(false);
   const [categorydata, setcategorydata] = useState([]);
   const [citydata, setcitydata] = useState([]);
+  const [category, setcategory] = useState("");
+  const [catdata, setcatdata] = useState([]);
 
   const [postservicename, setpostservicename] = useState([]);
   const [filterdata, setfilterdata] = useState([]);
@@ -58,6 +54,7 @@ function Servicedetails() {
   const [sub_subcategory, setsub_subcategory] = useState(
     Servicedata[0]?.sub_subcategory
   );
+  const [servicePeriod, setservicePeriod] = useState("")
   const [ServiceHour, setServiceHour] = useState(Servicedata[0]?.serviceHour);
   const [ServiceName, setServiceName] = useState(Servicedata[0]?.ServiceName);
   const [ServiceDesc, setServiceDesc] = useState(Servicedata[0]?.serviceDesc);
@@ -97,6 +94,10 @@ function Servicedetails() {
   const [titleName, settitleName] = useState("");
   const [homepagetitle, sethomePagetitle] = useState("");
   const [serviceDirection, setserviceDirection] = useState("");
+  const [slotsdata, setslotsdata] = useState([]);
+  const [titledata, settitledata] = useState([]);
+  const [startTime, setstartTime] = useState("");
+  const [endTime, setendTime] = useState([]);
 
   const formdata = new FormData();
   const handelgeneralbtn = () => {
@@ -125,14 +126,22 @@ function Servicedetails() {
   };
   useEffect(() => {
     getcategory();
+    getallcategory()
   }, []);
 
-  const getcategory = async () => {
+  const getallcategory = async () => {
     let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
     if ((res.status = 200)) {
       setcategorydata(res.data?.subcategory);
     }
   };
+  const getcategory = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    if ((res.status = 200)) {
+      setcatdata(res.data?.category);
+    }
+  };
+
   useEffect(() => {
     getsubcategory();
   }, [Subcategory]);
@@ -189,28 +198,24 @@ function Servicedetails() {
       // Handle error cases
     }
   };
-  console.log("ServiceName", ServiceName);
+
   const postformat = async (e) => {
     e.preventDefault();
-
-    const a = ServiceGst * ServicePrice;
-    const sp = parseInt(a) + parseInt(ServicePrice);
-    const b = ServiceGst * offerPrice;
-    const op = parseInt(b) + parseInt(offerPrice);
-
-    // Create FormData object and append the data
     const formdata = new FormData();
     formdata.append("serviceImg", Image);
     formdata.append("sub_subcategory", sub_subcategory);
     formdata.append("serviceName", ServiceName);
-    formdata.append("servicePrice", sp);
+    formdata.append("category", category);
+
     formdata.append("Subcategory", Subcategory);
     formdata.append("serviceIncludes", serviceIncludes);
     formdata.append("serviceExcludes", serviceExcludes);
-    formdata.append("offerPrice", op);
+
     formdata.append("serviceHour", ServiceHour);
     formdata.append("serviceDesc", ServiceDesc);
     formdata.append("serviceGst", ServiceGst);
+    formdata.append("serviceDirection", serviceDirection);
+
     formdata.append("NofServiceman", NofServiceman);
 
     try {
@@ -251,7 +256,7 @@ function Servicedetails() {
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
-    const newData = { StartTime, EndTime, slotCity, Servicesno };
+    const newData = { startTime, endTime, slotCity, Servicesno };
     existingData.push(newData);
     console.log("New Data:", newData);
 
@@ -294,7 +299,7 @@ function Servicedetails() {
     const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
 
     // Add new data to the array
-    const newData = { pName, pofferprice, pPrice, pservices };
+    const newData = { pName, pofferprice, pPrice, pservices,servicePeriod };
     morepriceData.push(newData);
     console.log("New Data:", newData);
 
@@ -317,13 +322,13 @@ function Servicedetails() {
   const dataByCity = {};
   // Group data by city
   existingData.forEach((item) => {
-    const { slotCity, StartTime, EndTime, Servicesno } = item;
+    const { slotCity, startTime, endTime, Servicesno } = item;
 
     if (!dataByCity[slotCity]) {
       dataByCity[slotCity] = [];
     }
 
-    dataByCity[slotCity].push({ StartTime, EndTime, Servicesno });
+    dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
   const [StartTime, setStartTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
   const [EndTime, setEndTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
@@ -346,6 +351,66 @@ function Servicedetails() {
     return `${formattedStartTime} - ${formattedEndTime}`;
   }
   let currentCity = null;
+
+  useEffect(() => {
+    getslots();
+    gettitle();
+  }, []);
+
+  const getslots = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getslots");
+    if ((res.status = 200)) {
+      setslotsdata(res.data?.slots);
+    }
+  };
+
+  const gettitle = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/gettitle");
+    if ((res.status = 200)) {
+      settitledata(res.data?.homepagetitle);
+    }
+  };
+
+  const handleDeleteClick = async (id, index) => {
+    try {
+      const response = await axios.delete(
+        `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteStoreSlot/${sid}/${id}`
+      );
+
+      if (response.status === 200) {
+        // Successful deletion
+        console.log("Item deleted successfully");
+        alert("Item deleted successfully");
+        window.location.assign(`/servicedetails/${sid}`);
+      } else {
+        // Handle other response statuses if needed
+        console.log("Deletion failed with status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error deleting slot:", error);
+    }
+  };
+
+  const handleDeleteprice = async (id, index) => {
+    try {
+      const response = await axios.delete(
+        `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteprice/${sid}/${id}`
+      );
+
+      if (response.status === 200) {
+        // Successful deletion
+        console.log("Item deleted successfully");
+        alert("Item deleted successfully");
+        window.location.assign(`/servicedetails/${sid}`);
+      } else {
+        // Handle other response statuses if needed
+        console.log("Deletion failed with status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error deleting slot:", error);
+    }
+  };
+
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -398,6 +463,23 @@ function Servicedetails() {
               >
                 <Card.Title>Service details</Card.Title>
 
+                <Form.Label className="mt-3">
+                    Category <span className="text-danger"> *</span>
+                  </Form.Label>
+                  <InputGroup className="mb-2">
+                    <Form.Select
+                      aria-label="Username"
+                      aria-describedby="basic-addon1"
+                      onChange={(e) =>setcategory(e.target.value)}
+                    >
+                      <option>-Select Subcategory-</option>
+                      {catdata.map((item) => (
+                        <option value={item.category}>
+                          {item.category}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </InputGroup>
                 <Form.Label>
                   Subcategory <span className="text-danger"> *</span>
                 </Form.Label>
@@ -415,9 +497,7 @@ function Servicedetails() {
                     ))}
                   </Form.Select>
                 </InputGroup>
-                <Form.Label>
-                  Sub-subcategory <span className="text-danger"> *</span>
-                </Form.Label>
+                <Form.Label>Sub-subcategory</Form.Label>
                 <InputGroup className="mb-2">
                   <Form.Select
                     aria-label="Username"
@@ -457,21 +537,6 @@ function Servicedetails() {
                     onChange={(e) => setNofServiceman(e.target.value)}
                   ></Form.Control>
                 </InputGroup>
-                <Form.Label className="mt-3">
-                  Home page title <span className="text-danger"> *</span>
-                </Form.Label>
-                <InputGroup className="mb-2">
-                  <Form.Select
-                    aria-label="Username"
-                    aria-describedby="basic-addon1"
-                    onChange={(e) => sethomePagetitle(e.target.value)}
-                  >
-                    <option>{Servicedata[0]?.homepagetitle}</option>
-                    {homepagetitleData.map((item) => (
-                      <option value={item.titleName}>{item.titleName}</option>
-                    ))}
-                  </Form.Select>
-                </InputGroup>
               </Card>
             </div>
             <div className="col-md-9 shadow p-3 mb-5 bg-body rounded">
@@ -509,13 +574,7 @@ function Servicedetails() {
                       ></i>
                       Add Slot's
                     </Button>{" "}
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "20px",
-                        flexWrap: "wrap",
-                      }}
-                    >
+                    <div>
                       {Servicedata[0]?.store_slots.map((i, index) => {
                         // Check if the current city is different from the previous slot
                         const isNewCity = currentCity !== i.slotCity;
@@ -530,7 +589,7 @@ function Servicedetails() {
                             {isNewCity && <p>{i.slotCity}</p>}
                             <div style={{ display: "flex", flexWrap: "wrap" }}>
                               <p className="slots">
-                                {formatTimeRange(i.StartTime, i.EndTime)}
+                                {i.startTime}-{i.endTime}
                               </p>
                               <p
                                 style={{
@@ -540,15 +599,15 @@ function Servicedetails() {
                               >
                                 {i.Servicesno}
                               </p>
-                              {/* <i
+                              <i
                                 className="fa-solid fa-trash"
                                 style={{
                                   color: "red",
                                   padding: "10px",
                                   cursor: "pointer",
                                 }}
-                                onClick={() => handleDeleteCity()}
-                              ></i> */}
+                                onClick={() => handleDeleteClick(index)}
+                              ></i>
                             </div>
                           </div>
                         );
@@ -562,12 +621,8 @@ function Servicedetails() {
                             <p>{city}</p>
                             {data.map((item, subIndex) => {
                               // Parse the start and end times using dayjs
-                              const startTime = dayjs(item.StartTime).format(
-                                "h:mm A"
-                              );
-                              const endTime = dayjs(item.EndTime).format(
-                                "h:mm A"
-                              );
+                              const startTime = item.startTime;
+                              const endTime = item.endTime;
 
                               return (
                                 <div key={subIndex} style={{ display: "flex" }}>
@@ -619,94 +674,59 @@ function Servicedetails() {
                             <th>Price</th>
                             <th>OfferPrice</th>
                             <th>Services</th>
+                            <th>Period frequency</th>
+                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {Servicedata[0]?.morepriceData.map((i) => (
+                          {Servicedata[0]?.morepriceData.map((i, index) => (
                             <tr>
                               <td>{i.pName}</td>
                               <td>{i.pPrice}</td>
                               <td>{i.pofferprice}</td>
                               <td>{i.pservices}</td>
+                              <td>{i.servicePeriod}</td>
+
+                              <td>
+                                {" "}
+                                <i
+                                  className="fa-solid fa-trash"
+                                  style={{
+                                    color: "red",
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => handleDeleteprice(index)}
+                                ></i>
+                              </td>
                             </tr>
                           ))}
-                          {morepriceData.map((i) => (
+                          {morepriceData.map((i, index) => (
                             <tr>
                               <td>{i.pName}</td>
                               <td>{i.pPrice}</td>
                               <td>{i.pofferprice}</td>
                               <td>{i.pservices}</td>
+
+                              <td>
+                                {" "}
+                                <i
+                                  className="fa-solid fa-trash"
+                                  style={{
+                                    color: "red",
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => handleDeleteClick(index)}
+                                ></i>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </Table>
                     </div>
                   </Form>
-                  <Button
-                    variant="light"
-                    className="mb-3"
-                    style={{ color: "skyblue" }}
-                    onClick={handleShow2}
-                  >
-                    {" "}
-                    <i
-                      class="fa-regular fa-plus"
-                      style={{ color: "rgb(7, 170, 237)" }}
-                    ></i>
-                    Add Home page title
-                  </Button>{" "}
-                  <div>
-                    {/* {Servicedata[0]?.homepagetitleData.map((i, index) => (
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <p style={{ color: "brown" }}>
-                          {index + 1}.{i.titleName}
-                        </p>
-                      </div>
-                    ))} */}
-                    {homepagetitleData.map((i, index) => (
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <p style={{ color: "brown" }}>
-                          {index + 1}.{i.titleName}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <Row className="mb-3">
-                    {" "}
-                    <Form.Group as={Col} controlId="formGridState">
-                      <Form.Label>
-                        Select Services redirection{" "}
-                        <span className="text-danger"> *</span>
-                      </Form.Label>
 
-                      <InputGroup className="mb-2 col-3">
-                        <Form.Select
-                          aria-label="Username"
-                          aria-describedby="basic-addon1"
-                          onChange={(e) => setserviceDirection(e.target.value)}
-                        >
-                          <option>{Servicedata[0]?.serviceDirection}</option>
-
-                          <option value="Enquiry">Enquiry</option>
-                          <option value="Survey">Survey</option>
-                          <option value="DSR">DSR single service</option>
-                          <option value="AMC">AMC Service</option>
-                        </Form.Select>
-                      </InputGroup>
-                    </Form.Group>
-                  </Row>
                   <Button type="button" variant="outline-primary">
                     Cancel
                   </Button>
@@ -804,7 +824,83 @@ function Servicedetails() {
                         />
                       </Form.Group>
                     </Row>
-                    <Row className="mb-3 mt-4">
+                    <Row>
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label className="mt-3">
+                          Home page title
+                        </Form.Label>
+                        <InputGroup className="mb-2">
+                          <Form.Select
+                            aria-label="Username"
+                            aria-describedby="basic-addon1"
+                            onChange={(e) => sethomePagetitle(e.target.value)}
+                          >
+                            {Servicedata[0]?.homepagetitle ? (
+                              <option>{Servicedata[0]?.homepagetitle}</option>
+                            ) : (
+                              <option>-- Home page title---</option>
+                            )}
+
+                            <option>{Servicedata[0]?.homepagetitle}</option>
+                            {homepagetitleData.map((item) => (
+                              <option value={item.titleName}>
+                                {item.titleName}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </InputGroup>
+                      </Form.Group>
+
+                      <Form.Group as={Col} controlId="formGridState">
+                        <Form.Label className="mt-3">
+                          Select Services redirection{" "}
+                          <span className="text-danger"> *</span>
+                        </Form.Label>
+
+                        <InputGroup className="mb-2 col-3">
+                          <Form.Select
+                            aria-label="Username"
+                            aria-describedby="basic-addon1"
+                            onChange={(e) =>
+                              setserviceDirection(e.target.value)
+                            }
+                          >
+                            {Servicedata[0]?.serviceDirection ? (
+                              <option>
+                                {Servicedata[0]?.serviceDirection}
+                              </option>
+                            ) : (
+                              <option>--select --</option>
+                            )}
+
+                            <option value="Enquiry">Enquiry</option>
+                            <option value="Survey">Survey</option>
+                            <option value="DSR">DSR single service</option>
+                            <option value="AMC">AMC Service</option>
+                          </Form.Select>
+                        </InputGroup>
+                      </Form.Group>
+                      <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label className="mt-3">GST Percentage</Form.Label>
+
+                        <Form.Select
+                          aria-label="Username"
+                          aria-describedby="basic-addon1"
+                          onChange={(e) => setServiceGst(e.target.value)}
+                        >
+                          {Servicedata[0]?.serviceGst ? (
+                            <option>{Servicedata[0]?.serviceGst}</option>
+                          ) : (
+                            <option>---Select GST---</option>
+                          )}
+
+                          <option value="0.05">5%</option>
+                          <option value="0.18">18%</option>
+                          <option value="0.22">22%</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Row>
+                    {/* <Row className="mb-3 mt-4">
                       <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>
                           Service Price
@@ -858,7 +954,7 @@ function Servicedetails() {
                           <option value="0.22">22%</option>
                         </Form.Select>
                       </Form.Group>
-                    </Row>
+                    </Row> */}
                   </Form>
                   <Button type="button" variant="outline-primary">
                     Cancel
@@ -884,43 +980,37 @@ function Servicedetails() {
         </Modal.Header>
         <Modal.Body>
           <Row>
-            <Form.Group as={Col} controlId="formGridEmail">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer
-                  components={[
-                    "TimePicker",
-                    "MobileTimePicker",
-                    "DesktopTimePicker",
-                    "StaticTimePicker",
-                  ]}
+            <Form.Group as={Col} controlId="formGridState">
+              <Form.Label>Select StartTime </Form.Label>
+
+              <InputGroup className="mb-2 col-3">
+                <Form.Select
+                  aria-label="startTime"
+                  aria-describedby="basic-addon1"
+                  onChange={(e) => setstartTime(e.target.value)}
                 >
-                  <DemoItem label="Start Time">
-                    <MobileTimePicker
-                      defaultValue={StartTime} // Set the default value
-                      onChange={handleTimeChange} // Handle changes to the selected time
-                    />
-                  </DemoItem>
-                </DemoContainer>
-              </LocalizationProvider>
+                  <option>-Select-</option>
+                  {slotsdata.map((i) => (
+                    <option value={i.startTime}>{i.startTime}</option>
+                  ))}
+                </Form.Select>
+              </InputGroup>
             </Form.Group>
-            <Form.Group as={Col} controlId="formGridEmail">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer
-                  components={[
-                    "TimePicker",
-                    "MobileTimePicker",
-                    "DesktopTimePicker",
-                    "StaticTimePicker",
-                  ]}
+            <Form.Group as={Col} controlId="formGridState">
+              <Form.Label>Select EndTime </Form.Label>
+
+              <InputGroup className="mb-2 col-3">
+                <Form.Select
+                  aria-label="Username"
+                  aria-describedby="basic-addon1"
+                  onChange={(e) => setendTime(e.target.value)}
                 >
-                  <DemoItem label="End Time">
-                    <MobileTimePicker
-                      defaultValue={EndTime} // Set the default value
-                      onChange={handleTimeChange1} // Handle changes to the selected time
-                    />
-                  </DemoItem>
-                </DemoContainer>
-              </LocalizationProvider>
+                  <option>-Select-</option>
+                  {slotsdata.map((i) => (
+                    <option value={i.endTime}>{i.endTime}</option>
+                  ))}
+                </Form.Select>
+              </InputGroup>
             </Form.Group>
           </Row>
           <Form.Group as={Col} controlId="formGridState">
@@ -1083,6 +1173,7 @@ function Servicedetails() {
               onChange={(e) => setpofferprice(e.target.value)}
             />
           </Form.Group>
+          
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>How many services</Form.Label>
             <Form.Control
@@ -1091,6 +1182,21 @@ function Servicedetails() {
               onChange={(e) => setpservices(e.target.value)}
             />
           </Form.Group>
+          <Form.Label className="mt-3">Period frequency</Form.Label>
+          <InputGroup className="mb-2 col-3">
+            <Form.Select
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+              onChange={(e) => setservicePeriod(e.target.value)}
+            >
+              <option>-Select-</option>
+
+              <option value="monthly">Monthly</option>
+              <option value="quart">Quartly</option>
+              <option value="half">Half year</option>
+              <option value="year">Year</option>
+            </Form.Select>
+          </InputGroup>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

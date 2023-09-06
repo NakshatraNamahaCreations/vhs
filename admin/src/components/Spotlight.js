@@ -193,15 +193,8 @@ function Spotlight() {
             <Modal.Title>Spotlight</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <div className="vhs-input-label mt-3">
-              <b>Select Gif file </b> <span className="text-danger"> *</span>
-            </div>
-            <input type="file" onChange={(e) => setBanner(e.target.files[0])} />
-            <div className="mt-3" style={{ fontSize: "13px" }}>
-              <b>Note :</b> width=320px,height=150px
-            </div>
 
-            <div className="vhs-input-label mt-3">
+          <div className="vhs-input-label mt-3">
               Catagory <span className="text-danger"> *</span>
             </div>
             <div className="group pt-1">
@@ -215,6 +208,18 @@ function Spotlight() {
                 ))}
               </select>
             </div>
+
+
+
+            <div className="vhs-input-label mt-3">
+              <b>Select file </b> <span className="text-danger"> *</span>
+            </div>
+            <input type="file" onChange={(e) => setBanner(e.target.files[0])} />
+            <div className="mt-3" style={{ fontSize: "13px" }}>
+              <b>Note :</b> width=300px,height=150px
+            </div>
+
+            
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>

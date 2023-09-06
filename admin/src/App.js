@@ -32,6 +32,8 @@ import Vendordetails from "./components/Vendordetails";
 import Offerbanner from "./components/Offerbanner";
 import Spotlight from "./components/Spotlight";
 import Homepagebanner from "./components/Homepagebanner";
+import Homepagetitle from "./components/Homepagetiltle";
+import Slots from "./components/Slots";
 
 function App() {
   return (
@@ -55,6 +57,8 @@ function App() {
         <Route path="/subcategory" element={<Subcategory />} />
         <Route path="/offerbanner" element={<Offerbanner />} />
         <Route path="/spotlight" element={<Spotlight />} />
+        <Route path="/homepagetitle" element={<Homepagetitle />} />
+        <Route path="/slots" element={<Slots />} />
         <Route path="/homepagebanner" element={<Homepagebanner />} />
       
         <Route path="/servicedetails/:id" element={<Servicedetails />} />

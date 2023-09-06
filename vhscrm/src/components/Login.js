@@ -40,10 +40,10 @@ function Login() {
   };
 
   return (
-    <div style={{ height: "100vh" }}>
+    <div >
       <div
         className="row justify-content-center"
-        style={{ alignItems: "center" ,height:"100vh",backgroundColor: "rgb(236, 225, 225)"}}
+        style={{ alignItems: "center" ,backgroundColor: "rgb(236, 225, 225)"}}
 
       >
         <div className="row">

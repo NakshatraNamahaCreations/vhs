@@ -23,6 +23,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DesktopTimePicker } from "@mui/x-date-pickers/DesktopTimePicker";
 import { StaticTimePicker } from "@mui/x-date-pickers/StaticTimePicker";
+import { Category } from "@mui/icons-material";
 const onChange = (time, timeString) => {
   console.log(time, timeString);
 };
@@ -53,11 +54,15 @@ function Services() {
   const [ServiceGst, setServiceGst] = useState("");
   const [NofServiceman, setNofServiceman] = useState("");
   const [Subcategory, setSubcategory] = useState("");
-  const [offerPrice, setofferPrice] = useState("");
+  const [category, setcategory] = useState("");
   const [Servicesno, setServicesno] = useState("");
-  // const [StartTime, setStartTime] = useState("");
-  // const [EndTime, setEndTime] = useState("");
+
+  const [slotsdata, setslotsdata] = useState([]);
+  const [titledata, settitledata] = useState([]);
   const [slotCity, setslotcity] = useState("");
+  const [startTime, setstartTime] = useState("");
+  const [endTime, setendTime] = useState([]);
+  const [servicePeriod, setservicePeriod] = useState("");
 
   const [Image, setImage] = useState("");
   const [Plans, setPlans] = useState("");
@@ -75,6 +80,7 @@ function Services() {
   const [servicetitle, setServicetitle] = useState("");
   const [servicebelow, setServicebelow] = useState("");
   const [titleName, settitleName] = useState("");
+  const [catdata, setcatdata] = useState([]);
   const formdata = new FormData();
 
   const onImageChange = (event) => {
@@ -118,13 +124,39 @@ function Services() {
   };
 
   useEffect(() => {
+    getslots();
+    gettitle();
+  }, []);
+
+  const getslots = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getslots");
+    if ((res.status = 200)) {
+      setslotsdata(res.data?.slots);
+    }
+  };
+
+  const gettitle = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/gettitle");
+    if ((res.status = 200)) {
+      settitledata(res.data?.homepagetitle);
+    }
+  };
+
+  useEffect(() => {
+    getallsubcategory();
     getcategory();
   }, []);
 
-  const getcategory = async () => {
+  const getallsubcategory = async () => {
     let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
     if ((res.status = 200)) {
       setcategorydata(res.data?.subcategory);
+    }
+  };
+  const getcategory = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    if ((res.status = 200)) {
+      setcatdata(res.data?.category);
     }
   };
 
@@ -147,20 +179,16 @@ function Services() {
   };
 
   const postformat = async (e) => {
-    const a = ServiceGst * ServicePrice;
-
-    const sp = parseInt(a) + parseInt(ServicePrice);
-    const b = ServiceGst * offerPrice;
-    const op = parseInt(b) + parseInt(offerPrice);
-
-    if (!ServiceImg || !ServiceName || !ServiceDesc || !ServicePrice) {
+    if (!ServiceImg || !ServiceName || !ServiceDesc ||!category) {
       alert("Please fill all mandatory fields");
     } else {
       e.preventDefault();
       formdata.append("serviceImg", Image);
       formdata.append("sub_subcategory", sub_subcategory);
       formdata.append("serviceName", ServiceName);
-      formdata.append("servicePrice", sp);
+      formdata.append("serviceDirection", serviceDirection);
+      formdata.append("category", category);
+
       formdata.append("Subcategory", Subcategory);
       formdata.append("serviceIncludes", serviceIncludes);
       formdata.append("serviceExcludes", serviceExcludes);
@@ -169,7 +197,7 @@ function Services() {
       formdata.append("servicebelow", servicebelow);
 
       formdata.append("homepagetitle", homepagetitle);
-      formdata.append("offerPrice", op);
+
       formdata.append("serviceHour", ServiceHour);
       formdata.append("serviceDesc", ServiceDesc);
       formdata.append("serviceGst", ServiceGst);
@@ -186,15 +214,11 @@ function Services() {
           if (response.status === 200) {
             alert("Successfully Added");
             const { success, service } = response.data;
-            console.log(success); // Should log "User added successfully"
-            console.log(service); // Should log the service data
-            alert(success);
+
             setserID(service._id);
             // Handle the s
             localStorage.removeItem("plansprice");
             handelgeneralbtn();
-
-            // window.location.assign("/Service");
           }
         });
       } catch (error) {
@@ -245,6 +269,10 @@ function Services() {
     {
       name: "Sl  No",
       selector: (row, index) => index + 1,
+    },
+    {
+      name: "Category",
+      selector: (row) => row.category,
     },
     {
       name: "Subcategory",
@@ -327,18 +355,18 @@ function Services() {
         data: {
           // cardno: cardno,
           plans: plandata,
-          serviceDirection: serviceDirection,
+
           morepriceData: morepriceData,
           store_slots: existingData,
         },
       };
       await axios(config).then(function (response) {
         if (response.status === 200) {
-          console.log("success");
-          alert(" Added");
           localStorage.removeItem("Store_Slots");
-          localStorage.removeItem("plans");
+          localStorage.removeItem("plansprice");
           localStorage.removeItem("plansdeatils");
+        
+
           setserID("");
           handelsavebtn();
           window.location.reload();
@@ -355,7 +383,7 @@ function Services() {
     console.log("Existing Data:", existingData);
 
     // Add new data to the array
-    const newData = { StartTime, EndTime, slotCity, Servicesno };
+    const newData = { startTime, endTime, slotCity, Servicesno };
     existingData.push(newData);
     console.log("New Data:", newData);
 
@@ -398,7 +426,7 @@ function Services() {
     const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
 
     // Add new data to the array
-    const newData = { pName, pofferprice, pPrice, pservices };
+    const newData = { pName, pofferprice, pPrice, pservices, servicePeriod };
     morepriceData.push(newData);
     console.log("New Data:", newData);
 
@@ -428,13 +456,13 @@ function Services() {
 
   // Group data by city
   existingData.forEach((item) => {
-    const { slotCity, StartTime, EndTime, Servicesno } = item;
+    const { slotCity, startTime, endTime, Servicesno } = item;
 
     if (!dataByCity[slotCity]) {
       dataByCity[slotCity] = [];
     }
 
-    dataByCity[slotCity].push({ StartTime, EndTime, Servicesno });
+    dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
   const [StartTime, setStartTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
   const [EndTime, setEndTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
@@ -539,9 +567,25 @@ function Services() {
                   }}
                 >
                   <Card.Title>Service details</Card.Title>
-
                   <Form.Label className="mt-3">
-                    Subcategory <span className="text-danger"> *</span>
+                    Category <span className="text-danger"> *</span>
+                  </Form.Label>
+                  <InputGroup className="mb-2">
+                    <Form.Select
+                      aria-label="Username"
+                      aria-describedby="basic-addon1"
+                      onChange={(e) =>setcategory(e.target.value)}
+                    >
+                      <option>-Select Subcategory-</option>
+                      {catdata.map((item) => (
+                        <option value={item.category}>
+                          {item.category}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </InputGroup>
+                  <Form.Label className="mt-3">
+                    Subcategory 
                   </Form.Label>
                   <InputGroup className="mb-2">
                     <Form.Select
@@ -557,9 +601,7 @@ function Services() {
                       ))}
                     </Form.Select>
                   </InputGroup>
-                  <Form.Label className="mt-3">
-                    Sub-subcategory <span className="text-danger"> *</span>
-                  </Form.Label>
+                  <Form.Label className="mt-3">Sub-subcategory</Form.Label>
                   <InputGroup className="mb-2">
                     <Form.Select
                       aria-label="Username"
@@ -597,22 +639,6 @@ function Services() {
                       placeholder="15"
                       onChange={(e) => setNofServiceman(e.target.value)}
                     ></Form.Control>
-                  </InputGroup>
-
-                  <Form.Label className="mt-3">
-                    Home page title <span className="text-danger"> *</span>
-                  </Form.Label>
-                  <InputGroup className="mb-2">
-                    <Form.Select
-                      aria-label="Username"
-                      aria-describedby="basic-addon1"
-                      onChange={(e) => sethomePagetitle(e.target.value)}
-                    >
-                      <option>--Select title name--</option>
-                      {homepagetitleData.map((item) => (
-                        <option value={item.titleName}>{item.titleName}</option>
-                      ))}
-                    </Form.Select>
                   </InputGroup>
                 </Card>
               </div>
@@ -667,12 +693,8 @@ function Services() {
                                 <p>{city}</p>
                                 {data.map((item, subIndex) => {
                                   // Parse the start and end times using dayjs
-                                  const startTime = dayjs(
-                                    item.StartTime
-                                  ).format("h:mm A");
-                                  const endTime = dayjs(item.EndTime).format(
-                                    "h:mm A"
-                                  );
+                                  const startTime = item.startTime;
+                                  const endTime = item.endTime;
 
                                   return (
                                     <div
@@ -730,6 +752,7 @@ function Services() {
                               <th>Price</th>
                               <th>OfferPrice</th>
                               <th>Services</th>
+                              <th>servicePeriod</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -739,79 +762,12 @@ function Services() {
                                 <td>{i.pPrice}</td>
                                 <td>{i.pofferprice}</td>
                                 <td>{i.pservices}</td>
+                                <th>{i.servicePeriod}</th>
                               </tr>
                             ))}
                           </tbody>
                         </Table>
                       </div>
-                      <Button
-                        variant="light"
-                        className="mb-3"
-                        style={{ color: "skyblue" }}
-                        onClick={handleShow2}
-                      >
-                        {" "}
-                        <i
-                          class="fa-regular fa-plus"
-                          style={{ color: "rgb(7, 170, 237)" }}
-                        ></i>
-                        Add Home page title
-                      </Button>{" "}
-                      <div>
-                        {/* <h4>Home Page Title</h4> */}
-                        {homepagetitleData.map((i, index) => (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "20px",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            <p style={{ color: "brown" }}>
-                              {index + 1}.{i.titleName}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                      <Row className="mb-3">
-                        {" "}
-                        <Form.Group as={Col} controlId="formGridState">
-                          <Form.Label>
-                            Select Services redirection{" "}
-                            <span className="text-danger"> *</span>
-                          </Form.Label>
-
-                          <InputGroup className="mb-2 col-3">
-                            <Form.Select
-                              aria-label="Username"
-                              aria-describedby="basic-addon1"
-                              onChange={(e) =>
-                                setserviceDirection(e.target.value)
-                              }
-                            >
-                              <option>-Select-</option>
-
-                              <option value="Enquiry">Enquiry</option>
-                              <option value="Survey">Survey</option>
-                              <option value="DSR">DSR single service</option>
-                              <option value="AMC">AMC Service</option>
-                            </Form.Select>
-                          </InputGroup>
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridState">
-                          {/* <Form.Label>Service label</Form.Label>
-
-                          <InputGroup className="mb-3">
-                            <Form.Control
-                              aria-label="max_hrbook"
-                              aria-describedby="basic-addon1"
-                              type="text"
-                              placeholder="Essential"
-                              onChange={(e) => setServiceName(e.target.value)}
-                            ></Form.Control>
-                          </InputGroup> */}
-                        </Form.Group>
-                      </Row>
                     </Form>
 
                     <Form>
@@ -984,7 +940,67 @@ function Services() {
                           />
                         </Form.Group>
                       </Row>
-                      <Row className="mb-3">
+
+                      <Row>
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label className="mt-3">
+                            Home page title{" "}
+                          </Form.Label>
+                          <InputGroup className="mb-2">
+                            <Form.Select
+                              aria-label="Username"
+                              aria-describedby="basic-addon1"
+                              onChange={(e) => sethomePagetitle(e.target.value)}
+                            >
+                              <option>--Select title name--</option>
+                              {titledata.map((item) => (
+                                <option value={item.title}>{item.title}</option>
+                              ))}
+                            </Form.Select>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label className="mt-3">
+                            Select Services redirection{" "}
+                            <span className="text-danger"> *</span>
+                          </Form.Label>
+
+                          <InputGroup className="mb-2 col-3">
+                            <Form.Select
+                              aria-label="Username"
+                              aria-describedby="basic-addon1"
+                              onChange={(e) =>
+                                setserviceDirection(e.target.value)
+                              }
+                            >
+                              <option>-Select-</option>
+
+                              <option value="Enquiry">Enquiry</option>
+                              <option value="Survey">Survey</option>
+                              <option value="DSR">DSR single service</option>
+                              <option value="AMC">AMC Service</option>
+                            </Form.Select>
+                          </InputGroup>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label className="mt-3">
+                            GST Percentage
+                          </Form.Label>
+
+                          <Form.Select
+                            aria-label="Username"
+                            aria-describedby="basic-addon1"
+                            onChange={(e) => setServiceGst(e.target.value)}
+                          >
+                            <option>---Select GST---</option>
+
+                            <option value="5%">5%</option>
+                            <option value="18%">18%</option>
+                            <option value="22%">22%</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Row>
+                      {/* <Row className="mb-3">
                         <Form.Group as={Col} controlId="formGridEmail">
                           <Form.Label>
                             Service Price
@@ -1035,7 +1051,7 @@ function Services() {
                             <option value="0.22">22%</option>
                           </Form.Select>
                         </Form.Group>
-                      </Row>
+                      </Row> */}
                     </Form>
                     <Button type="button" variant="outline-primary">
                       Cancel
@@ -1061,7 +1077,7 @@ function Services() {
           <Modal.Title>Add Slots</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row>
+          {/* <Row>
             <Form.Group as={Col} controlId="formGridEmail">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer
@@ -1099,6 +1115,41 @@ function Services() {
                   </DemoItem>
                 </DemoContainer>
               </LocalizationProvider>
+            </Form.Group>
+          </Row> */}
+
+          <Row>
+            <Form.Group as={Col} controlId="formGridState">
+              <Form.Label>Select StartTime </Form.Label>
+
+              <InputGroup className="mb-2 col-3">
+                <Form.Select
+                  aria-label="startTime"
+                  aria-describedby="basic-addon1"
+                  onChange={(e) => setstartTime(e.target.value)}
+                >
+                  <option>-Select-</option>
+                  {slotsdata.map((i) => (
+                    <option value={i.startTime}>{i.startTime}</option>
+                  ))}
+                </Form.Select>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group as={Col} controlId="formGridState">
+              <Form.Label>Select EndTime </Form.Label>
+
+              <InputGroup className="mb-2 col-3">
+                <Form.Select
+                  aria-label="Username"
+                  aria-describedby="basic-addon1"
+                  onChange={(e) => setendTime(e.target.value)}
+                >
+                  <option>-Select-</option>
+                  {slotsdata.map((i) => (
+                    <option value={i.endTime}>{i.endTime}</option>
+                  ))}
+                </Form.Select>
+              </InputGroup>
             </Form.Group>
           </Row>
 
@@ -1233,6 +1284,22 @@ function Services() {
               onChange={(e) => setpservices(e.target.value)}
             />
           </Form.Group>
+          <Form.Label className="mt-3">Period frequency</Form.Label>
+
+          <InputGroup className="mb-2 col-3">
+            <Form.Select
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+              onChange={(e) => setservicePeriod(e.target.value)}
+            >
+              <option>-Select-</option>
+
+              <option value="monthly">Monthly</option>
+              <option value="quart">Quartly</option>
+              <option value="half">Half year</option>
+              <option value="year">Year</option>
+            </Form.Select>
+          </InputGroup>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

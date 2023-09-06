@@ -16,7 +16,7 @@ function Customersearchdetails() {
   const [serviceCharge, setserviceCharge] = useState("");
   const [dateofService, setdateofService] = useState([]);
   const [desc, setdesc] = useState("");
-  const [serviceFrequency, setserviceFrequency] = useState("");
+  const [serviceFrequency, setserviceFrequency] = useState(1);
   const [startDate, setstartDate] = useState("00-00-0000");
   const [expiryDate, setexpiryDate] = useState("00-00-0000");
   const [category, setcategory] = useState("");
@@ -175,6 +175,9 @@ function Customersearchdetails() {
         : dividedamtCharge;
     dividedamtCharges.push(charge);
   }
+
+  console.log("dividedDates",dividedDates);
+ 
   const addtreatmentdetails = async (e) => {
     e.preventDefault();
     if (!contractType || !treatment ) {
@@ -190,7 +193,7 @@ function Customersearchdetails() {
           headers: { "content-type": "application/json" },
           data: {
             customerData: customerdata,
-            dividedDates: contractType === "AMC" ? dividedDates : dateofService,
+            dividedDates:dividedDates ,
             dividedamtDates: dividedamtDates,
             dividedamtCharges: dividedamtCharges,
             cardNo: id,
@@ -200,9 +203,10 @@ function Customersearchdetails() {
             service: treatment,
             serviceCharge: serviceCharge,
             dateofService: dateofService,
+
             desc: desc,
             serviceFrequency: serviceFrequency,
-            startDate: startDate,
+            startDate: dateofService,
             expiryDate: expiryDate,
             firstserviceDate: firstserviceDate,
             date: moment().format("YYYY-MM-DD"),
@@ -217,7 +221,7 @@ function Customersearchdetails() {
             console.log("success");
             alert(" Added");
 
-            window.location.reload();
+            window.location.reload("");
           }
         });
       } catch (error) {
@@ -227,6 +231,7 @@ function Customersearchdetails() {
     }
   };
 
+ 
   const deleteservicedeatils = async (id) => {
     axios({
       method: "post",
@@ -267,12 +272,8 @@ function Customersearchdetails() {
   };
   let i = 1;
 
-  const handleRowClick = (id) => {
-    console.log(id);
-    navigate(`/addcall/${id}`);
-  };
 
-  console.log("on", oneCommunity, communityPercentage) //this line
+
   return (
     <div className="web">
       <Header />
@@ -678,7 +679,7 @@ function Customersearchdetails() {
                               type="date"
                               name="qty"
                               className="col-md-12 vhs-input-value"
-                              onChange={(e) => setdateofService(e.target.value)}
+                              onChange={(e) => setfirstserviceDate(e.target.value)}
                             />
                           </div>
                           <div className="col-md-4 pt-3">
@@ -844,9 +845,9 @@ function Customersearchdetails() {
                     <td>{item.category}</td>
                     <td>{item.contractType}</td>
                     <td>{item.service}</td>
-                    <td>{item.serviceFrequency}</td>
+                    <td style={{textAlign:"center"}}>{item.contractType === "AMC" ? item.serviceFrequency :"-"}</td>
                     <td>
-                      {item.dateofService}/{item.expiryDate}
+                      {item.contractType === "AMC" ? <>{item.startDate} / {item.expiryDate}</> : item.dateofService}
                     </td>
                     {item.contractType === "AMC" ? (
                       <td>

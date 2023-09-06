@@ -188,11 +188,11 @@ function Homepagebanner() {
           </Modal.Header>
           <Modal.Body>
           <div className="vhs-input-label mt-3">
-             <b>Select Gif file </b> <span className="text-danger"> *</span>
+             <b>Select  file </b> <span className="text-danger"> *</span>
             </div>
             <input type="file" onChange={(e) => setBanner(e.target.files[0])} />
             <div className="mt-3" style={{ fontSize: "13px" }}>
-              <b>Note :</b> width=350px,height=200px
+              <b>Note :</b> width=300px,height=150px
 
             </div>
 

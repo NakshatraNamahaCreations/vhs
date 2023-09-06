@@ -31,23 +31,26 @@ const serviceManagementSchema = new mongoose.Schema({
   serviceGst: {
     type: String,
   },
-  plans:{
-    type:Array
+  plans: {
+    type: Array,
   },
-  Plansdetails:{
-    type:Array
+  Plansdetails: {
+    type: Array,
   },
-  store_slots:{
-    type:Array
+  store_slots: {
+    type: Array,
   },
-  sub_subcategory:{
-    type:String
+  sub_subcategory: {
+    type: String,
   },
-  serviceExcludes:{
-    type:String
+  serviceExcludes: {
+    type: String,
   },
-  serviceIncludes:{
-    type:String
+  category: {
+    type: String,
+  },
+  serviceIncludes: {
+    type: String,
   },
   morepriceData: [
     {
@@ -55,23 +58,23 @@ const serviceManagementSchema = new mongoose.Schema({
       pofferprice: String,
       pPrice: String,
       pservices: String,
-    }
+    },
   ],
-  quantity:{
-    type:String
+  quantity: {
+    type: String,
   },
-  servicetitle:{
-    type:String
+  servicetitle: {
+    type: String,
   },
-  servicebelow:{
-    type:String
+  servicebelow: {
+    type: String,
   },
-  homepagetitle:{
-    type:String
+  homepagetitle: {
+    type: String,
   },
-  serviceDirection:{
-    type:String
-  }
+  serviceDirection: {
+    type: String,
+  },
 });
 
 const serviceManagementModel = mongoose.model(
