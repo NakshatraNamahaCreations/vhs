@@ -34,6 +34,7 @@ import Spotlight from "./components/Spotlight";
 import Homepagebanner from "./components/Homepagebanner";
 import Homepagetitle from "./components/Homepagetiltle";
 import Slots from "./components/Slots";
+import FEQ from "./components/FEQ"
 
 function App() {
   return (
@@ -63,6 +64,8 @@ function App() {
       
         <Route path="/servicedetails/:id" element={<Servicedetails />} />
         <Route path="/vendordetails/:id" element={<Vendordetails />} />
+        <Route path="/feq" element={<FEQ />} />
+
 
         {/* <Route path="/Content" element={<Content />} /> */}
         <Route path="/settings" element={<Settings />} />

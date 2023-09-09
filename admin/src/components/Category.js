@@ -9,19 +9,20 @@ import Header from "./Header";
 
 function Category() {
   const [category, setcategory] = useState("");
-  const [categoryImg, setcategoryImg] = useState("");
+
+  const [newImg, setnewImg] = useState("");
   const [categorydata, setcategorydata] = useState([]);
   const [subcategorydata, setsetsubcategorydata] = useState([]);
   const apiURL = process.env.REACT_APP_API_URL;
   const [search, setsearch] = useState("");
   const [filterdata, setfilterdata] = useState([]);
   const [data, setdata] = useState([]);
-  const [category1, setcategory1] = useState(data.category);
-  const [categoryImg1, setcategoryImg1] = useState(data.categoryImg);
+  const [category1, setcategory1] = useState(data?.category);
+  const [categoryImg, setcategoryImg] = useState(data?.categoryImg);
 
- 
-  
   const formdata = new FormData();
+console.log(data)
+  console.log(data?.category)
 
   const [show, setShow] = useState(false);
 
@@ -60,37 +61,46 @@ function Category() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get( "http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
     if ((res.status = 200)) {
       setcategorydata(res.data?.category);
       setfilterdata(res.data?.category);
     }
   };
-  console.log(categorydata);
 
   const editcategory = async (e) => {
     e.preventDefault();
     try {
+
+      console.log(category1)
+      formdata.append("category", category1);
+      formdata.append("categoryImg", newImg);
+
       const config = {
         url: `/editcategory/${data._id}`,
         method: "post",
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
-        headers: { "content-type": "application/json" },
-        data: {
-          category: category1,
+        data: formdata,
+
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
       };
-      await axios(config).then(function (response) {
-        if (response.status === 200) {
-          alert("Successfully Added");
-          window.location.reload("");
-        }
-      });
+
+      const response = await axios(config);
+
+      if (response.status === 200) {
+        alert("Successfully Updated");
+        window.location.assign("/category");
+      } else {
+        alert("Category not updated"); // Handle other status codes appropriately
+      }
     } catch (error) {
       console.error(error);
-      alert("category  Not Added");
+      alert("Category not updated");
     }
   };
+
   const columns = [
     {
       name: "Sl  No",
@@ -116,9 +126,9 @@ function Category() {
       name: "Action",
       cell: (row) => (
         <div>
-          {/* <a className="hyperlink" onClick={() => edit(row)}>
+          <a className="hyperlink" onClick={() => edit(row)}>
             Edit |
-          </a> */}
+          </a>
           <a onClick={() => deletecategory(row._id)} className="hyperlink mx-1">
             Delete
           </a>
@@ -195,7 +205,9 @@ function Category() {
                             className="col-md-12 vhs-input-value"
                             onChange={(e) => setcategoryImg(e.target.files[0])}
                           />
-                           <b style={{fontSize:"12px"}}>Please select the dimensions Width=50px,Height=50px</b>
+                          <b style={{ fontSize: "12px" }}>
+                            Please select the dimensions Width=50px,Height=50px
+                          </b>
                         </div>
                       </div>
 
@@ -250,7 +262,7 @@ function Category() {
           <Modal.Body>
             <div className="card-body p-3">
               <form>
-                <div className="col-md-4">
+                <div className="col-md-12">
                   <div className="vhs-input-label">
                     Category <span className="text-danger"> *</span>
                   </div>
@@ -263,18 +275,18 @@ function Category() {
                     />
                   </div>
                 </div>
-                <div className="col-md-4 mt-3">
+                <div className="col-md-12 mt-3">
                   <div className="vhs-input-label">
                     Category Icon<span className="text-danger"> *</span>
                   </div>
                   <div className="group pt-1">
+                    {/* <input type="file" onChange={(e) => setNewImg(e.target.files[0])} /> */}
                     <input
                       type="file"
                       className="col-md-12 vhs-input-value"
-                      onChange={(e) => setcategoryImg1(e.target.files[0])}
+                      onChange={(e) => setnewImg(e.target.files[0])}
                       // defaultValue={data.categoryImg}
                     />
-                   
                   </div>
                 </div>
                 <div className="row pt-3">

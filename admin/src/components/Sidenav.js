@@ -87,6 +87,10 @@ function Sidenav() {
               Slots
               <Link to="/slots" />
             </MenuItem>
+            <MenuItem>
+              WHy need vhs
+              <Link to="/feq" />
+            </MenuItem>
           
           </SubMenu>
 

@@ -83,6 +83,7 @@ const uhomebanner = require("./route/userapp/homepagebanner");
 const uhometitle = require("./route/userapp/homepagetiltle");
 const uslots = require("./route/userapp/slots");
 
+const ufeq = require("./route/userapp/feq");
 
 
 
@@ -142,6 +143,8 @@ app.use("/api/userapp",uhomebanner);
 app.use("/api/userapp",uhometitle);
 app.use("/api/userapp",uspotlightbanner);
 app.use("/api/userapp",uslots);
+app.use("/api/userapp",ufeq);
+
 
 
 

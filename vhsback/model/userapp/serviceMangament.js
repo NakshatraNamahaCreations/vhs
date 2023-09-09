@@ -23,11 +23,21 @@ const serviceManagementSchema = new mongoose.Schema({
     type: String,
   },
   serviceDesc: {
-    type: String,
+    type: Array,
+  },
+  Inimg:{
+    type:String
+  },
+  Eximg:{
+    type:String
+  },
+  Desimg:{
+    type:String
   },
   servicePrice: {
     type: String,
   },
+
   serviceGst: {
     type: String,
   },
@@ -44,13 +54,13 @@ const serviceManagementSchema = new mongoose.Schema({
     type: String,
   },
   serviceExcludes: {
-    type: String,
+    type: Array,
   },
   category: {
     type: String,
   },
   serviceIncludes: {
-    type: String,
+    type: Array,
   },
   morepriceData: [
     {

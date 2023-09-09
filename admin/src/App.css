@@ -64,7 +64,7 @@
   width: 100% !important;
 }
 .pro-sidebar{
-  min-width: 240px !important;
+  min-width: 200px !important;
 }
 .pro-sidebar > .pro-sidebar-inner {
   background: white !important;
@@ -477,7 +477,7 @@ a {
   font-weight: 500;
 }
 .pro-sidebar .pro-menu .pro-menu-item {
-  font-size: 20px !important;
+  font-size: 15px !important;
 }
 .pro-menu-item {
   border: 1px solid #eee;

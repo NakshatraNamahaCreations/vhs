@@ -14,6 +14,8 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 function Servicedetails() {
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ function Servicedetails() {
   const [sub_subcategory, setsub_subcategory] = useState(
     Servicedata[0]?.sub_subcategory
   );
-  const [servicePeriod, setservicePeriod] = useState("")
+  const [servicePeriod, setservicePeriod] = useState("");
   const [ServiceHour, setServiceHour] = useState(Servicedata[0]?.serviceHour);
   const [ServiceName, setServiceName] = useState(Servicedata[0]?.ServiceName);
   const [ServiceDesc, setServiceDesc] = useState(Servicedata[0]?.serviceDesc);
@@ -69,7 +71,7 @@ function Servicedetails() {
   const [offerPrice, setofferPrice] = useState(Servicedata[0]?.offerPrice);
   const [Servicesno, setServicesno] = useState("");
   const [Slots, setSlots] = useState("");
-  const [Image, setImage] = useState("");
+  const [Image, setImage] = useState(Servicedata[0]?.serviceImg);
   const [Plans, setPlans] = useState("");
   const [planName, setplanName] = useState("");
   const [plansPrice, setplansPrice] = useState("");
@@ -99,6 +101,12 @@ function Servicedetails() {
   const [startTime, setstartTime] = useState("");
   const [endTime, setendTime] = useState([]);
 
+  const onImageChange = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      setServiceImg(URL.createObjectURL(event.target.files[0]));
+      setImage(event.target.files[0]);
+    }
+  };
   const formdata = new FormData();
   const handelgeneralbtn = () => {
     setToggel1(true);
@@ -126,7 +134,7 @@ function Servicedetails() {
   };
   useEffect(() => {
     getcategory();
-    getallcategory()
+    getallcategory();
   }, []);
 
   const getallcategory = async () => {
@@ -202,7 +210,7 @@ function Servicedetails() {
   const postformat = async (e) => {
     e.preventDefault();
     const formdata = new FormData();
-    formdata.append("serviceImg", Image);
+    formdata.append("serviceImg", ServiceImg);
     formdata.append("sub_subcategory", sub_subcategory);
     formdata.append("serviceName", ServiceName);
     formdata.append("category", category);
@@ -299,7 +307,7 @@ function Servicedetails() {
     const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
 
     // Add new data to the array
-    const newData = { pName, pofferprice, pPrice, pservices,servicePeriod };
+    const newData = { pName, pofferprice, pPrice, pservices, servicePeriod };
     morepriceData.push(newData);
     console.log("New Data:", newData);
 
@@ -411,6 +419,20 @@ function Servicedetails() {
     }
   };
 
+  const handleEditorChange = (event, editor) => {
+    const data1 = editor.getData();
+    setServiceDesc(data1);
+  };
+
+  const handlechangeinclude = (event, editor) => {
+    const data1 = editor.getData();
+    setserviceIncludes(data1);
+  };
+
+  const handlechangeexclude = (event, editor) => {
+    const data1 = editor.getData();
+    setserviceExcludes(data1);
+  };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -439,8 +461,10 @@ function Servicedetails() {
                     height={"500px"}
                     type="file"
                     aria-label="Username"
+                    onChange={onImageChange}
                   />
                 </InputGroup>
+                {}
                 <img
                   src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.serviceImg}`}
                 />
@@ -464,22 +488,20 @@ function Servicedetails() {
                 <Card.Title>Service details</Card.Title>
 
                 <Form.Label className="mt-3">
-                    Category <span className="text-danger"> *</span>
-                  </Form.Label>
-                  <InputGroup className="mb-2">
-                    <Form.Select
-                      aria-label="Username"
-                      aria-describedby="basic-addon1"
-                      onChange={(e) =>setcategory(e.target.value)}
-                    >
-                      <option>-Select Subcategory-</option>
-                      {catdata.map((item) => (
-                        <option value={item.category}>
-                          {item.category}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </InputGroup>
+                  Category <span className="text-danger"> *</span>
+                </Form.Label>
+                <InputGroup className="mb-2">
+                  <Form.Select
+                    aria-label="Username"
+                    aria-describedby="basic-addon1"
+                    onChange={(e) => setcategory(e.target.value)}
+                  >
+                    <option>{Servicedata[0]?.category}</option>
+                    {catdata.map((item) => (
+                      <option value={item.category}>{item.category}</option>
+                    ))}
+                  </Form.Select>
+                </InputGroup>
                 <Form.Label>
                   Subcategory <span className="text-danger"> *</span>
                 </Form.Label>
@@ -796,32 +818,60 @@ function Servicedetails() {
                         Service Description{" "}
                         <span className="text-danger"> *</span>
                       </Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        defaultValue={Servicedata[0]?.serviceDesc}
-                        onChange={(e) => setServiceDesc(e.target.value)}
+                      <img
+                        style={{ width: "15px", height: "15px" }}
+                        src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.Eximg}`}
                       />
+                      {Servicedata[0]?.serviceDesc.map((i) => (
+                        <div>
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
+                            className="mt-3"
+                            placeholder="Include description"
+                            defaultValue={i.text}
+                          />
+                        </div>
+                      ))}
                     </Form.Group>
                     <Row className="mb-2">
                       <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>Includes</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
-                          defaultValue={Servicedata[0]?.serviceIncludes}
-                          onChange={(e) => setserviceIncludes(e.target.value)}
+                        <img
+                          style={{ width: "15px", height: "15px" }}
+                          src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.Desimg}`}
                         />
+                        {Servicedata[0]?.serviceIncludes.map((i) => (
+                          <div>
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              className="mt-3"
+                              placeholder="Include description"
+                              defaultValue={i.text}
+                            />
+                          </div>
+                        ))}
                       </Form.Group>
 
                       <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>Excludes</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
-                          defaultValue={Servicedata[0]?.serviceExcludes}
-                          onChange={(e) => setserviceExcludes(e.target.value)}
+
+                        <img
+                          style={{ width: "15px", height: "15px" }}
+                          src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.Inimg}`}
                         />
+                        {Servicedata[0]?.serviceExcludes.map((i) => (
+                          <div>
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              className="mt-3"
+                              placeholder="Include description"
+                              defaultValue={i.text}
+                            />
+                          </div>
+                        ))}
                       </Form.Group>
                     </Row>
                     <Row>
@@ -1173,7 +1223,7 @@ function Servicedetails() {
               onChange={(e) => setpofferprice(e.target.value)}
             />
           </Form.Group>
-          
+
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>How many services</Form.Label>
             <Form.Control

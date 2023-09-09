@@ -15,7 +15,7 @@ var storage = multer.diskStorage({
 });
 const  upload =multer({storage:storage});
 
-router.post("/addservices",upload.single("serviceImg"), ServiceManagemntController.addserviceManagement);
+router.post("/addservices",upload.any(), ServiceManagemntController.addserviceManagement);
 router.get("/getservices", ServiceManagemntController.getserviceManagement);
 router.post("/editservices/:id", ServiceManagemntController.editserviceManagement);
 router.post("/deleteservices/:id", ServiceManagemntController.postdeleteserviceManagement);

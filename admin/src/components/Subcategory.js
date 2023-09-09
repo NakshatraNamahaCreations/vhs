@@ -89,6 +89,8 @@ function Subcategory() {
       }
     }
   };
+
+  
   const getsubcategory = async () => {
     let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
     if ((res.status = 200)) {

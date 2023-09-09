@@ -77,7 +77,7 @@ class masteruser {
         displayname,
         contactno,
         loginnameOrEmail,
-        password
+        password:hashedPassword,
       });
 
       // Save the user
@@ -110,8 +110,8 @@ class masteruser {
           .status(404)
           .json({ error: "User not found or invalid password" });
       }
-      // const passwordmatch=bcrypt.compareSync(password,user.password)
-      if (password !== user.password) {
+      const passwordmatch=bcrypt.compareSync(password,user.password)
+      if (!passwordmatch) {
         return res.status(401).json({ error: "Invalid password" });
       }
       await usermodel.findOneAndUpdate(

@@ -12,23 +12,12 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
-// import { Space, TimePicker } from "antd";
+
 import { useNavigate } from "react-router-dom";
-// import TimePicker from "react-time-picker";
-import dayjs from "dayjs";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import { DesktopTimePicker } from "@mui/x-date-pickers/DesktopTimePicker";
-import { StaticTimePicker } from "@mui/x-date-pickers/StaticTimePicker";
-import { Category } from "@mui/icons-material";
+
 const onChange = (time, timeString) => {
   console.log(time, timeString);
 };
-
-// import { useNavigate } from "react-router-dom";
 
 function Services() {
   const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
@@ -57,6 +46,9 @@ function Services() {
   const [category, setcategory] = useState("");
   const [Servicesno, setServicesno] = useState("");
 
+  const [Icon, setIcon] = useState("");
+  const [Desc, setDesc] = useState("");
+
   const [slotsdata, setslotsdata] = useState([]);
   const [titledata, settitledata] = useState([]);
   const [slotCity, setslotcity] = useState("");
@@ -78,10 +70,92 @@ function Services() {
   const [pofferprice, setpofferprice] = useState("");
   const [pservices, setpservices] = useState("");
   const [servicetitle, setServicetitle] = useState("");
+
+  const [Inimg, setInimg] = useState("");
+  const [Eximg, setEximg] = useState("");
+  const [Desimg, setDesimg] = useState("")
   const [servicebelow, setServicebelow] = useState("");
   const [titleName, settitleName] = useState("");
   const [catdata, setcatdata] = useState([]);
   const formdata = new FormData();
+
+
+
+  const [includes, setIncludes] = useState([]); // State to store includes items
+  const [newInclude, setNewInclude] = useState(""); // State to store the new include text
+  const [desc, setdesc] = useState([]); // State to store includes items
+  const [newdesc, setNewdesc] = useState("");
+
+  const [excludes, setExcludes] = useState([]); // State to store includes items
+  const [newEncludes, setNewExclude] = useState(""); // State to store the new include text
+
+  const [showAddedData, setShowAddedData] = useState(false);
+  const [showAddedData1, setShowAddedData1] = useState(false);
+  const [showAddedData2, setShowAddedData2] = useState(false);
+  
+  const [selectedImage, setSelectedImage] = useState(null); 
+  const [selectedImage1, setSelectedImage1] = useState(null); // State to store the selected image
+  const [selectedImage2, setSelectedImage2] = useState(null); // State to store the selected image
+
+
+
+
+
+  const handleAddInclude = () => {
+
+    if (newInclude.trim() !== "" ||selectedImage !== null) {
+      const newIncludeItem = { text: newInclude, image: selectedImage };
+      setIncludes([...includes, newIncludeItem]);
+      setNewInclude(""); // Clear the input fields
+      setShowAddedData(true); // Show the added data below the modal
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageURL = URL.createObjectURL(file);
+      setSelectedImage(imageURL); // Store the selected image
+    }
+  };
+
+
+  const handleAddExclude = () => {
+
+    if (newEncludes.trim() !== "" || selectedImage1 !== null) {
+      const newExcludeItem = { text: newEncludes, image: selectedImage1 };
+      setExcludes([...excludes, newExcludeItem]);
+      setNewExclude(""); // Clear the input fields
+      setShowAddedData1(true); // Show the added data below the modal
+    }
+  };
+
+  const handleImageChange1 = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageURL = URL.createObjectURL(file);
+      setSelectedImage1(imageURL); // Store the selected image
+    }
+  };
+
+
+  const handleAdddesc = () => {
+
+    if (newdesc.trim() !== "" ||selectedImage2 !== null) {
+      const newDESCItem = { text: newdesc, image: selectedImage2 };
+      setdesc([...desc, newDESCItem]);
+      setNewdesc(""); // Clear the input fields
+      setShowAddedData2(true); // Show the added data below the modal
+    }
+  };
+
+  const handleImageChange2 = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageURL = URL.createObjectURL(file);
+      setSelectedImage2(imageURL); // Store the selected image
+    }
+  };
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -174,12 +248,12 @@ function Services() {
 
     if ((res.status = 200)) {
       setpostservicename(res.data?.subcategory);
-      console.log("service", res.data?.subcategory);
     }
   };
 
+
   const postformat = async (e) => {
-    if (!ServiceImg || !ServiceName || !ServiceDesc ||!category) {
+    if (!ServiceImg || !ServiceName || !desc || !category) {
       alert("Please fill all mandatory fields");
     } else {
       e.preventDefault();
@@ -188,10 +262,12 @@ function Services() {
       formdata.append("serviceName", ServiceName);
       formdata.append("serviceDirection", serviceDirection);
       formdata.append("category", category);
-
+      formdata.append("Inimg", Inimg);
+      formdata.append("Eximg", Eximg);
+      formdata.append("Desimg", Desimg);
       formdata.append("Subcategory", Subcategory);
-      formdata.append("serviceIncludes", serviceIncludes);
-      formdata.append("serviceExcludes", serviceExcludes);
+      formdata.append("serviceIncludes", JSON.stringify(includes));
+      formdata.append("serviceExcludes", JSON.stringify(excludes));
       formdata.append("quantity", quantity);
       formdata.append("servicetitle", servicetitle);
       formdata.append("servicebelow", servicebelow);
@@ -199,7 +275,7 @@ function Services() {
       formdata.append("homepagetitle", homepagetitle);
 
       formdata.append("serviceHour", ServiceHour);
-      formdata.append("serviceDesc", ServiceDesc);
+      formdata.append("serviceDesc", JSON.stringify(desc));
       formdata.append("serviceGst", ServiceGst);
       formdata.append("NofServiceman", NofServiceman);
 
@@ -286,22 +362,13 @@ function Services() {
       name: "Service Name",
       selector: (row) => row.serviceName,
     },
-    {
-      name: "Service Price",
-      selector: (row) => row.servicePrice,
-    },
+    // {
+    //   name: "Service Price",
+    //   selector: (row) => row.servicePrice,
+    // },
     {
       name: "Service Desc",
-      cell: (row) => (
-        <div>
-          {row.serviceDesc
-            ?.split("\n")
-            .slice(0, 2)
-            .map((item, index) => (
-              <p key={index}>{item}</p>
-            ))}
-        </div>
-      ),
+      selector: (row) => row.serviceDesc[0]?.text,
     },
     {
       name: "Service Hours",
@@ -365,7 +432,6 @@ function Services() {
           localStorage.removeItem("Store_Slots");
           localStorage.removeItem("plansprice");
           localStorage.removeItem("plansdeatils");
-        
 
           setserID("");
           handelsavebtn();
@@ -377,37 +443,33 @@ function Services() {
       alert(" Not Added");
     }
   };
+
   const handleSaveChanges = () => {
-    // Retrieve existing data from local storage or initialize an empty array
     const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
-    console.log("Existing Data:", existingData);
 
     // Add new data to the array
     const newData = { startTime, endTime, slotCity, Servicesno };
     existingData.push(newData);
-    console.log("New Data:", newData);
 
     // Update local storage with the updated array
     localStorage.setItem("Store_Slots", JSON.stringify(existingData));
     handleClose();
   };
-  const handleSaveplans = () => {
-    // Retrieve existing data from local storage or initialize an empty array
-    const existingData = JSON.parse(localStorage.getItem("plans")) || [];
-    console.log("Existing Data:", existingData);
 
-    // Add new data to the array
-    const newData = { Plans };
-    existingData.push(newData);
-    console.log("New Data:", newData);
+  const handleIncludes = () => {
+    // Assuming you have already uploaded the image and obtained a URL
+    const imageUrl = "https://example.com/path/to/your/image.jpg";
 
-    // Update local storage with the updated array
-    localStorage.setItem("plans", JSON.stringify(existingData));
+    const sIncludeData = JSON.parse(localStorage.getItem("sInclude")) || [];
+
+    const newData = { Icon: imageUrl, Desc };
+    sIncludeData.push(newData);
+
+    localStorage.setItem("sInclude", JSON.stringify(sIncludeData));
     handleClose1();
   };
 
   const handleSaveplans2 = () => {
-    // Retrieve existing data from local storage or initialize an empty array
     const homepagetitleData =
       JSON.parse(localStorage.getItem("homepagetitle")) || [];
     console.log("Existing Data:", existingData);
@@ -415,14 +477,12 @@ function Services() {
     // Add new data to the array
     const newData = { titleName };
     homepagetitleData.push(newData);
-    console.log("New Data:", newData);
 
     // Update local storage with the updated array
     localStorage.setItem("homepagetitle", JSON.stringify(homepagetitleData));
     handleClose2();
   };
   const handleSaveplanprice = () => {
-    // Retrieve existing data from local storage or initialize an empty array
     const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
 
     // Add new data to the array
@@ -464,15 +524,8 @@ function Services() {
 
     dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
-  const [StartTime, setStartTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
-  const [EndTime, setEndTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
 
-  const handleTimeChange = (newTime) => {
-    setStartTime(newTime);
-  };
-  const handleTimeChange1 = (newTime) => {
-    setEndTime(newTime);
-  };
+ 
 
   return (
     <div div className="row">
@@ -574,19 +627,15 @@ function Services() {
                     <Form.Select
                       aria-label="Username"
                       aria-describedby="basic-addon1"
-                      onChange={(e) =>setcategory(e.target.value)}
+                      onChange={(e) => setcategory(e.target.value)}
                     >
-                      <option>-Select Subcategory-</option>
+                      <option>-Select category-</option>
                       {catdata.map((item) => (
-                        <option value={item.category}>
-                          {item.category}
-                        </option>
+                        <option value={item.category}>{item.category}</option>
                       ))}
                     </Form.Select>
                   </InputGroup>
-                  <Form.Label className="mt-3">
-                    Subcategory 
-                  </Form.Label>
+                  <Form.Label className="mt-3">Subcategory</Form.Label>
                   <InputGroup className="mb-2">
                     <Form.Select
                       aria-label="Username"
@@ -662,7 +711,6 @@ function Services() {
                 {toggle1 ? (
                   <div>
                     <Form>
-                      {/* <h2> Addon's</h2> */}
                       <Button
                         variant="light"
                         className="mb-3"
@@ -770,81 +818,6 @@ function Services() {
                       </div>
                     </Form>
 
-                    <Form>
-                      {/* <h2> Plans's</h2> */}
-                      <Row className="mb-3"></Row>
-                      {/* <Button
-                        variant="light"
-                        className="mb-3"
-                        style={{ color: "skyblue" }}
-                        onClick={handleShow1}
-                      >
-                        {" "}
-                        <i
-                          class="fa-regular fa-plus"
-                          style={{ color: "rgb(7, 170, 237)" }}
-                        ></i>
-                        Add Plan and Premises
-                      </Button>{" "}
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          flexWrap: "wrap",
-                        }}
-                      ></div>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {plandata.map((i) => (
-                          <p className="plans" onClick={() => handleShow2(i)}>
-                            {i.Plans}
-                          </p>
-                        ))}
-                      </div> */}
-                      <div>
-                        {/* {plandetailsdata.map((i) => (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "20px",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            <p className="">{i.planName}</p>
-                            <p className="">{i.premises}</p>
-                            <p className="">{i.plansPrice}</p>
-                          </div>
-                        ))} */}
-                        {/* <Table striped bordered hover>
-                          <thead>
-                            <tr>
-                              <th>PlanName</th>
-                              <th>Premises</th>
-                              <th>PlansPrice</th>
-                              <th>Desc</th>
-                              <th>Includes</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {plandetailsdata.map((i) => (
-                              <tr>
-                                <td>{i.planName}</td>
-                                <td>{i.premises}</td>
-                                <td>{i.plansPrice}</td>
-                                <td>{i.desc}</td>
-                                <td>{i.includes}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </Table> */}
-                      </div>
-                    </Form>
-
                     <Button type="button" variant="outline-primary">
                       Cancel
                     </Button>
@@ -907,37 +880,147 @@ function Services() {
                           </InputGroup>
                         </Form.Group>
                       </Row>
-                      <Form.Group
-                        className="mb-3"
-                        controlId="exampleForm.ControlTextarea1"
-                      >
-                        <Form.Label>
-                          Service Description{" "}
-                          <span className="text-danger"> *</span>
-                        </Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
-                          onChange={(e) => setServiceDesc(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Row className="mb-2">
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Includes</Form.Label>
+                      <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Service Description</Form.Label>
+                          <Form.Control
+                            type="file"
+                            accept="image/*"
+                      onChange={(e) => setDesimg(e.target.files[0])}
+
+                          />
+                          <a>Width:20px height:20px</a>
                           <Form.Control
                             as="textarea"
                             rows={3}
-                            onChange={(e) => setserviceIncludes(e.target.value)}
+                            className="mt-3"
+                            placeholder="Include description"
+                            value={newdesc}
+                            onChange={(e) => setNewdesc(e.target.value)}
                           />
+
+                          <Button
+                            className="mt-3"
+                            variant="primary"
+                            onClick={handleAdddesc}
+                          >
+                            Add serviceDesc
+                          </Button>
+
+                          <div>
+                            {desc.map((desc1, index) => (
+                              <div
+                                key={index}
+                                style={{
+                                  display: "flex",
+                                  padding: 10,
+                                  gap: "10px",
+                                }}
+                              >
+
+                                {desc1.image?
+                               <img
+                                  src={desc1.image}
+                                  alt={`desc ${index + 1}`}
+                                  style={{ width: "20px", height: "20px" }}
+                                />:""  
+                              }
+                               
+                                <p> {desc1.text}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </Form.Group>
+                      <Row className="mt-3">
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Includes</Form.Label>
+                          <Form.Control
+                            type="file"
+                            accept="image/*"
+                        onChange={(e) => setInimg(e.target.files[0])}
+                          />
+                           <a>Width:20px height:20px</a>
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
+                            className="mt-3"
+                            placeholder="Include description"
+                            value={newInclude}
+                            onChange={(e) => setNewInclude(e.target.value)}
+                          />
+
+                          <Button
+                            className="mt-3"
+                            variant="primary"
+                            onClick={handleAddInclude}
+                          >
+                            Add Include
+                          </Button>
+
+                          <div>
+                            {includes.map((include, index) => (
+                              <div
+                                key={index}
+                                style={{
+                                  display: "flex",
+                                  padding: 10,
+                                  gap: "10px",
+                                }}
+                              >
+                                <img
+                                  src={include.image}
+                                  alt={`Include ${index + 1}`}
+                                  style={{ width: "20px", height: "20px" }}
+                                />
+                                <p> {include.text}</p>
+                              </div>
+                            ))}
+                          </div>
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridEmail">
                           <Form.Label>Excludes</Form.Label>
                           <Form.Control
+                            type="file"
+                            accept="image/*"
+                           onChange={(e) => setEximg(e.target.files[0])}
+                          />
+                           <a>Width:20px height:20px</a>
+                          <Form.Control
                             as="textarea"
                             rows={3}
-                            onChange={(e) => setserviceExcludes(e.target.value)}
+                            className="mt-3"
+                            placeholder="Include description"
+                            value={newEncludes}
+                            onChange={(e) => setNewExclude(e.target.value)}
                           />
+
+                          <Button
+                            className="mt-3"
+                            variant="primary"
+                            onClick={handleAddExclude}
+                          >
+                            Add Excludes
+                          </Button> 
+
+                          <div>
+                            {excludes.map((exclude, index) => (
+                              <div
+                                key={index}
+                                style={{
+                                  display: "flex",
+                                  padding: 10,
+                                  gap: "10px",
+                                }}
+                              >
+                                <img
+                                  src={exclude.image}
+                                  alt={`Include ${index + 1}`}
+                                  style={{ width: "20px", height: "20px" }}
+                                />
+                                <p> {exclude.text}</p>
+                              </div>
+                            ))}
+                          </div>
                         </Form.Group>
                       </Row>
 
@@ -1000,58 +1083,6 @@ function Services() {
                           </Form.Select>
                         </Form.Group>
                       </Row>
-                      {/* <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>
-                            Service Price
-                            <span style={{ fontSize: "12px" }}>
-                              (for single price)
-                            </span>{" "}
-                          </Form.Label>
-                          <Form.Control
-                            type="number"
-                            name="Price"
-                            onChange={(e) => setServicePrice(e.target.value)}
-                          />
-                        </Form.Group>
-
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>
-                            Offer price
-                            <span style={{ fontSize: "12px" }}>
-                              (for single price)
-                            </span>{" "}
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            name=""
-                            onChange={(e) => setofferPrice(e.target.value)}
-                          />
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Quantity</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name=""
-                            onChange={(e) => setquantity(e.target.value)}
-                          />
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>GST Percentage</Form.Label>
-
-                          <Form.Select
-                            aria-label="Username"
-                            aria-describedby="basic-addon1"
-                            onChange={(e) => setServiceGst(e.target.value)}
-                          >
-                            <option>---Select GST---</option>
-
-                            <option value="0.05">5%</option>
-                            <option value="0.18">18%</option>
-                            <option value="0.22">22%</option>
-                          </Form.Select>
-                        </Form.Group>
-                      </Row> */}
                     </Form>
                     <Button type="button" variant="outline-primary">
                       Cancel
@@ -1077,47 +1108,6 @@ function Services() {
           <Modal.Title>Add Slots</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* <Row>
-            <Form.Group as={Col} controlId="formGridEmail">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer
-                  components={[
-                    "TimePicker",
-                    "MobileTimePicker",
-                    "DesktopTimePicker",
-                    "StaticTimePicker",
-                  ]}
-                >
-                  <DemoItem label="Start Time">
-                    <MobileTimePicker
-                      defaultValue={StartTime} // Set the default value
-                      onChange={handleTimeChange} // Handle changes to the selected time
-                    />
-                  </DemoItem>
-                </DemoContainer>
-              </LocalizationProvider>
-            </Form.Group>
-            <Form.Group as={Col} controlId="formGridEmail">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer
-                  components={[
-                    "TimePicker",
-                    "MobileTimePicker",
-                    "DesktopTimePicker",
-                    "StaticTimePicker",
-                  ]}
-                >
-                  <DemoItem label="End Time">
-                    <MobileTimePicker
-                      defaultValue={EndTime} // Set the default value
-                      onChange={handleTimeChange1} // Handle changes to the selected time
-                    />
-                  </DemoItem>
-                </DemoContainer>
-              </LocalizationProvider>
-            </Form.Group>
-          </Row> */}
-
           <Row>
             <Form.Group as={Col} controlId="formGridState">
               <Form.Label>Select StartTime </Form.Label>
@@ -1153,9 +1143,6 @@ function Services() {
             </Form.Group>
           </Row>
 
-          {/* <Space wrap>
-            <TimePicker use12Hours format="h:mm a" onChange={onChange} />
-          </Space> */}
           <Form.Group as={Col} controlId="formGridState">
             <Form.Label>Select City </Form.Label>
 
@@ -1196,34 +1183,43 @@ function Services() {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal show={show1} onHide={handleClose1}>
         <Modal.Header closeButton>
-          <Modal.Title>Add Slots</Modal.Title>
+          <Modal.Title>Add includes</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>
-              Plan Name <span className="text-danger"> *</span>
+              Icon <span className="text-danger"> *</span>
             </Form.Label>
             <Form.Control
-              type="text"
-              name="Price"
-              onChange={(e) => setPlans(e.target.value)}
+              type="file"
+              name="icon"
+              onChange={(e) => setIcon(e.target.files[0])}
             />
-            <p style={{ marginTop: "10px", fontSize: "12px" }}>
-              <b>Example= Essential</b>
-            </p>
+          </Form.Group>
+          <Form.Group as={Col} controlId="formGridEmail" className="mt-3">
+            <Form.Label>
+              Desc <span className="text-danger"> *</span>
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              onChange={(e) => setDesc(e.target.value)}
+            />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSaveplans}>
+          <Button variant="primary" onClick={handleIncludes}>
             Save Changes
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal show={show2} onHide={handleClose2}>
         <Modal.Header closeButton>
           <Modal.Title>Add</Modal.Title>

@@ -21,9 +21,20 @@ class serviceManagement {
       servicebelow,
       servicetitle,
       homepagetitle,
+      Inimg,
+      Eximg
     } = req.body;
-    // const { morepriceData, ...otherData } = req.body;
-    let file = req.file.filename;
+
+    const parsedServiceDesc = JSON.parse(serviceDesc);
+
+    const parsedServiceExcludes = JSON.parse(serviceExcludes);
+    const parsedServiceIncludes = JSON.parse(serviceIncludes);
+    let file = req.files[0].filename;
+    let file1 = req.files[1].filename;
+    let file2= req.files[2].filename;
+    let file3= req.files[3].filename;
+
+
     let add = new serviceManagementModel({
       serviceImg: file,
       serviceName: serviceName,
@@ -31,19 +42,22 @@ class serviceManagement {
       serviceCategory: serviceCategory,
       NofServiceman: NofServiceman,
       serviceHour: serviceHour,
-      serviceDesc: serviceDesc,
+      serviceDesc: parsedServiceDesc,
       servicePrice: servicePrice,
       serviceGst: serviceGst,
       Subcategory: Subcategory,
       offerPrice: offerPrice,
       sub_subcategory: sub_subcategory,
-      serviceExcludes: serviceExcludes,
-      serviceIncludes: serviceIncludes,
+      serviceExcludes: parsedServiceExcludes, // Use the parsed objects
+      serviceIncludes: parsedServiceIncludes, // Use the parsed objects
       serviceDirection: serviceDirection,
       quantity: quantity,
       servicebelow: servicebelow,
       servicetitle: servicetitle,
       homepagetitle: homepagetitle,
+      Desimg:file1,
+      Inimg:file2,
+      Eximg:file3
     });
     // let save = add.save();
     // Save the user
@@ -112,6 +126,7 @@ class serviceManagement {
     let id = req.params.id;
     let {
       serviceName,
+      category,
       serviceCategory,
       NofServiceman,
       serviceHour,
@@ -123,24 +138,37 @@ class serviceManagement {
       sub_subcategory,
       serviceExcludes,
       serviceIncludes,
+      serviceDirection,
+      quantity,
+      servicebelow,
+      servicetitle,
+      homepagetitle,
     } = req.body;
 
+    // let file = req.file.filename;
     try {
       let data = await serviceManagementModel.findOneAndUpdate(
         { _id: id },
         {
+          // serviceImg: file,
           serviceName,
-          serviceCategory,
-          NofServiceman,
-          serviceHour,
-          serviceDesc,
-          servicePrice,
-          serviceGst,
-          Subcategory,
-          offerPrice,
-          sub_subcategory,
-          serviceExcludes,
-          serviceIncludes,
+      category,
+      serviceCategory,
+      NofServiceman,
+      serviceHour,
+      serviceDesc,
+      servicePrice,
+      serviceGst,
+      Subcategory,
+      offerPrice,
+      sub_subcategory,
+      serviceExcludes,
+      serviceIncludes,
+      serviceDirection,
+      quantity,
+      servicebelow,
+      servicetitle,
+      homepagetitle,
         },
         { new: true } // Make sure to include this to return the updated document
       );
