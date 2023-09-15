@@ -26,7 +26,7 @@ import CreateSubcategory from "./components/CreateSubcategory";
 import Createcategory from "./components/Createcategory";
 import Banner from "./components/Banner";
 import Category from "./components/Category";
-import Subcategory from "./components/Subcategory"
+import Subcategory from "./components/Subcategory";
 import Servicedetails from "./components/Servicedetails";
 import Vendordetails from "./components/Vendordetails";
 import Offerbanner from "./components/Offerbanner";
@@ -34,7 +34,9 @@ import Spotlight from "./components/Spotlight";
 import Homepagebanner from "./components/Homepagebanner";
 import Homepagetitle from "./components/Homepagetiltle";
 import Slots from "./components/Slots";
-import FEQ from "./components/FEQ"
+import FEQ from "./components/FEQ";
+import ServiceAddOns from "./components/ServiceAddOns";
+import WhatsappAndPhone from "./components/WhatsappAndPhone";
 
 function App() {
   return (
@@ -48,6 +50,8 @@ function App() {
         <Route path="/Paymentsreports" element={<Paymentsreports />} />
         <Route path="/vendor" element={<Vendor />} />
         <Route path="/Service" element={<Service />} />
+        <Route path="/service-add-ons" element={<ServiceAddOns />} />
+        <Route path="/whatsappandphonenumber" element={<WhatsappAndPhone />} />
         <Route path="/UserManagement" element={<UserManagement />} />
         <Route path="/Wallets" element={<Wallets />} />
         <Route path="/product" element={<Product />} />
@@ -61,11 +65,10 @@ function App() {
         <Route path="/homepagetitle" element={<Homepagetitle />} />
         <Route path="/slots" element={<Slots />} />
         <Route path="/homepagebanner" element={<Homepagebanner />} />
-      
+
         <Route path="/servicedetails/:id" element={<Servicedetails />} />
         <Route path="/vendordetails/:id" element={<Vendordetails />} />
         <Route path="/feq" element={<FEQ />} />
-
 
         {/* <Route path="/Content" element={<Content />} /> */}
         <Route path="/settings" element={<Settings />} />

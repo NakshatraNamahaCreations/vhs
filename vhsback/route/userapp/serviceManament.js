@@ -22,6 +22,11 @@ router.post("/deleteservices/:id", ServiceManagemntController.postdeleteserviceM
 router.post("/postcategory", ServiceManagemntController.postsubcategory);
 router.delete("/deleteStoreSlot/:id/:index", ServiceManagemntController.deletebyindex);
 router.delete("/deleteprice/:id/:index", ServiceManagemntController.deletebyindexofprice);
+router.put(
+    "/updateservices/:id",
+    upload.single("serviceImg"),
+    ServiceManagemntController.updateServices
+  );
 
 router.post("/updateadvanceddata/:id", ServiceManagemntController.addadvance);
 

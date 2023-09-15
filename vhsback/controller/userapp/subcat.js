@@ -51,18 +51,47 @@ class appsubcat {
       
     }
     //edit user
-    async editappsubcat(req, res) {
-      let id = req.params.id;
-      let { subcategory, category, videolink } = req.body;
-  
-      let data = await appsubcatModel.findOneAndUpdate(
-        { _id: id },
-        { subcategory, category, videolink }
-      );
-      if (data) {
-        return res.json({ success: "Updated" });
-      }
-    }
+   
+async editappsubcat(req, res) {
+  const subcategoryId = req.params.id;
+  const { subcategory, category, videolink } = req.body;
+  const file = req.files[0]?.filename;
+  const file1 = req.files[1]?.filename;
+
+  const findCategory = await appsubcatModel.findOne({
+    _id: subcategoryId,
+  });
+  if (!findCategory) {
+    return res.send("no data found");
+  }
+  findCategory.category = category || findCategory.category;
+  findCategory.subcategory = subcategory || findCategory.subcategory;
+  findCategory.videolink = videolink || findCategory.videolink;
+  if (file && req.files[0].mimetype == "image/*") {
+    findCategory.subcatimg = file;
+  }
+  if (file && req.files[0].mimetype == "video/mp4") {
+    findCategory.subcatvideo = file;
+  }
+  if (file1 && req.files[1].mimetype == "image/*") {
+    findCategory.subcatimg = file1;
+  }
+  if (file1 && req.files[1].mimetype == "video/mp4") {
+    findCategory.subcatvideo = file1;
+  }
+  let updatedData = await appsubcatModel.findOneAndUpdate(
+    { _id: subcategoryId },
+    findCategory,
+    { new: true }
+  );
+  if (updatedData) {
+    return res.json({ success: "Updated", data: updatedData });
+  } else {
+    return res.send("failed");
+  }
+}
+
+
   
   async getappsubcat(req, res) {
     let subcategory = await appsubcatModel.find({}).sort({ _id: -1 });

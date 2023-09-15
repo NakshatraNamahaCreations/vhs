@@ -48,11 +48,11 @@ function Sidenav() {
     <div>
       <ProSidebar>
         <div className="row justify-content-center mt-2">
-          <img
+          {/* <img
             src="/images/vhs.png"
             className="img-fluid"
             style={{ width: "100px" }}
-          />
+          /> */}
           <h6
             className="text-center pt-1"
             style={{ color: "black", fontWeight: "bold", fontSize: "21px" }}
@@ -89,9 +89,13 @@ function Sidenav() {
             </MenuItem>
             <MenuItem>
               WHy need vhs
+              {/* WHy need */}
               <Link to="/feq" />
             </MenuItem>
-          
+            <MenuItem>
+              Whatsapp and Phone
+              <Link to="/whatsappandphonenumber" />
+            </MenuItem>
           </SubMenu>
 
           <MenuItem>
@@ -109,9 +113,15 @@ function Sidenav() {
               Sub-subcategory <Link to="/CreateSubcategory" />
             </MenuItem>
           </SubMenu>
-          <MenuItem>
-            Services Management <Link to="/Service" />
-          </MenuItem>
+          <SubMenu title="Services Management">
+            <MenuItem>
+              Add Service <Link to="/Service" />
+            </MenuItem>
+            <MenuItem>
+              Service Add-on's
+              <Link to="/service-add-ons" />
+            </MenuItem>
+          </SubMenu>
 
           <MenuItem>
             Services Booking

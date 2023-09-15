@@ -1,35 +1,40 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table } from "react-bootstrap";
 import Sidenav from "./Sidenav";
 import Header from "./Header";
 import DataTable from "react-data-table-component";
 import Modal from "react-bootstrap/Modal";
 
 function Subcategory() {
-  const admin = JSON.parse(sessionStorage.getItem("admin"));
-
   const [data1, setdata1] = useState([]);
   const [category, setcategory] = useState("");
   const [subcategory, setsubcategory] = useState("");
-  const [videolink, setvideolink] = useState("");
   const [search, setsearch] = useState("");
-  const [subcatvideo, setsubcatvideo] = useState("");
+
   const [subcategoryImg, setsubcategoryImg] = useState("");
   const [filterdata, setfilterdata] = useState([]);
   const [data, setdata] = useState([]);
-
-  const [category1, setcategory1] = useState(data.category);
-  const [subcategory1, setsubcategory1] = useState(data.subcategory);
-  const [subcatimg1, setsubimg1] = useState(data.subcatimg);
   const [subcategorydata, setsubcategorydata] = useState([]);
+  const [subcatvideo, setsubcatvideo] = useState("");
+
+  const [editCategory, setEditCategory] = useState("");
+  const [editSubcategory, setEditSubcategory] = useState("");
+  const [editSubcategoryImage, setEditSubcategoryImage] = useState("");
+  const [editSubcategoryVideo, setEditSubcategoryVideo] = useState("");
+  const [editSubcategoryData, setEditSubcategoryData] = useState({});
+
   const formdata = new FormData();
-  const apiURL = process.env.REACT_APP_API_URL;
 
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const handleEdit = (subcategory) => {
+    setEditSubcategoryData(subcategory);
+    handleShow(true);
+  };
+
   useEffect(() => {
     getcategory();
     getsubcategory();
@@ -53,7 +58,7 @@ function Subcategory() {
       formdata.append("subcatimg", subcategoryImg);
       formdata.append("subcatvideo", subcatvideo);
 
-      console.log("formdata",formdata)
+      console.log("formdata", formdata);
       try {
         const config = {
           url: "/userapp/addappsubcat",
@@ -63,7 +68,6 @@ function Subcategory() {
           headers: {
             "Content-Type": "multipart/form-data", // Important for file uploads
           },
-      
         };
         await axios(config).then(function (response) {
           if (response.status === 200) {
@@ -90,7 +94,10 @@ function Subcategory() {
     }
   };
 
-  
+  const onupdate = () => {
+    getsubcategory();
+  };
+
   const getsubcategory = async () => {
     let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
     if ((res.status = 200)) {
@@ -103,28 +110,36 @@ function Subcategory() {
   const editservices = async (e) => {
     e.preventDefault();
     try {
+      formdata.append("category", editCategory);
+      formdata.append("subcategory", editSubcategory);
+      if (editSubcategoryImage) {
+        formdata.append("subcatimg", editSubcategoryImage);
+      }
+      if (editSubcategoryVideo) {
+        formdata.append("subcatvideo", editSubcategoryVideo);
+      }
+
       const config = {
-        url: `/userapp/editappsubcat/${data._id}`,
+        url: `/userapp/editappsubcat/${editSubcategoryData._id}`,
         method: "post",
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
-        headers: { "content-type": "application/json" },
-        data: {
-          category: category1,
-          subcategory: subcategory1,
-          subcatimg: subcatimg1,
-        },
+        headers: { "Content-Type": "multipart/form-data" },
+        data: formdata,
       };
       await axios(config).then(function (response) {
         if (response.status === 200) {
           alert("Successfully Added");
           window.location.reload("");
+          // onupdate();
+          // handleClose();
         }
       });
     } catch (error) {
       console.error(error);
-      alert(" Not Added");
+      alert("Not Added");
     }
   };
+
   const columns = [
     {
       name: "Sl  No",
@@ -155,7 +170,6 @@ function Subcategory() {
       name: "Subcategory video",
       cell: (row) => (
         <div>
-         
           <video width="150" height="150" controls>
             <source
               src={`http://api.vijayhomeservicebengaluru.in/subcat/${row.subcatvideo}`}
@@ -169,7 +183,11 @@ function Subcategory() {
       name: "Action",
       cell: (row) => (
         <div>
-          <a className="hyperlink" onClick={() => edit(row)}>
+          <a
+            className="hyperlink"
+            style={{ cursor: "pointer" }}
+            onClick={() => handleEdit(row)}
+          >
             Edit |
           </a>
           <a onClick={() => deleteservices(row._id)} className="hyperlink mx-1">
@@ -180,17 +198,12 @@ function Subcategory() {
     },
   ];
 
-  const edit = (data) => {
-    setdata(data);
-    handleShow(true);
-  };
   useEffect(() => {
     const result = subcategorydata.filter((item) => {
       return item.category.toLowerCase().match(search.toLowerCase());
     });
     setfilterdata(result);
   }, [search]);
-  let i = 0;
 
   const deleteservices = async (id) => {
     axios({
@@ -208,6 +221,7 @@ function Subcategory() {
         console.log(error.response.data);
       });
   };
+
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -262,7 +276,9 @@ function Subcategory() {
                           className="col-md-12 vhs-input-value"
                           onChange={(e) => setsubcategoryImg(e.target.files[0])}
                         />
-                          <p style={{fontSize:"12px"}}><b>Width:50px ,Height:50px</b></p>
+                        <p style={{ fontSize: "12px" }}>
+                          <b>Width:50px, Height:50px</b>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -276,8 +292,10 @@ function Subcategory() {
                         onChange={(e) => setsubcatvideo(e.target.files[0])}
                       />
                     </div>
-                    <p className="mt-2">         <b>Note:Width= 400px ,Height:200px and mp4 format</b> </p>
-            
+                    <p className="mt-2">
+                      {" "}
+                      <b>Note:Width= 400px ,Height:200px and mp4 format</b>{" "}
+                    </p>
                   </div>
                   <div className="row pt-3 justify-content-center">
                     <div className="col-md-2">
@@ -312,6 +330,8 @@ function Subcategory() {
             </div>
           </div>
         </div>
+
+        {/* edit subcategory */}
         <Modal
           show={show}
           onHide={handleClose}
@@ -319,7 +339,7 @@ function Subcategory() {
           keyboard={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Category</Modal.Title>
+            <Modal.Title>Edit Subcategory</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div className="card-body p-3">
@@ -332,11 +352,13 @@ function Subcategory() {
                     <div className="group pt-1">
                       <select
                         className="col-md-12 vhs-input-value"
-                        onChange={(e) => setcategory1(e.target.value)}
+                        onChange={(e) => setEditCategory(e.target.value)}
+                        defaultValue={data1.id}
                       >
-                        <option value={data.category}>{data.category}</option>
                         {data1.map((item) => (
-                          <option value={item.category}>{item.category}</option>
+                          <option key={item.id} value={item.id}>
+                            {item.category}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -344,29 +366,48 @@ function Subcategory() {
                 </div>
                 <div className="col-md-12 mt-4">
                   <div className="vhs-input-label">
-                    Service name <span className="text-danger"> *</span>
+                    Subcategory name <span className="text-danger"> *</span>
                   </div>
                   <div className="group pt-1">
                     <input
                       type="text"
                       className="col-md-12 vhs-input-value"
-                      onChange={(e) => setsubcategory1(e.target.value)}
-                      placeholder={data.subcategory}
+                      onChange={(e) => setEditSubcategory(e.target.value)}
+                      // placeholder={data.subcategory}
+                      defaultValue={
+                        editSubcategory || editSubcategoryData
+                          ? editSubcategoryData.subcategory
+                          : ""
+                      }
                     />
                   </div>
                 </div>
                 <div className="col-md-12 m-4">
                   <div className="vhs-input-label">
-                    Subcategory image <span className="text-danger"> *</span>
+                    Subcategory image <span className="text-danger">*</span>
                   </div>
                   <div className="group pt-1">
                     <input
                       type="file"
                       className="col-md-12 vhs-input-value"
-                      onChange={(e) => setsubimg1(e.target.files[0])}
-                 
+                      onChange={(e) =>
+                        setEditSubcategoryImage(e.target.files[0])
+                      }
                     />
                   </div>
+                </div>
+
+                <div className="col-md-12 m-4">
+                  <div className="vhs-input-label">
+                    Subcategory Video <span className="text-danger"> *</span>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditSubcategoryVideo(e.target.files[0])}
+                  />
                 </div>
 
                 <div className="row pt-3">

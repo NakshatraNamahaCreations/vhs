@@ -17,12 +17,14 @@ class serviceManagement {
       serviceExcludes,
       serviceIncludes,
       serviceDirection,
-      quantity,
+
       servicebelow,
       servicetitle,
       homepagetitle,
       Inimg,
-      Eximg
+      Eximg,
+      qty,
+      quantity
     } = req.body;
 
     const parsedServiceDesc = JSON.parse(serviceDesc);
@@ -57,7 +59,9 @@ class serviceManagement {
       homepagetitle: homepagetitle,
       Desimg:file1,
       Inimg:file2,
-      Eximg:file3
+      Eximg:file3,
+      qty,
+      quantity
     });
     // let save = add.save();
     // Save the user
@@ -185,6 +189,83 @@ class serviceManagement {
       return res.status(500).json({ success: false, message: "Server error" });
     }
   }
+  async updateServices(req, res) {
+    try {
+      const serviceId = req.params.id;
+      const {
+        serviceName,
+        category,
+        Subcategory,
+        sub_subcategory,
+        serviceDesc,
+        servicetitle,
+        servicebelow,
+        serviceIncludes,
+        serviceExcludes,
+        homepagetitle,
+        serviceGst,
+        serviceDirection,
+        serviceHour,
+        NofServiceman,
+      } = req.body;
+      const file = req.file?.filename;
+
+      const findService = await serviceManagementModel.findOne({
+        _id: serviceId,
+      });
+      if (!findService) {
+        return res.json({ error: "No such record found" });
+      }
+      //
+      findService.serviceName = serviceName || findService.serviceName;
+      findService.category = category || findService.category;
+      findService.Subcategory = Subcategory || findService.Subcategory;
+      findService.sub_subcategory =
+        sub_subcategory || findService.sub_subcategory;
+
+      findService.serviceDesc = Array.isArray(serviceDesc)
+        ? serviceDesc?.map((i) => JSON.parse(i))
+        : [JSON.parse(serviceDesc)] || findService.serviceDesc;
+
+      findService.servicetitle = servicetitle || findService.servicetitle;
+      findService.servicebelow = servicebelow || findService.servicebelow;
+
+      findService.serviceIncludes = Array.isArray(serviceIncludes)
+        ? serviceIncludes?.map((i) => JSON.parse(i))
+        : [JSON.parse(serviceIncludes)] || findService.serviceIncludes;
+
+      findService.serviceExcludes = Array.isArray(serviceExcludes)
+        ? serviceExcludes?.map((i) => JSON.parse(i))
+        : [JSON.parse(serviceExcludes)] || findService.serviceExcludes;
+
+      findService.homepagetitle = homepagetitle || findService.homepagetitle;
+      findService.serviceGst = serviceGst || findService.serviceGst;
+      findService.serviceDirection =
+        serviceDirection || findService.serviceDirection;
+      findService.serviceHour = serviceHour || findService.serviceHour;
+      findService.NofServiceman = NofServiceman || findService.NofServiceman;
+      if (file) {
+        findService.serviceImg = file;
+      }
+
+      const updateCategory = await serviceManagementModel.findOneAndUpdate(
+        { _id: serviceId },
+        findService,
+        { new: true }
+      );
+      return res.json({
+        message: "Updated successfully",
+        date: updateCategory,
+      });
+    } catch (error) {
+      console.log("error", error);
+      return res.status(500).json({ error: "Unable to update the Category" });
+    }
+  }
+
+
+
+
 
   async getserviceManagement(req, res) {
     let service = await serviceManagementModel.find({}).sort({ _id: -1 });

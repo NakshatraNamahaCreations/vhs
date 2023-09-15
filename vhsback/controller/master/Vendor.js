@@ -51,7 +51,7 @@ class mastervendor {
     }
   }
 
-  //edit
+
   async editvendor(req, res) {
     try {
       const vendorData = req.params.vendorid;
@@ -103,6 +103,10 @@ class mastervendor {
       });
     }
   }
+
+
+
+
 
   //get all m
 

@@ -9,33 +9,32 @@ import Header from "./Header";
 
 function Category() {
   const [category, setcategory] = useState("");
-
-  const [newImg, setnewImg] = useState("");
+  const [catagoryImage, setCatagoryImage] = useState("");
   const [categorydata, setcategorydata] = useState([]);
-  const [subcategorydata, setsetsubcategorydata] = useState([]);
-  const apiURL = process.env.REACT_APP_API_URL;
   const [search, setsearch] = useState("");
   const [filterdata, setfilterdata] = useState([]);
-  const [data, setdata] = useState([]);
-  const [category1, setcategory1] = useState(data?.category);
-  const [categoryImg, setcategoryImg] = useState(data?.categoryImg);
-
+  const [editCatagoryData, setEditCatagoryData] = useState({});
+  const [editCatagoryName, setEditCatagoryName] = useState("");
+  const [editCatagoryImg, setEditCatagoryImage] = useState("");
   const formdata = new FormData();
-console.log(data)
-  console.log(data?.category)
 
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const handleEdit = (subcategory) => {
+    setEditCatagoryData(subcategory);
+    handleShow(true);
+  };
+
   const postcategory = async (e) => {
     e.preventDefault();
-    if (!category || !categoryImg) {
+    if (!category || !catagoryImage) {
       alert("Please select all fields");
     } else {
       formdata.append("category", category);
-      formdata.append("categoryImg", categoryImg);
+      formdata.append("categoryImg", catagoryImage);
       try {
         const config = {
           url: "/addcategory",
@@ -56,6 +55,12 @@ console.log(data)
     }
   };
 
+  // const onUpdate = () => {
+  //   // Function to update your data when editing is successful
+  //   // You can call this function after updating the category data
+  //   getcategory(); // For example, re-fetch the data after an update
+  // };
+
   useEffect(() => {
     getcategory();
   }, []);
@@ -71,17 +76,17 @@ console.log(data)
   const editcategory = async (e) => {
     e.preventDefault();
     try {
+      formdata.append("category", editCatagoryName);
+      if (editCatagoryImg) {
+        formdata.append("categoryImg", editCatagoryImg);
+      }
 
-      console.log(category1)
-      formdata.append("category", category1);
-      formdata.append("categoryImg", newImg);
-
+      const catagoryId = editCatagoryData._id;
       const config = {
-        url: `/editcategory/${data._id}`,
+        url: `/editcategory/${catagoryId}`,
         method: "post",
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         data: formdata,
-
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -91,13 +96,15 @@ console.log(data)
 
       if (response.status === 200) {
         alert("Successfully Updated");
-        window.location.assign("/category");
+        window.location.reload();
+        // onUpdate();
+        // handleClose();
       } else {
         alert("Category not updated"); // Handle other status codes appropriately
       }
     } catch (error) {
       console.error(error);
-      alert("Category not updated");
+      alert("Something went wrong");
     }
   };
 
@@ -126,7 +133,7 @@ console.log(data)
       name: "Action",
       cell: (row) => (
         <div>
-          <a className="hyperlink" onClick={() => edit(row)}>
+          <a className="hyperlink" onClick={() => handleEdit(row)}>
             Edit |
           </a>
           <a onClick={() => deletecategory(row._id)} className="hyperlink mx-1">
@@ -136,11 +143,6 @@ console.log(data)
       ),
     },
   ];
-
-  const edit = (data) => {
-    setdata(data);
-    handleShow(true);
-  };
 
   useEffect(() => {
     const result = categorydata.filter((item) => {
@@ -166,7 +168,6 @@ console.log(data)
       });
   };
 
-  let i = 0;
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -203,7 +204,9 @@ console.log(data)
                           <input
                             type="file"
                             className="col-md-12 vhs-input-value"
-                            onChange={(e) => setcategoryImg(e.target.files[0])}
+                            onChange={(e) =>
+                              setCatagoryImage(e.target.files[0])
+                            }
                           />
                           <b style={{ fontSize: "12px" }}>
                             Please select the dimensions Width=50px,Height=50px
@@ -257,7 +260,7 @@ console.log(data)
           keyboard={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Category</Modal.Title>
+            <Modal.Title>Edit Category</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div className="card-body p-3">
@@ -270,8 +273,12 @@ console.log(data)
                     <input
                       type="text"
                       className="col-md-12 vhs-input-value"
-                      onChange={(e) => setcategory1(e.target.value)}
-                      defaultValue={data.category}
+                      onChange={(e) => setEditCatagoryName(e.target.value)}
+                      defaultValue={
+                        editCatagoryName || editCatagoryData
+                          ? editCatagoryData.category
+                          : ""
+                      }
                     />
                   </div>
                 </div>
@@ -284,7 +291,7 @@ console.log(data)
                     <input
                       type="file"
                       className="col-md-12 vhs-input-value"
-                      onChange={(e) => setnewImg(e.target.files[0])}
+                      onChange={(e) => setEditCatagoryImage(e.target.files[0])}
                       // defaultValue={data.categoryImg}
                     />
                   </div>

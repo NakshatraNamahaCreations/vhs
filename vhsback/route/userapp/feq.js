@@ -15,11 +15,7 @@ var storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post(
-  "/addfeq",
-  upload.array('img', 5),
-  feqController.postaddfeq
-);
+router.post("/addfeq", upload.array("img", 10), feqController.postaddfeq);
 router.get("/getallfeq", feqController.getallfeq);
 router.post("/deletefeq/:id", feqController.postdeletefeq);
 

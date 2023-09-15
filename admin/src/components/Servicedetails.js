@@ -14,13 +14,13 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { Settings } from "@mui/icons-material";
 
 function Servicedetails() {
   const navigate = useNavigate();
   const { id } = useParams();
   const sid = id;
+  // console.log("sid", id);
   const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
   const plandata = JSON.parse(localStorage.getItem("plans")) || [];
   const homepagetitleData =
@@ -100,6 +100,30 @@ function Servicedetails() {
   const [titledata, settitledata] = useState([]);
   const [startTime, setstartTime] = useState("");
   const [endTime, setendTime] = useState([]);
+  // const [descriptions, setDescriptions] = useState("");
+
+  // Edit ===================================
+  const [newDescription, setNewDescription] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editSubcategory, setEditSubcategory] = useState("");
+  const [editSubcategoryList, setEditSubcategoryList] = useState("");
+  const [editServiceHour, setEditServiceHour] = useState("");
+  const [editNofServiceman, setEditNofServiceman] = useState("");
+  const [editServiceName, setEditServiceName] = useState("");
+  const [editServicetitle, setEditServicetitle] = useState("");
+  const [editServicebelow, setEditServicebelow] = useState("");
+  const [edithomePagetitle, setEdithomePagetitle] = useState("");
+
+  const [editDescriptions, setEditDescriptions] = useState([]);
+
+  const [newServiceExcludes, setnewServiceExcludes] = useState("");
+  const [newServiceIncludes, setnewServiceIncludes] = useState("");
+  const [editServiceIncludes, setEditServiceIncludes] = useState([]);
+  const [editServiceExcludes, setEditServiceExcludes] = useState([]);
+  const [editServiceDirection, setEditServiceDirection] = useState("");
+  const [editServiceGst, setEditServiceGst] = useState("");
+  const [showAddedData2, setShowAddedData2] = useState(false);
+  // descriotions
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -123,15 +147,136 @@ function Servicedetails() {
 
   useEffect(() => {
     getservicemanagement();
-  }, []);
+  }, [id]);
 
   const getservicemanagement = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getservices");
-    if ((res.status = 200)) {
-      setServicedata(res.data?.service.filter((i) => i._id == id));
-      console.log(res.data?.service.filter((i) => i._id == id));
+    try {
+      const res = await axios.get(
+        `http://api.vijayhomeservicebengaluru.in/api/userapp/getservices`
+      );
+      if (res.status === 200) {
+        const serviceData = res.data?.service.filter((i) => i._id === id);
+        setServicedata(serviceData);
+        console.log("serviceData", serviceData);
+
+        // Convert the existing array of strings to an array of objects
+        setEditDescriptions(serviceData[0]?.serviceDesc);
+        setEditServiceIncludes(serviceData[0]?.serviceIncludes);
+        setEditServiceExcludes(serviceData[0]?.serviceExcludes);
+      }
+    } catch (error) {
+      console.error("Error fetching service data:", error);
     }
   };
+
+  const handleAddDesc = () => {
+    if (newDescription) {
+      console.log("newDescription", newDescription);
+      // const newDescriptionObject = { text: newDescription };
+      let arr = [...editDescriptions];
+      arr.push({ text: newDescription, image: null });
+      setEditDescriptions(arr);
+      // setEditDescriptions([...editDescriptions, { text: newDescription }]);
+      setTimeout(() => {
+        setNewDescription("");
+      }, 100);
+    }
+  };
+
+  const handleAddIncludes = () => {
+    if (newServiceIncludes) {
+      console.log("newServiceIncludes", newServiceIncludes);
+      // const newDescriptionObject = { text: newDescription };
+      let arr = [...editServiceIncludes];
+      arr.push({ text: newServiceIncludes, image: null });
+      setEditServiceIncludes(arr);
+      // setEditDescriptions([...editDescriptions, { text: newDescription }]);
+      setTimeout(() => {
+        setnewServiceIncludes("");
+      }, 100);
+    }
+  };
+
+  const handleAddExcludes = () => {
+    if (newServiceExcludes) {
+      console.log("newServiceExcludes", newServiceExcludes);
+      // const newDescriptionObject = { text: newDescription };
+      let arr = [...editServiceExcludes];
+      arr.push({ text: newServiceExcludes, image: null });
+      setEditServiceExcludes(arr);
+      // setEditDescriptions([...editDescriptions, { text: newDescription }]);
+      setTimeout(() => {
+        setnewServiceExcludes("");
+      }, 100);
+    }
+  };
+
+  const handleEditDesc = (index, editedDescription) => {
+    const updatedDescriptions = [...editDescriptions];
+    console.log(
+      "updateddescriptions",
+      editDescriptions,
+      "editeddescription",
+      editedDescription
+    );
+    updatedDescriptions[index].text = editedDescription;
+    setEditDescriptions(updatedDescriptions);
+  };
+
+  const handleEditIncludes = (index, editServiceInclude) => {
+    const updatedInculdes = [...editServiceIncludes];
+    console.log(
+      "updatedInculdes",
+      editServiceIncludes,
+      "editServiceInclude",
+      editServiceInclude
+    );
+    updatedInculdes[index].text = editServiceInclude;
+    setEditServiceIncludes(updatedInculdes);
+  };
+
+  const handleEditExcludes = (index, editServiceExclude) => {
+    const updatedExculdes = [...editServiceExcludes];
+    console.log(
+      "updatedExculdes",
+      editServiceExcludes,
+      "editServiceExclude",
+      editServiceExclude
+    );
+    updatedExculdes[index].text = editServiceExclude;
+    setEditServiceExcludes(updatedExculdes);
+  };
+
+  const handleDeleteDesc = (index) => {
+    const updatedDescriptions = [...editDescriptions];
+    console.log("edit", editDescriptions);
+    updatedDescriptions.splice(index, 1);
+    console.log("update", updatedDescriptions);
+    setTimeout(() => {
+      setEditDescriptions(updatedDescriptions);
+    }, 100);
+  };
+
+  const handleDeleteIncludes = (index) => {
+    const updatedIncludes = [...editServiceIncludes];
+    console.log("edit", editServiceIncludes);
+    updatedIncludes.splice(index, 1);
+    console.log("update", updatedIncludes);
+    setTimeout(() => {
+      setEditServiceIncludes(updatedIncludes);
+    }, 100);
+  };
+
+  const handleDeleteExcludes = (index) => {
+    const updatedServiceExcludes = [...editServiceExcludes];
+    console.log("edit", editServiceExcludes);
+    updatedServiceExcludes.splice(index, 1);
+    console.log("update", updatedServiceExcludes);
+    setTimeout(() => {
+      setEditServiceExcludes(updatedServiceExcludes);
+    }, 100);
+  };
+
   useEffect(() => {
     getcategory();
     getallcategory();
@@ -209,7 +354,7 @@ function Servicedetails() {
 
   const postformat = async (e) => {
     e.preventDefault();
-    const formdata = new FormData();
+
     formdata.append("serviceImg", ServiceImg);
     formdata.append("sub_subcategory", sub_subcategory);
     formdata.append("serviceName", ServiceName);
@@ -232,6 +377,9 @@ function Servicedetails() {
         method: "post",
         baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         data: formdata,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       };
 
       const response = await axios(config);
@@ -433,6 +581,149 @@ function Servicedetails() {
     const data1 = editor.getData();
     setserviceExcludes(data1);
   };
+
+  // console.log(
+  //   "editServiceIncludes",
+  //   editServiceIncludes,
+  //   editServiceExcludes,
+  //   editDescriptions
+  // );
+
+  const updateService = async (e) => {
+    e.preventDefault();
+    try {
+      const serviceId = sid;
+      const formdata = new FormData();
+      formdata.append("category", editCategory);
+      formdata.append("Subcategory", editSubcategory);
+      formdata.append("sub_subcategory", editSubcategoryList);
+      formdata.append("serviceName", editServiceName);
+      editDescriptions.map((desc) =>
+        formdata.append(
+          "serviceDesc",
+          JSON.stringify({
+            text: desc.text,
+            image: desc.image,
+          })
+        )
+      );
+      formdata.append("servicetitle", editServicetitle);
+      formdata.append("servicebelow", editServicebelow);
+      editServiceIncludes.map((desc) =>
+        formdata.append(
+          "serviceIncludes",
+          JSON.stringify({
+            text: desc.text,
+            image: desc.image,
+          })
+        )
+      );
+      // formdata.append("serviceIncludes", editServiceIncludes);
+      editServiceExcludes.map((desc) =>
+        formdata.append(
+          "serviceExcludes",
+          JSON.stringify({
+            text: desc.text,
+            image: desc.image,
+          })
+        )
+      );
+      // formdata.append("serviceExcludes", editServiceExcludes);
+      formdata.append("homepagetitle", edithomePagetitle);
+      formdata.append("serviceGst", editServiceGst);
+      formdata.append("serviceDirection", editServiceDirection);
+      formdata.append("serviceHour", editServiceHour);
+      formdata.append("NofServiceman", editNofServiceman);
+      if (Image) {
+        formdata.append("serviceImg", Image);
+      }
+      const config = {
+        url: `/userapp/updateservices/${serviceId}`,
+        method: "put",
+        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+        headers: { "content-type": "multipart/form-data" },
+        data: formdata,
+      };
+      const response = await axios(config);
+      if (response.status === 200) {
+        console.log("success");
+        alert(response.data.message);
+        window.location.assign("/Service");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Unable to complete the request");
+    }
+  };
+  console.log(editDescriptions);
+  // const handleDeleteDesc = async (index) => {
+  //   try {
+  //     // const descriptionTextToDelete = editDescriptions[index].text;
+  //     // Assuming you have a server-side API endpoint for deleting a description
+  //     const response = await axios.delete(
+  //       `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteDescription`,
+  //       {
+  //         data: {
+  //           id: id, // Service ID
+  //           serviceDesc: editDescriptions[index].text, //descriptionText, // Description text to delete
+  //         },
+  //       }
+  //     );
+
+  //     if (response.status === 200) {
+  //       // Description deleted successfully on the server
+  //       const updatedDescriptions = [...editDescriptions];
+  //       updatedDescriptions.splice(index, 1);
+  //       setEditDescriptions(updatedDescriptions);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting description:", error);
+  //   }
+  // };
+
+  // const handleDeleteIncludes = async (index, descriptionText) => {
+  //   try {
+  //     const response = await axios.delete(
+  //       `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteincludes`,
+  //       {
+  //         data: {
+  //           id: id,
+  //           serviceIncludes: descriptionText,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.status === 200) {
+  //       const updatedIncludes = [...editServiceIncludes];
+  //       updatedIncludes.splice(index, 1);
+  //       setEditServiceIncludes(updatedIncludes);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting description:", error);
+  //   }
+  // };
+
+  // const handleDeleteExcludes = async (index, descriptionText) => {
+  //   try {
+  //     const response = await axios.delete(
+  //       `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteexcludes`,
+  //       {
+  //         data: {
+  //           id: id,
+  //           serviceExcludes: descriptionText,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.status === 200) {
+  //       const updatedExcludes = [...editServiceExcludes];
+  //       updatedExcludes.splice(index, 1);
+  //       setEditServiceExcludes(updatedExcludes);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting description:", error);
+  //   }
+  // };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -442,7 +733,7 @@ function Servicedetails() {
         <Header />
 
         <div className="row w-100 float-center card mt-4">
-          <h3>Add Service</h3>
+          <h3>Edit Service</h3>
           <div className="row m-auto card-body p-6">
             <div className="col-md-3">
               <Card
@@ -464,7 +755,7 @@ function Servicedetails() {
                     onChange={onImageChange}
                   />
                 </InputGroup>
-                {}
+
                 <img
                   src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.serviceImg}`}
                 />
@@ -480,7 +771,6 @@ function Servicedetails() {
               <Card
                 style={{
                   width: "",
-
                   padding: "15px",
                   margin: "15px",
                 }}
@@ -494,7 +784,7 @@ function Servicedetails() {
                   <Form.Select
                     aria-label="Username"
                     aria-describedby="basic-addon1"
-                    onChange={(e) => setcategory(e.target.value)}
+                    onChange={(e) => setEditCategory(e.target.value)}
                   >
                     <option>{Servicedata[0]?.category}</option>
                     {catdata.map((item) => (
@@ -509,7 +799,7 @@ function Servicedetails() {
                   <Form.Select
                     aria-label="Username"
                     aria-describedby="basic-addon1"
-                    onChange={(e) => setSubcategory(e.target.value)}
+                    onChange={(e) => setEditSubcategory(e.target.value)}
                   >
                     <option>{Servicedata[0]?.Subcategory}</option>
                     {categorydata.map((item) => (
@@ -524,7 +814,7 @@ function Servicedetails() {
                   <Form.Select
                     aria-label="Username"
                     aria-describedby="basic-addon1"
-                    onChange={(e) => setsub_subcategory(e.target.value)}
+                    onChange={(e) => setEditSubcategoryList(e.target.value)}
                   >
                     <option>{Servicedata[0]?.sub_subcategory}</option>
                     {postservicename.map((item) => (
@@ -545,7 +835,7 @@ function Servicedetails() {
                     aria-describedby="basic-addon1"
                     type="text"
                     defaultValue={Servicedata[0]?.serviceHour}
-                    onChange={(e) => setServiceHour(e.target.value)}
+                    onChange={(e) => setEditServiceHour(e.target.value)}
                   ></Form.Control>
                 </InputGroup>
 
@@ -556,7 +846,7 @@ function Servicedetails() {
                     aria-describedby="basic-addon1"
                     type="number"
                     defaultValue={Servicedata[0]?.NofServiceman}
-                    onChange={(e) => setNofServiceman(e.target.value)}
+                    onChange={(e) => setEditNofServiceman(e.target.value)}
                   ></Form.Control>
                 </InputGroup>
               </Card>
@@ -779,7 +1069,7 @@ function Servicedetails() {
                             aria-describedby="basic-addon1"
                             type="text"
                             defaultValue={Servicedata[0]?.serviceName}
-                            onChange={(e) => setServiceName(e.target.value)}
+                            onChange={(e) => setEditServiceName(e.target.value)}
                           ></Form.Control>
                         </InputGroup>
                       </Form.Group>
@@ -792,7 +1082,9 @@ function Servicedetails() {
                             aria-describedby="basic-addon1"
                             type="text"
                             defaultValue={Servicedata[0]?.servicetitle}
-                            onChange={(e) => setServicetitle(e.target.value)}
+                            onChange={(e) =>
+                              setEditServicetitle(e.target.value)
+                            }
                           ></Form.Control>
                         </InputGroup>
                       </Form.Group>
@@ -805,73 +1097,187 @@ function Servicedetails() {
                             aria-describedby="basic-addon1"
                             type="text"
                             defaultValue={Servicedata[0]?.servicebelow}
-                            onChange={(e) => setServicebelow(e.target.value)}
+                            onChange={(e) =>
+                              setEditServicebelow(e.target.value)
+                            }
                           ></Form.Control>
                         </InputGroup>
                       </Form.Group>
                     </Row>
+
                     <Form.Group
                       className="mb-3"
                       controlId="exampleForm.ControlTextarea1"
                     >
                       <Form.Label>
-                        Service Description{" "}
+                        Service Description
                         <span className="text-danger"> *</span>
                       </Form.Label>
-                      <img
-                        style={{ width: "15px", height: "15px" }}
-                        src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.Eximg}`}
-                      />
-                      {Servicedata[0]?.serviceDesc.map((i) => (
-                        <div>
+                      {editDescriptions.map((description, index) => (
+                        <>
                           <Form.Control
                             as="textarea"
                             rows={3}
                             className="mt-3"
                             placeholder="Include description"
-                            defaultValue={i.text}
+                            value={description.text}
+                            onChange={(e) =>
+                              handleEditDesc(index, e.target.value)
+                            }
                           />
-                        </div>
+                          <div
+                            className="d-flex mt-2 mb-3"
+                            style={{ justifyContent: "flex-end" }}
+                          >
+                            <i
+                              class="fa-solid fa-trash "
+                              title="Delete"
+                              style={{ color: "#b02727", cursor: "pointer" }}
+                              onClick={() => handleDeleteDesc(index)}
+                            ></i>
+                          </div>
+                        </>
                       ))}
+                      <div className="d-flex align-items-center">
+                        <Form.Control
+                          as="textarea"
+                          placeholder="Include description"
+                          value={newDescription}
+                          onChange={(e) => setNewDescription(e.target.value)}
+                        />
+                        <Button
+                          variant="outline-info"
+                          title="Add Description"
+                          onClick={handleAddDesc}
+                          className="ms-3"
+                        >
+                          Add
+                        </Button>
+                      </div>
                     </Form.Group>
+
+                    {/* ewcewcqewc */}
                     <Row className="mb-2">
                       <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>Includes</Form.Label>
+                        <span className="ms-3">
+                          {/* <Button
+                            variant="outline-info"
+                            title="Add Description"
+                            onClick={handleAddIncludes}
+                          >
+                            <i class="fa-solid fa-plus"></i>
+                          </Button> */}
+                        </span>
                         <img
                           style={{ width: "15px", height: "15px" }}
                           src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.Desimg}`}
                         />
-                        {Servicedata[0]?.serviceIncludes.map((i) => (
+                        {/* {editServiceIncludes?.serviceIncludes.map((i) => ( */}
+                        {editServiceIncludes.map((include, index) => (
                           <div>
                             <Form.Control
                               as="textarea"
                               rows={3}
                               className="mt-3"
                               placeholder="Include description"
-                              defaultValue={i.text}
+                              value={include.text}
+                              onChange={(e) =>
+                                handleEditIncludes(index, e.target.value)
+                              }
                             />
+                            <div
+                              className="d-flex mt-2 mb-3"
+                              style={{ justifyContent: "flex-end" }}
+                            >
+                              <i
+                                class="fa-solid fa-trash  "
+                                title="Delete"
+                                style={{ color: "#b02727", cursor: "pointer" }}
+                                onClick={() => handleDeleteIncludes(index)}
+                              ></i>
+                            </div>
                           </div>
                         ))}
+                        <div className="d-flex align-items-center">
+                          <Form.Control
+                            as="textarea"
+                            placeholder="Include description"
+                            value={newServiceIncludes}
+                            onChange={(e) =>
+                              setnewServiceIncludes(e.target.value)
+                            }
+                          />
+                          <Button
+                            variant="outline-info"
+                            title="Add Description"
+                            onClick={handleAddIncludes}
+                            className="ms-3"
+                          >
+                            Add
+                          </Button>
+                        </div>
                       </Form.Group>
 
                       <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>Excludes</Form.Label>
-
+                        <span className="ms-3">
+                          {/* <Button
+                            variant="outline-info"
+                            title="Add Description"
+                            // onClick={handleDeleteIncludes}
+                          >
+                            <i class="fa-solid fa-plus"></i>
+                          </Button> */}
+                        </span>
                         <img
                           style={{ width: "15px", height: "15px" }}
                           src={`http://api.vijayhomeservicebengaluru.in/service/${Servicedata[0]?.Inimg}`}
                         />
-                        {Servicedata[0]?.serviceExcludes.map((i) => (
+                        {/* {Servicedata[0]?.serviceExcludes.map((i) => ( */}
+                        {editServiceExcludes.map((excludes, index) => (
                           <div>
                             <Form.Control
                               as="textarea"
                               rows={3}
                               className="mt-3"
                               placeholder="Include description"
-                              defaultValue={i.text}
+                              value={excludes.text}
+                              onChange={(e) =>
+                                handleEditExcludes(index, e.target.value)
+                              }
                             />
+                            <div
+                              className="d-flex mt-2 mb-3"
+                              style={{ justifyContent: "flex-end" }}
+                            >
+                              <i
+                                class="fa-solid fa-trash "
+                                title="Delete"
+                                style={{ color: "#b02727", cursor: "pointer" }}
+                                onClick={() => handleDeleteExcludes(index)}
+                              ></i>
+                            </div>
                           </div>
                         ))}
+                        <div className="d-flex align-items-center">
+                          <Form.Control
+                            as="textarea"
+                            placeholder="Exclude description"
+                            value={newServiceExcludes}
+                            onChange={(e) =>
+                              setnewServiceExcludes(e.target.value)
+                            }
+                          />
+                          <Button
+                            variant="outline-info"
+                            title="Add Description"
+                            onClick={handleAddExcludes}
+                            className="ms-3"
+                          >
+                            Add
+                          </Button>
+                        </div>
                       </Form.Group>
                     </Row>
                     <Row>
@@ -883,7 +1289,9 @@ function Servicedetails() {
                           <Form.Select
                             aria-label="Username"
                             aria-describedby="basic-addon1"
-                            onChange={(e) => sethomePagetitle(e.target.value)}
+                            onChange={(e) =>
+                              setEdithomePagetitle(e.target.value)
+                            }
                           >
                             {Servicedata[0]?.homepagetitle ? (
                               <option>{Servicedata[0]?.homepagetitle}</option>
@@ -912,7 +1320,7 @@ function Servicedetails() {
                             aria-label="Username"
                             aria-describedby="basic-addon1"
                             onChange={(e) =>
-                              setserviceDirection(e.target.value)
+                              setEditServiceDirection(e.target.value)
                             }
                           >
                             {Servicedata[0]?.serviceDirection ? (
@@ -936,7 +1344,7 @@ function Servicedetails() {
                         <Form.Select
                           aria-label="Username"
                           aria-describedby="basic-addon1"
-                          onChange={(e) => setServiceGst(e.target.value)}
+                          onChange={(e) => setEditServiceGst(e.target.value)}
                         >
                           {Servicedata[0]?.serviceGst ? (
                             <option>{Servicedata[0]?.serviceGst}</option>
@@ -950,6 +1358,7 @@ function Servicedetails() {
                         </Form.Select>
                       </Form.Group>
                     </Row>
+
                     {/* <Row className="mb-3 mt-4">
                       <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>
@@ -1006,7 +1415,11 @@ function Servicedetails() {
                       </Form.Group>
                     </Row> */}
                   </Form>
-                  <Button type="button" variant="outline-primary">
+                  <Button
+                    type="button"
+                    variant="outline-primary"
+                    onClick={() => window.location.assign("/Service")}
+                  >
                     Cancel
                   </Button>
 
@@ -1014,7 +1427,8 @@ function Servicedetails() {
                     type="button"
                     variant="danger"
                     className="btn btn-secondary float-end"
-                    onClick={postformat}
+                    // onClick={postformat}
+                    onClick={updateService}
                   >
                     Save Changes
                   </Button>

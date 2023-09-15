@@ -46,8 +46,7 @@ function Login() {
         style={{ alignItems: "center", height: "100vh" }}
       >
         <div className="col-10" style={{ marginTop: "" }}>
-          <div style={{ display: "flex",justifyContent:"center" }}>
-           
+          <div style={{ display: "flex", justifyContent: "center" }}>
             <div style={{}} className="">
               <h1
                 style={{
@@ -63,7 +62,7 @@ function Login() {
                   boxShadow: "0px 0px 5px 1px lightgray",
                   backgroundColor: "rgb(232, 232, 232)",
                   padding: 50,
-                  width:600
+                  width: 600,
                 }}
               >
                 <div>
@@ -72,7 +71,7 @@ function Login() {
                       textAlign: "center",
                     }}
                   >
-                    <img src="/images/vhs.png" style={{ width: "80px" }} />
+                    {/* <img src="/images/vhs.png" style={{ width: "80px" }} /> */}
 
                     <h4 className="mt-3">LOGIN TO YOUR ACCOUNT</h4>
                   </div>

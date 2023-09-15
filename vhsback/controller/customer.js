@@ -23,6 +23,8 @@ class addcustomer {
       color,
       instructions,
       approach,
+      password,
+      cpassword,
       serviceExecute,
     } = req.body;
     try {
@@ -67,6 +69,8 @@ class addcustomer {
         color,
         instructions,
         approach,
+        password,
+        cpassword,
         serviceExecute,
       });
       // Save the customer data to the database
@@ -80,6 +84,39 @@ class addcustomer {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
+
+   async usersignin(req, res) {
+    const { email, password } = req.body;
+    try {
+      if (!email) {
+        return res
+          .status(400)
+          .json({ error: "Please enter your loginname or email" });
+      }
+      if (!password) {
+        return res.status(400).json({ error: "Please enter your password" });
+      }
+      const user = await customerModel.findOne({ email });
+      if (!user) {
+        return res
+          .status(404)
+          .json({ error: "User not found " });
+      }
+      const passwordMatch = bcrypt.compareSync(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Invalid password" });
+      }
+      await customerModel.findOneAndUpdate(
+        { email },
+        { status: "Online" }
+      );
+      return res.json({ success: "Login successful", user });
+    } catch (error) {
+      console.error("Something went wrong", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
 
   //edit customer
   async editcustomer(req, res) {
@@ -106,6 +143,8 @@ class addcustomer {
       color,
       instructions,
       approach,
+      password,
+      cpassword,
       serviceExecute,
     } = req.body;
     let data = await customerModel.findOneAndUpdate(
@@ -131,6 +170,8 @@ class addcustomer {
       color,
       instructions,
       approach,
+      password,
+      cpassword,
       serviceExecute,
       }
     );

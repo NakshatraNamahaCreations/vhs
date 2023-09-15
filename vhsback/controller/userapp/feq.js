@@ -1,27 +1,27 @@
 const feqModel = require("../../model/userapp/feq");
 
 class feq {
-  async  postaddfeq(req, res) {
+  async postaddfeq(req, res) {
     try {
-      const files = req.files; // Use req.files to access multiple files
-      const { title } = req.body;
-  
+      const { title, category } = req.body;
+      const files = req.files;
       if (!files || files.length === 0) {
         return res.status(400).json({ error: "No files uploaded" });
       }
-  
+
       const images = files.map((file) => ({
-        data: file.buffer,
+        data: file.filename,
         contentType: file.mimetype,
       }));
-  
+
       const newfeq = new feqModel({
         img: images,
         title: title,
+        category,
       });
-  
+
       await newfeq.save();
-  
+
       return res.json({ success: "feq added successfully" });
     } catch (error) {
       console.error(error);

@@ -21,6 +21,9 @@ function FEQ() {
 
   const [banner, setBanner] = useState([]);
   const [bannerdata, setBannerdata] = useState([]);
+  const [images, setImages] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [selectCategory, setSelectCategory] = useState("");
   const formdata = new FormData();
   const apiURL = process.env.REACT_APP_API_URL;
   const imgURL = process.env.REACT_APP_IMAGE_API_URL;
@@ -30,26 +33,29 @@ function FEQ() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-
+  const fileSelectedHandler = (e) => {
+    setBanner([...banner, ...e.target.files]);
+  };
 
   const postbanner = async (e) => {
     e.preventDefault();
-  
     const formData = new FormData();
-  
     for (const file of banner) {
       formData.append("img", file);
     }
-  
     formData.append("title", title);
-  
+    formData.append("category", selectCategory);
     try {
-      const response = await axios.post("http://api.vijayhomeservicebengaluru.in/api/userapp/addfeq", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
+      const response = await axios.post(
+        "http://api.vijayhomeservicebengaluru.in/api/userapp/addfeq",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       if (response.status === 200) {
         alert("Successfully Added");
         window.location.assign("/feq");
@@ -59,7 +65,6 @@ function FEQ() {
       alert("Title Not Added");
     }
   };
-  
 
   useEffect(() => {
     getbannerimg();
@@ -67,11 +72,21 @@ function FEQ() {
 
   const getbannerimg = async () => {
     let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getallfeq");
-    if ((res.status = 200)) {
+    if (res.status === 200) {
       setBannerdata(res.data?.feq);
       console.log(res.data?.feq);
+      setImages(
+        res.data?.feq.map((element) => {
+          return `http://api.vijayhomeservicebengaluru.in/userbanner/${element.img[0].contentType}`;
+        })
+      );
     }
   };
+
+  // const images = bannerdata;
+  // const mappedImages = images.map((image) => {
+  //   return `http://api.vijayhomeservicebengaluru.in/userbanner/${image.contentType}`;
+  // });
 
   const deletebannerimg = async (id) => {
     axios({
@@ -88,6 +103,17 @@ function FEQ() {
         //handle error
         console.log(error.response.data);
       });
+  };
+
+  useEffect(() => {
+    getcategory();
+  }, []);
+
+  const getcategory = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    if (res.status === 200) {
+      setCategoryData(res.data?.category);
+    }
   };
 
   return (
@@ -130,6 +156,7 @@ function FEQ() {
                   <thead>
                     <tr>
                       <th>SI.No</th>
+                      <th>Category</th>
                       <th>Title</th>
                       <th> Images</th>
                       <th>Action</th>
@@ -140,14 +167,19 @@ function FEQ() {
                       return (
                         <tr key={i}>
                           <td>{i + 1}</td>
+                          <td>{element.category}</td>
                           <td>{element.title}</td>
                           <td>
-                            <img
-                              className="header_logo"
-                              src={`http://api.vijayhomeservicebengaluru.in/userbanner/${element.img}`}
-                              width={"100px"}
-                              height={"50px"}
-                            />
+                            {element.img.map((image, j) => (
+                              <img
+                                className="header_logo"
+                                src={`http://api.vijayhomeservicebengaluru.in/feq/${image.data}`}
+                                width={"100px"}
+                                height={"50px"}
+                                alt={`Image ${j + 1}`}
+                                key={j}
+                              />
+                            ))}
                           </td>
 
                           <td>
@@ -181,6 +213,20 @@ function FEQ() {
           </Modal.Header>
           <Modal.Body>
             <div className="vhs-input-label">
+              Select Category <span className="text-danger"> *</span>
+            </div>
+            <div className="group pt-1">
+              <select
+                className="col-md-12 vhs-input-value"
+                onChange={(e) => setSelectCategory(e.target.value)}
+              >
+                <option value="">Select category</option>
+                {categoryData?.map((item) => (
+                  <option value={item.category}>{item.category}</option>
+                ))}
+              </select>
+            </div>
+            <div className="vhs-input-label">
               Title <span className="text-danger"> *</span>
             </div>
             <div className="group pt-1">
@@ -194,7 +240,7 @@ function FEQ() {
               <input
                 type="file"
                 name="img"
-                onChange={(e) => setBanner(e.target.files)}
+                onChange={fileSelectedHandler}
                 multiple
               />
             </div>

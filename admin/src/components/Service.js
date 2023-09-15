@@ -60,7 +60,7 @@ function Services() {
   const [Plans, setPlans] = useState("");
   const [homepagetitle, sethomePagetitle] = useState("");
   const [serviceDirection, setserviceDirection] = useState("");
-  const [search, setsearch] = useState("");
+  const [searchItems, setSearchItems] = useState("");
   const [serID, setserID] = useState("");
   const [serviceIncludes, setserviceIncludes] = useState("");
   const [serviceExcludes, setserviceExcludes] = useState("");
@@ -73,13 +73,35 @@ function Services() {
 
   const [Inimg, setInimg] = useState("");
   const [Eximg, setEximg] = useState("");
-  const [Desimg, setDesimg] = useState("")
+  const [Desimg, setDesimg] = useState("");
   const [servicebelow, setServicebelow] = useState("");
   const [titleName, settitleName] = useState("");
   const [catdata, setcatdata] = useState([]);
   const formdata = new FormData();
+  const [data, setdata] = useState([]);
 
+  const [editCatagoryName, setEditCatagoryName] = useState("");
+  const [editSubcategoryName, setEditSubcategoryName] = useState("");
+  const [editSubCategoryList, setEditSubCategoryList] = useState("");
+  const [editServiceName, setEditServiceName] = useState("");
+  const [editServiceDescription, setEditServiceDescription] = useState("");
+  const [editServiceHour, setEditServiceHour] = useState("");
+  const [editServiceImage, setEditServiceImage] = useState("");
 
+  const [showEdit, setShowEdit] = useState(false);
+  const [editSubcategory, setEditSubcategory] = useState({});
+
+  const handleEdit = (subcategory) => {
+    setEditSubcategory(subcategory);
+    handleShowPopUp(true);
+  };
+
+  const handleShowPopUp = () => {
+    setShowEdit(true);
+  };
+  const handleClosePopup = () => {
+    setShowEdit(false); // Hide the edit form after submitting it or canceling it by pressing
+  };
 
   const [includes, setIncludes] = useState([]); // State to store includes items
   const [newInclude, setNewInclude] = useState(""); // State to store the new include text
@@ -92,18 +114,13 @@ function Services() {
   const [showAddedData, setShowAddedData] = useState(false);
   const [showAddedData1, setShowAddedData1] = useState(false);
   const [showAddedData2, setShowAddedData2] = useState(false);
-  
-  const [selectedImage, setSelectedImage] = useState(null); 
+
+  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImage1, setSelectedImage1] = useState(null); // State to store the selected image
   const [selectedImage2, setSelectedImage2] = useState(null); // State to store the selected image
 
-
-
-
-
   const handleAddInclude = () => {
-
-    if (newInclude.trim() !== "" ||selectedImage !== null) {
+    if (newInclude.trim() !== "" || selectedImage !== null) {
       const newIncludeItem = { text: newInclude, image: selectedImage };
       setIncludes([...includes, newIncludeItem]);
       setNewInclude(""); // Clear the input fields
@@ -119,9 +136,7 @@ function Services() {
     }
   };
 
-
   const handleAddExclude = () => {
-
     if (newEncludes.trim() !== "" || selectedImage1 !== null) {
       const newExcludeItem = { text: newEncludes, image: selectedImage1 };
       setExcludes([...excludes, newExcludeItem]);
@@ -138,10 +153,8 @@ function Services() {
     }
   };
 
-
   const handleAdddesc = () => {
-
-    if (newdesc.trim() !== "" ||selectedImage2 !== null) {
+    if (newdesc.trim() !== "" || selectedImage2 !== null) {
       const newDESCItem = { text: newdesc, image: selectedImage2 };
       setdesc([...desc, newDESCItem]);
       setNewdesc(""); // Clear the input fields
@@ -251,20 +264,19 @@ function Services() {
     }
   };
 
-
   const postformat = async (e) => {
-    if (!ServiceImg || !ServiceName || !desc || !category) {
+    if (!ServiceName || !desc || !category) {
       alert("Please fill all mandatory fields");
     } else {
       e.preventDefault();
-      formdata.append("serviceImg", Image);
+      // formdata.append("serviceImg", Image);
       formdata.append("sub_subcategory", sub_subcategory);
       formdata.append("serviceName", ServiceName);
       formdata.append("serviceDirection", serviceDirection);
       formdata.append("category", category);
-      formdata.append("Inimg", Inimg);
-      formdata.append("Eximg", Eximg);
-      formdata.append("Desimg", Desimg);
+      // formdata.append("Inimg", Inimg);
+      // formdata.append("Eximg", Eximg);
+      // formdata.append("Desimg", Desimg);
       formdata.append("Subcategory", Subcategory);
       formdata.append("serviceIncludes", JSON.stringify(includes));
       formdata.append("serviceExcludes", JSON.stringify(excludes));
@@ -284,6 +296,9 @@ function Services() {
           url: "/userapp/addservices",
           method: "post",
           baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
           data: formdata,
         };
         await axios(config).then(function (response) {
@@ -335,12 +350,20 @@ function Services() {
   };
 
   useEffect(() => {
-    const result = Servicedata.filter((item) => {
-      return item.serviceName.toLowerCase().match(search.toLowerCase());
+    const filteredData = Servicedata.filter((item) => {
+      const searchString = searchItems.toLowerCase();
+      const categoryMatch = item.category?.toLowerCase().includes(searchString);
+      const subcategoryMatch =
+        item.Subcategory?.toLowerCase().includes(searchString);
+      const ServiceNameMatch = item.serviceName
+        ?.toLowerCase()
+        .includes(searchString);
+      return categoryMatch || subcategoryMatch || ServiceNameMatch;
     });
-    setfilterdata(result);
-  }, [search]);
 
+    setfilterdata(filteredData);
+  }, [searchItems, Servicedata]);
+  // setSearchItems
   const columns = [
     {
       name: "Sl  No",
@@ -366,10 +389,10 @@ function Services() {
     //   name: "Service Price",
     //   selector: (row) => row.servicePrice,
     // },
-    {
-      name: "Service Desc",
-      selector: (row) => row.serviceDesc[0]?.text,
-    },
+    // {
+    //   name: "Service Desc",
+    //   selector: (row) => row.serviceDesc,
+    // },
     {
       name: "Service Hours",
       selector: (row) => row.serviceHour,
@@ -390,6 +413,9 @@ function Services() {
       name: "Action",
       cell: (row) => (
         <div>
+          {/* <a className="hyperlink" onClick={() => handleEdit(row)}>
+            Edit |
+          </a> */}
           <a onClick={() => deletecategory(row._id)} className="hyperlink mx-1">
             Delete
           </a>
@@ -397,6 +423,11 @@ function Services() {
       ),
     },
   ];
+
+  const edit = (data) => {
+    setdata(data);
+    handleShow(true);
+  };
 
   useEffect(() => {
     getcity();
@@ -441,6 +472,40 @@ function Services() {
     } catch (error) {
       console.error(error);
       alert(" Not Added");
+    }
+  };
+
+  const updateService = async (e) => {
+    e.preventDefault();
+    try {
+      const serviceId = editSubcategory._id;
+      const formdata = new FormData();
+      formdata.append("category", editCatagoryName);
+      formdata.append("Subcategory", editSubcategoryName);
+      formdata.append("sub_subcategory", editSubCategoryList);
+      formdata.append("serviceName", editServiceName);
+      formdata.append("serviceDesc", editServiceDescription);
+      formdata.append("serviceHour", editServiceHour);
+
+      if (editServiceImage) {
+        formdata.append("serviceImg", editServiceImage);
+      }
+
+      const config = {
+        url: `/userapp/updateservices/${serviceId}`,
+        method: "put",
+        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+        data: formdata,
+      };
+      const response = await axios(config);
+      if (response.status === 200) {
+        console.log("success");
+        alert(response.data.message);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Unable to complete the request");
     }
   };
 
@@ -525,8 +590,6 @@ function Services() {
     dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
 
- 
-
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -557,10 +620,10 @@ function Services() {
               <div className="mt-5">
                 <input
                   type="text"
-                  placeholder="Search service name here.."
+                  placeholder="Search by category, subcategory, service"
                   className="w-25 form-control"
-                  value={search}
-                  onChange={(e) => setsearch(e.target.value)}
+                  value={searchItems}
+                  onChange={(e) => setSearchItems(e.target.value)}
                 />
               </div>
               <div className="mt-1 border">
@@ -881,64 +944,64 @@ function Services() {
                         </Form.Group>
                       </Row>
                       <Form.Group as={Col} controlId="formGridEmail">
-                          <Form.Label>Service Description</Form.Label>
-                          <Form.Control
-                            type="file"
-                            accept="image/*"
-                      onChange={(e) => setDesimg(e.target.files[0])}
+                        <Form.Label>Service Description</Form.Label>
+                        <Form.Control
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setDesimg(e.target.files[0])}
+                        />
+                        <a>Width:20px height:20px</a>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          className="mt-3"
+                          placeholder="Include description"
+                          value={newdesc}
+                          onChange={(e) => setNewdesc(e.target.value)}
+                        />
 
-                          />
-                          <a>Width:20px height:20px</a>
-                          <Form.Control
-                            as="textarea"
-                            rows={3}
-                            className="mt-3"
-                            placeholder="Include description"
-                            value={newdesc}
-                            onChange={(e) => setNewdesc(e.target.value)}
-                          />
+                        <Button
+                          className="mt-3"
+                          variant="primary"
+                          onClick={handleAdddesc}
+                        >
+                          Add serviceDesc
+                        </Button>
 
-                          <Button
-                            className="mt-3"
-                            variant="primary"
-                            onClick={handleAdddesc}
-                          >
-                            Add serviceDesc
-                          </Button>
-
-                          <div>
-                            {desc.map((desc1, index) => (
-                              <div
-                                key={index}
-                                style={{
-                                  display: "flex",
-                                  padding: 10,
-                                  gap: "10px",
-                                }}
-                              >
-
-                                {desc1.image?
-                               <img
+                        <div>
+                          {desc.map((desc1, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                display: "flex",
+                                padding: 10,
+                                gap: "10px",
+                              }}
+                            >
+                              {desc1.image ? (
+                                <img
                                   src={desc1.image}
                                   alt={`desc ${index + 1}`}
                                   style={{ width: "20px", height: "20px" }}
-                                />:""  
-                              }
-                               
-                                <p> {desc1.text}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </Form.Group>
+                                />
+                              ) : (
+                                ""
+                              )}
+
+                              <p> {desc1.text}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </Form.Group>
                       <Row className="mt-3">
                         <Form.Group as={Col} controlId="formGridEmail">
                           <Form.Label>Includes</Form.Label>
                           <Form.Control
                             type="file"
                             accept="image/*"
-                        onChange={(e) => setInimg(e.target.files[0])}
+                            onChange={(e) => setInimg(e.target.files[0])}
                           />
-                           <a>Width:20px height:20px</a>
+                          <a>Width:20px height:20px</a>
                           <Form.Control
                             as="textarea"
                             rows={3}
@@ -982,9 +1045,9 @@ function Services() {
                           <Form.Control
                             type="file"
                             accept="image/*"
-                           onChange={(e) => setEximg(e.target.files[0])}
+                            onChange={(e) => setEximg(e.target.files[0])}
                           />
-                           <a>Width:20px height:20px</a>
+                          <a>Width:20px height:20px</a>
                           <Form.Control
                             as="textarea"
                             rows={3}
@@ -1000,7 +1063,7 @@ function Services() {
                             onClick={handleAddExclude}
                           >
                             Add Excludes
-                          </Button> 
+                          </Button>
 
                           <div>
                             {excludes.map((exclude, index) => (
@@ -1305,6 +1368,170 @@ function Services() {
             Save Changes
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      {/* modal for edit */}
+      <Modal
+        show={showEdit}
+        onHide={handleClosePopup}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Service</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="card-body p-3">
+            <form>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Category <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  {/* <input
+                    type="text"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditCatagoryName(e.target.value)}
+                    defaultValue={
+                      editCatagoryName || editSubcategory
+                        ? editSubcategory.category
+                        : ""
+                    }
+                  /> */}
+                  <Form.Select
+                    aria-label="Username"
+                    aria-describedby="basic-addon1"
+                    onChange={(e) => setEditCatagoryName(e.target.value)}
+                  >
+                    <option>-Select category-</option>
+                    {catdata.map((item) => (
+                      <option value={item.category}>{item.category}</option>
+                    ))}
+                  </Form.Select>
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Subcategory <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  {/* <input
+                    type="text"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditSubcategoryName(e.target.value)}
+                    defaultValue={
+                      editSubcategoryName || editSubcategory
+                        ? editSubcategory.Subcategory
+                        : ""
+                    }
+                  /> */}
+                  <Form.Select
+                    aria-label="Username"
+                    aria-describedby="basic-addon1"
+                    onChange={(e) => setEditSubcategoryName(e.target.value)}
+                  >
+                    <option>-Select Subcategory-</option>
+                    {categorydata.map((item) => (
+                      <option value={item.subcategory}>
+                        {item.subcategory}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Sub subcategory <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  <Form.Select
+                    aria-label="Username"
+                    aria-describedby="basic-addon1"
+                    onChange={(e) => setEditSubCategoryList(e.target.value)}
+                  >
+                    <option>-Select Subcategory-</option>
+                    {postservicename.map((item) => (
+                      <option value={item.sub_subcategory}>
+                        {item.sub_subcategory}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Service Name <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  <input
+                    type="text"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditServiceName(e.target.value)}
+                    defaultValue={
+                      editServiceName || editSubcategory
+                        ? editSubcategory.serviceName
+                        : ""
+                    }
+                  />
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Service descriptions <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  <textarea
+                    type="text"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditServiceDescription(e.target.value)}
+                    defaultValue={
+                      editServiceDescription || editSubcategory
+                        ? editSubcategory.text
+                        : ""
+                    }
+                  />
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Service Hours <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  <input
+                    type="time"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditServiceHour(e.target.value)}
+                    defaultValue={
+                      editServiceHour || editSubcategory
+                        ? editSubcategory.serviceHour
+                        : ""
+                    }
+                  />
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="vhs-input-label">
+                  Service Image <span className="text-danger"> *</span>
+                </div>
+                <div className="group pt-1">
+                  <input
+                    type="file"
+                    className="col-md-12 vhs-input-value"
+                    onChange={(e) => setEditServiceImage(e.target.files[0])}
+                  />
+                </div>
+              </div>
+
+              <div className="row pt-3">
+                <div className="col-md-2">
+                  <button className="vhs-button" onClick={updateService}>
+                    Update
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </Modal.Body>
       </Modal>
     </div>
   );

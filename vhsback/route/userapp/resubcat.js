@@ -17,7 +17,7 @@ router.post("/addappresubcat",upload.any(),appresubcatcontroller.addappresubcat)
 router.get("/getappresubcat",appresubcatcontroller.getappresubcat);
 router.post("/postappresubcat",appresubcatcontroller.postappresubcat);
 router.post("/deleteappresubcat/:id",appresubcatcontroller.deleteappresubcat);
-router.post("/editappresubcat/:id",appresubcatcontroller.editappresubcat);
+router.post("/editappresubcat/:id",upload.any(),appresubcatcontroller.editappresubcat);
 
 module.exports=router;
 

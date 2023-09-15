@@ -25,14 +25,14 @@ const serviceManagementSchema = new mongoose.Schema({
   serviceDesc: {
     type: Array,
   },
-  Inimg:{
-    type:String
+  Inimg: {
+    type: String,
   },
-  Eximg:{
-    type:String
+  Eximg: {
+    type: String,
   },
-  Desimg:{
-    type:String
+  Desimg: {
+    type: String,
   },
   servicePrice: {
     type: String,
@@ -71,7 +71,12 @@ const serviceManagementSchema = new mongoose.Schema({
     },
   ],
   quantity: {
+    type: Number,
+    default: 1,
+  },
+  qty: {
     type: String,
+    default: 1,
   },
   servicetitle: {
     type: String,

@@ -81,6 +81,15 @@ const customerSchema = new mongoose.Schema({
   treatmentdetails: {
     type: Array,
   },
+  password: {
+    type: Array,
+  },
+  cpassword: {
+    type: Array,
+  },
+  type:{
+    type:String
+  }
 }, {
   timestamps: true,
 });

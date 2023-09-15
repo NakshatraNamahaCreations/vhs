@@ -17,7 +17,7 @@ router.post("/addappsubcat",upload.any(),appsubcatcontroller.addappsubcat);
 router.get("/getappsubcat",appsubcatcontroller.getappsubcat);
 router.post("/postappsubcat",appsubcatcontroller.postappsubcat);
 router.post("/deleteappsubcat/:id",appsubcatcontroller.deleteappsubcat);
-router.post("/editappsubcat/:id",appsubcatcontroller.editappsubcat);
+router.post("/editappsubcat/:id",upload.any(),appsubcatcontroller.editappsubcat);
 
 module.exports=router;
 
