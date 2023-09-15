@@ -38,7 +38,7 @@ function Subcategory() {
   }, []);
 
   const getAllSubcategory = async () => {
-    let res = await axios.get("http://localhost:8080/api/userapp/getappsubcat");
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
     if (res.status === 200) {
       setSubcategories(res.data?.subcategory);
       console.log("subcategories", res.data?.subcategory);
@@ -58,7 +58,7 @@ function Subcategory() {
         const config = {
           url: "/userapp/addappresubcat",
           method: "post",
-          baseURL: "http://localhost:8080/api",
+          baseURL: "http://api.vijayhomeservicebengaluru.in/api",
           data: formdata,
         };
         await axios(config).then(function (response) {
@@ -75,7 +75,7 @@ function Subcategory() {
   };
   const getsubcategory = async () => {
     let res = await axios.get(
-      "http://localhost:8080/api/userapp/getappresubcat"
+      "http://api.vijayhomeservicebengaluru.in/api/userapp/getappresubcat"
     );
     if (res.status === 200) {
       console.log("All list---", res);
@@ -94,7 +94,7 @@ function Subcategory() {
       const config = {
         url: `/userapp/editappresubcat/${editSubcategoryList._id}`,
         method: "post",
-        baseURL: "http://localhost:8080/api",
+        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
         headers: { "content-type": "multipart/form-data" },
         data: formdata,
       };
@@ -128,7 +128,7 @@ function Subcategory() {
         <div>
           <img
             className="header_logo"
-            src={`http://localhost:8080/resubcat/${row.resubcatimg}`}
+            src={`http://api.vijayhomeservicebengaluru.in/resubcat/${row.resubcatimg}`}
             width={"50px"}
             height={"50px"}
           />
@@ -165,7 +165,7 @@ function Subcategory() {
   const deleteservices = async (id) => {
     axios({
       method: "post",
-      url: "http://localhost:8080/api/userapp/deleteappresubcat/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deleteappresubcat/" + id,
     })
       .then(function (response) {
         //handle success
