@@ -16,7 +16,7 @@ function UserManagement() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getuser");
+    let res = await axios.get("http://localhost:8080/api/userapp/getuser");
     if ((res.status = 200)) {
       setuserdata(res.data?.userdata);
       setSearchResults(res.data?.userdata);
@@ -26,7 +26,7 @@ function UserManagement() {
   const deleteuser = async (id) => {
     axios({
       method: "post",
-      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deleteuser/" + id,
+      url: "http://localhost:8080/api/userapp/deleteuser/" + id,
     })
       .then(function (response) {
         //handle success

@@ -47,7 +47,7 @@ function Voucher() {
         const config = {
           url: "/userapp/addvoucher",
           method: "post",
-          baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+          baseURL: "http://localhost:8080/api",
           headers: { "content-type": "application/json" },
           data: {
             category: category,
@@ -84,7 +84,7 @@ function Voucher() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    let res = await axios.get("http://localhost:8080/api/getcategory");
     if ((res.status = 200)) {
       setcategorydata(res.data?.category);
     }
@@ -92,7 +92,7 @@ function Voucher() {
  
 
   const getvoucher = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getvoucher");
+    let res = await axios.get("http://localhost:8080/api/userapp/getvoucher");
     if ((res.status = 200)) {
       setvoucherdata(res.data?.voucher);
     }

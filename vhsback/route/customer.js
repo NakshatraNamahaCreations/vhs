@@ -3,6 +3,8 @@ const router=express.Router();
 const customercontroller=require("../controller/customer");
 
 router.post("/addcustomer",customercontroller.addcustomer);
+router.post("/usersign",customercontroller.usersignin);
+
 router.get("/getcustomer",customercontroller.getallcustomer);
 router.post("/deletetercustomer/:id",customercontroller.deletecustomer);
 router.post("/editcustomer/:id", customercontroller.editcustomer);

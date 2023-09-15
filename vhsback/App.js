@@ -86,6 +86,20 @@ const uslots = require("./route/userapp/slots");
 const ufeq = require("./route/userapp/feq");
 const addOnsRoute = require("./route/userapp/serviceAddons");
 const numbersRoute = require("./route/userapp/whatsappNumber");
+const paymentgateway = require("./route/paymentgatway/payment");
+
+
+
+
+
+
+
+
+const profile = require("./route/profile");
+
+
+
+
 
 
 
@@ -149,7 +163,8 @@ app.use("/api/userapp",ufeq);
 
 app.use("/api/userapp", addOnsRoute);
 app.use("/api/userapp", numbersRoute);
-
+app.use("/api", profile);
+app.use("/api/payment", paymentgateway);
 
 
 

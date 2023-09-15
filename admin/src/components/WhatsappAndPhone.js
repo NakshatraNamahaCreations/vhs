@@ -38,7 +38,7 @@ function WhatsappAndPhone() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    let res = await axios.get("http://localhost:8080/api/getcategory");
     if (res.status === 200) {
       setdata1(res.data?.category);
       console.log(res.data?.category);
@@ -50,7 +50,7 @@ function WhatsappAndPhone() {
       const config = {
         url: "/userapp/addNumbers",
         method: "post",
-        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+        baseURL: "http://localhost:8080/api",
         headers: {
           "Content-Type": "application/json",
         },
@@ -81,7 +81,7 @@ function WhatsappAndPhone() {
 
   const getAllNumbers = async () => {
     let res = await axios.get(
-      "http://api.vijayhomeservicebengaluru.in/api/userapp/getwhatsNumbers"
+      "http://localhost:8080/api/userapp/getwhatsNumbers"
     );
     if (res.status === 200) {
       console.log(res);
@@ -97,7 +97,7 @@ function WhatsappAndPhone() {
       const config = {
         url: `/userapp/updateWhatsAppNumber/${editNumberData._id}`,
         method: "put",
-        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+        baseURL: "http://localhost:8080/api",
         headers: { "Content-Type": "application/json" },
         data: {
           numbersCategory: editCategoryName,
@@ -121,7 +121,7 @@ function WhatsappAndPhone() {
   const deleteNumbers = async (id) => {
     axios({
       method: "delete",
-      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deletenumbers/" + id,
+      url: "http://localhost:8080/api/userapp/deletenumbers/" + id,
     })
       .then(function (response) {
         console.log(response);

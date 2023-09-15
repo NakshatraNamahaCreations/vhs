@@ -25,7 +25,9 @@ class addcustomer {
       approach,
       password,
       cpassword,
+      type,
       serviceExecute,
+      selectedSlotText
     } = req.body;
     try {
       // Get the latest card number from the database
@@ -38,14 +40,23 @@ class addcustomer {
       // Increment the card number by 1
       const newCardNo = latestCardNo + 1;
 
-       // check if contact is already exists
-       const existingContactno = await customerModel.findOne({
+      // check if contact is already exists
+      const existingContactno = await customerModel.findOne({
         mainContact: mainContact,
       });
       if (existingContactno) {
         return res.status(400).json({ error: "Contactno already exists" });
       }
-
+      // Check if the email or name already exists
+      const emailOrNameExists = await customerModel.findOne({
+        $or: [
+          { email: email },
+          // { email: loginnameOrEmail },
+        ],
+      });
+      if (emailOrNameExists) {
+        return res.status(500).json({ error: "The email already exists." });
+      }
 
       // Create a new customer instance with the generated card number
       const customer = new customerModel({
@@ -71,7 +82,9 @@ class addcustomer {
         approach,
         password,
         cpassword,
+        type,
         serviceExecute,
+        selectedSlotText
       });
       // Save the customer data to the database
       const savedCustomer = await customer.save();
@@ -85,8 +98,9 @@ class addcustomer {
     }
   }
 
-   async usersignin(req, res) {
+  async usersignin(req, res) {
     const { email, password } = req.body;
+
     try {
       if (!email) {
         return res
@@ -97,26 +111,23 @@ class addcustomer {
         return res.status(400).json({ error: "Please enter your password" });
       }
       const user = await customerModel.findOne({ email });
+      console.log(user);
       if (!user) {
-        return res
-          .status(404)
-          .json({ error: "User not found " });
+        return res.status(404).json({ error: "User not found " });
       }
-      const passwordMatch = bcrypt.compareSync(password, user.password);
-      if (!passwordMatch) {
+      // const passwordMatch = bcrypt.compareSync(password, user.password);
+      console.log(user.password);
+      console.log(password);
+      if (password !== user.password) {
         return res.status(401).json({ error: "Invalid password" });
       }
-      await customerModel.findOneAndUpdate(
-        { email },
-        { status: "Online" }
-      );
+      await customerModel.findOneAndUpdate({ email }, { status: "Online" });
       return res.json({ success: "Login successful", user });
     } catch (error) {
       console.error("Something went wrong", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-
 
   //edit customer
   async editcustomer(req, res) {
@@ -145,34 +156,36 @@ class addcustomer {
       approach,
       password,
       cpassword,
+      type,
       serviceExecute,
     } = req.body;
     let data = await customerModel.findOneAndUpdate(
       { _id: id },
       {
         cardNo,
-      EnquiryId,
-      customerName,
-      contactPerson,
-      category,
-      mainContact,
-      alternateContact,
-      email,
-      gst,
-      rbhf,
-      cnap,
-      lnf,
-      mainArea,
-      city,
-      pinCode,
-      customerType,
-      size,
-      color,
-      instructions,
-      approach,
-      password,
-      cpassword,
-      serviceExecute,
+        EnquiryId,
+        customerName,
+        contactPerson,
+        category,
+        mainContact,
+        alternateContact,
+        email,
+        gst,
+        rbhf,
+        cnap,
+        lnf,
+        mainArea,
+        city,
+        pinCode,
+        customerType,
+        size,
+        color,
+        instructions,
+        approach,
+        password,
+        cpassword,
+        type,
+        serviceExecute,
       }
     );
     if (data) {
@@ -210,7 +223,7 @@ class addcustomer {
     }
   }
 
-   async addservicedetails(req, res) {
+  async addservicedetails(req, res) {
     try {
       const id = req.params.id;
       const { treatmentdetails } = req.body;

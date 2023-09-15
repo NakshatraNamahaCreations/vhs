@@ -6,6 +6,9 @@ const feqSchema=new mongoose.Schema({
     },
     title:{
         type:String
+    },
+    category:{
+        type:String 
     }
 });
 

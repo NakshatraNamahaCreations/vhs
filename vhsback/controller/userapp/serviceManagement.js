@@ -31,10 +31,10 @@ class serviceManagement {
 
     const parsedServiceExcludes = JSON.parse(serviceExcludes);
     const parsedServiceIncludes = JSON.parse(serviceIncludes);
-    let file = req.files[0].filename;
-    let file1 = req.files[1].filename;
-    let file2= req.files[2].filename;
-    let file3= req.files[3].filename;
+    let file = req.files[0]?.filename;
+    let file1 = req.files[1]?.filename;
+    let file2= req.files[2]?.filename;
+    let file3= req.files[3]?.filename;
 
 
     let add = new serviceManagementModel({

@@ -39,7 +39,7 @@ function Category() {
         const config = {
           url: "/addcategory",
           method: "post",
-          baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+          baseURL: "http://localhost:8080/api",
           data: formdata,
         };
         await axios(config).then(function (response) {
@@ -66,7 +66,7 @@ function Category() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    let res = await axios.get("http://localhost:8080/api/getcategory");
     if ((res.status = 200)) {
       setcategorydata(res.data?.category);
       setfilterdata(res.data?.category);
@@ -85,7 +85,7 @@ function Category() {
       const config = {
         url: `/editcategory/${catagoryId}`,
         method: "post",
-        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+        baseURL: "http://localhost:8080/api",
         data: formdata,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -122,7 +122,7 @@ function Category() {
       cell: (row) => (
         <div>
           <img
-            src={`http://api.vijayhomeservicebengaluru.in/category/${row.categoryImg}`}
+            src={`http://localhost:8080/category/${row.categoryImg}`}
             width="50px"
             height="50px"
           />
@@ -154,7 +154,7 @@ function Category() {
   const deletecategory = async (id) => {
     axios({
       method: "post",
-      url: "http://api.vijayhomeservicebengaluru.in/api/deletecategory/" + id,
+      url: "http://localhost:8080/api/deletecategory/" + id,
     })
       .then(function (response) {
         //handle success

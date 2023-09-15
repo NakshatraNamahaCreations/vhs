@@ -68,6 +68,7 @@ const serviceManagementSchema = new mongoose.Schema({
       pofferprice: String,
       pPrice: String,
       pservices: String,
+      servicePeriod:String
     },
   ],
   quantity: {
