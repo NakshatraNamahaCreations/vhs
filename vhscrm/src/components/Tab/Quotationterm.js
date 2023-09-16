@@ -298,11 +298,18 @@ function Quotationterm() {
 
                 <div
                   className="text-center"
-                  style={{ fontWeight: "bold", paddingTop: "23px" ,float:"inline-end"}}
+                  style={{
+                    fontWeight: "bold",
+                    paddingTop: "23px",
+                    float: "inline-end",
+                  }}
                 >
                   In Words :{" "}
                   <span style={{ fontWeight: 400 }}>
-                    {numberToWords.toWords(data[0]?.quotedata[0]?.netTotal)}
+                    {data[0]?.quotedata[0]?.netTotal === 0
+                      ? null
+                      : numberToWords.toWords(data[0]?.quotedata[0]?.netTotal)}
+                    {/* {numberToWords.toWords(data[0]?.quotedata[0]?.netTotal)} */}
                   </span>
                 </div>
               </div>

@@ -590,6 +590,18 @@ function Services() {
     dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
 
+  const handleDeleteplan = (index) => {
+    // Create a copy of the existing data array
+    const updatedData = [...existingData];
+
+    // Remove the item at the specified index
+    updatedData.splice(index, 1);
+
+    // Update local storage with the updated array
+    localStorage.setItem("plansprice", JSON.stringify(updatedData));
+
+    window.location.reload();
+  };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -658,7 +670,7 @@ function Services() {
                   </Card.Title>
                   <InputGroup className="mb-3">
                     <Form.Control
-                      height={"500px"}
+                      height="100px"
                       type="file"
                       aria-label="Username"
                       onChange={onImageChange}
@@ -864,6 +876,8 @@ function Services() {
                               <th>OfferPrice</th>
                               <th>Services</th>
                               <th>servicePeriod</th>
+                        
+
                             </tr>
                           </thead>
                           <tbody>

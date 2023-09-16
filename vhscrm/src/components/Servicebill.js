@@ -36,7 +36,7 @@ function Servicebill() {
     let res = await axios.get(apiURL + "/master/gettermgroup");
     if ((res.status = 200)) {
       settcdata(res.data?.termsgroup);
-      const a = res.data?.termsgroup.filter((i)=>i.type === "INVOICE");
+      const a = res.data?.termsgroup.filter((i) => i.type === "INVOICE");
       const filteredTcdata = a.filter(
         (item) => item.category === data?.category
       );
@@ -48,7 +48,7 @@ function Servicebill() {
       let res = await axios.get(apiURL + "/master/gettermgroup2");
       if (res.status === 200) {
         setsection2data(res.data?.termsgroup2);
-        const a1 = res.data?.termsgroup2.filter((i)=>i.type === "INVOICE"); // Corrected line
+        const a1 = res.data?.termsgroup2.filter((i) => i.type === "INVOICE"); // Corrected line
         const filteredsec2data = a1.filter(
           (item) => item.category === data.category
         );
@@ -167,11 +167,11 @@ function Servicebill() {
                   <thead>
                     <tr className="hclr">
                       <th className="text-center">S.No</th>
+                      <th className="text-center">Category</th>
                       <th className="text-center">Description</th>
                       <th className="text-center">Contract</th>
                       <th className="text-center">Service Date</th>
                       <th className="text-center">Amount Paid Date</th>
-
                       <th className="text-center">Amount</th>
                     </tr>
                   </thead>
@@ -179,6 +179,9 @@ function Servicebill() {
                     <tr>
                       <td scope="row" className="text-center">
                         {i++}
+                      </td>
+                      <td scope="row" className="text-center">
+                        {data.category}
                       </td>
                       <td scope="row" className="text-center">
                         {data.desc}

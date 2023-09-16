@@ -12,21 +12,21 @@ function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   useEffect(() => {
-    getcategory();
+    getcustomers();
   }, []);
 
-  const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getuser");
+  const getcustomers = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcustomer");
     if ((res.status = 200)) {
-      setuserdata(res.data?.userdata);
-      setSearchResults(res.data?.userdata);
+      setuserdata(res.data?.customers.filter((i)=>i.type === "userapp"));
+      setSearchResults(res.data?.customers.filter((i)=>i.type === "userapp"));
     }
   };
 
   const deleteuser = async (id) => {
     axios({
       method: "post",
-      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deleteuser/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/deletetercustomer/" + id,
     })
       .then(function (response) {
         //handle success
@@ -111,10 +111,10 @@ function UserManagement() {
                 {currentItems.map((item, index) => (
                   <tr className="user-tbale-body text-center">
                     <td>{index + 1}</td>
-                    <td>{item.username}</td>
+                    <td>{item.customerName}</td>
                     <td>{item.email}</td>
-                    <td>{item.number}</td>
-                    <td>{item.cpassword}</td>
+                    <td>{item.mainContact}</td>
+                    <td>{item.password}</td>
 
                     <td>
                       <Button

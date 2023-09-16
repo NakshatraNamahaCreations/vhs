@@ -475,6 +475,19 @@ function Servicedetails() {
 
     window.location.reload();
   };
+  
+  const handleDeleteplan = (index) => {
+    // Create a copy of the existing data array
+    const updatedData = [...existingData];
+
+    // Remove the item at the specified index
+    updatedData.splice(index, 1);
+
+    // Update local storage with the updated array
+    localStorage.setItem("plansprice", JSON.stringify(updatedData));
+
+    window.location.reload();
+  };
   const dataByCity = {};
   // Group data by city
   existingData.forEach((item) => {
@@ -486,26 +499,8 @@ function Servicedetails() {
 
     dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
-  const [StartTime, setStartTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
-  const [EndTime, setEndTime] = useState(dayjs("2022-04-17T15:30")); // Set initial time
 
-  const handleTimeChange = (newTime) => {
-    setStartTime(newTime);
-  };
-  const handleTimeChange1 = (newTime) => {
-    setEndTime(newTime);
-  };
-  function formatTimeRange(startTime, endTime) {
-    const formattedStartTime = dayjs(startTime).format("h:mm A");
-    const formattedEndTime = dayjs(endTime).format("h:mm A");
-    return `${formattedStartTime} - ${formattedEndTime}`;
-  }
-  // Function to format the time
-  function formatTimeRange(startTime, endTime) {
-    const formattedStartTime = dayjs(startTime).format("h:mm A");
-    const formattedEndTime = dayjs(endTime).format("h:mm A");
-    return `${formattedStartTime} - ${formattedEndTime}`;
-  }
+ 
   let currentCity = null;
 
   useEffect(() => {
@@ -1019,7 +1014,7 @@ function Servicedetails() {
                               <td>{i.pPrice}</td>
                               <td>{i.pofferprice}</td>
                               <td>{i.pservices}</td>
-
+                              <td>{i.servicePeriod}</td>
                               <td>
                                 {" "}
                                 <i
@@ -1029,7 +1024,7 @@ function Servicedetails() {
                                     padding: "10px",
                                     cursor: "pointer",
                                   }}
-                                  onClick={() => handleDeleteClick(index)}
+                                  onClick={() => handleDeleteplan(index)}
                                 ></i>
                               </td>
                             </tr>

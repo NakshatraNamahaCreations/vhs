@@ -37,6 +37,7 @@ import Slots from "./components/Slots";
 import FEQ from "./components/FEQ";
 import ServiceAddOns from "./components/ServiceAddOns";
 import WhatsappAndPhone from "./components/WhatsappAndPhone";
+import WebsiteBanner from "./components/WebsiteBanner"
 
 function App() {
   return (
@@ -65,6 +66,8 @@ function App() {
         <Route path="/homepagetitle" element={<Homepagetitle />} />
         <Route path="/slots" element={<Slots />} />
         <Route path="/homepagebanner" element={<Homepagebanner />} />
+        <Route path="/websitebanner" element={<WebsiteBanner />} />
+
 
         <Route path="/servicedetails/:id" element={<Servicedetails />} />
         <Route path="/vendordetails/:id" element={<Vendordetails />} />

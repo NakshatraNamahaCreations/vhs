@@ -44,7 +44,7 @@ function Termsgroup() {
             category: category,
             header: header,
             content: content,
-            type:type
+            type: type,
           },
         };
         await axios(config).then(function (response) {
@@ -68,8 +68,10 @@ function Termsgroup() {
   const gettermsgroup = async () => {
     let res = await axios.get(apiURL + "/master/gettermgroup");
     if ((res.status = 200)) {
-      setnewqtdata(res.data?.termsgroup.filter((i)=>i.category === category));
-      setfilterdata(res.data?.termsgroup.filter((i)=>i.category === category));
+      setnewqtdata(res.data?.termsgroup.filter((i) => i.category === category));
+      setfilterdata(
+        res.data?.termsgroup.filter((i) => i.category === category)
+      );
     }
   };
   const getcategory = async () => {
@@ -131,10 +133,7 @@ function Termsgroup() {
       name: "Content",
       cell: (row) => (
         <div className="mt-2">
-        
-          <div  dangerouslySetInnerHTML={{ __html: row.content }} />
-
-        
+          <div dangerouslySetInnerHTML={{ __html: row.content }} />
         </div>
       ),
     },
@@ -156,6 +155,8 @@ function Termsgroup() {
       ),
     },
   ];
+
+  console.log("newqtdata", newqtdata);
 
   const edit = (data) => {
     setdata(data);
@@ -242,7 +243,7 @@ function Termsgroup() {
                         rows={5}
                         cols={40}
                       /> */}
-                        <CKEditor
+                      <CKEditor
                         editor={ClassicEditor}
                         data={content}
                         onChange={handleEditorChange}
@@ -251,17 +252,16 @@ function Termsgroup() {
                   </div>
                   <div className="col-md-4">
                     <div className="vhs-input-label">
-                      For invoice category select Invoice Bill 
+                      For invoice category select Invoice Bill
                     </div>
                     <div className="group pt-1">
-                    <select
+                      <select
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => settype(e.target.value)}
                       >
                         <option>--select--</option>
-                       
-                          <option value="INVOICE">Invoice Bill</option>
-                  
+
+                        <option value="INVOICE">Invoice Bill</option>
                       </select>
                     </div>
                   </div>

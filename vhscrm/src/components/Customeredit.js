@@ -5,11 +5,11 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function Customeredit() {
-    const location=useLocation();
-    const {data}=location.state;
-    console.log(data)
-  const admin =JSON.parse(sessionStorage.getItem("admin"));
-  const navigate=useNavigate();
+  const location = useLocation();
+  const { data } = location.state;
+  console.log("data", data);
+  const admin = JSON.parse(sessionStorage.getItem("admin"));
+  const navigate = useNavigate();
   const [citydata, setcitydata] = useState([]);
   const [customertypedata, setcustomertypedata] = useState([]);
   const [customername, setcustomername] = useState(data.customerName);
@@ -23,14 +23,14 @@ function Customeredit() {
   const [lnf, setlnf] = useState(data.lnf);
   const [mainarea, setarea] = useState(data.mainArea);
   const [city, setcity] = useState(data.city);
-  const [pincode, setpincode] = useState(data.pincode);
+  const [pincode, setpincode] = useState(data.pinCode);
   const [customertype, setcustomertype] = useState(data.customerType);
   const [size, setsize] = useState(data.size);
   const [color, setcolor] = useState(data.color);
   const [instructions, setinstructions] = useState(data.instructions);
   const [approach, setapproach] = useState(data.approach);
   const [serviceexecutive, setserviceexc] = useState(data.serviceExecute);
-  const [category, setcategory] = useState(data.category)
+  const [category, setcategory] = useState(data.category);
   const apiURL = process.env.REACT_APP_API_URL;
   const [referecetypedata, setreferecetypedata] = useState([]);
   const [userdata, setuserdata] = useState([]);
@@ -40,61 +40,46 @@ function Customeredit() {
 
   const editcustomer = async (e) => {
     e.preventDefault();
-    if (
-      !customername ||
-      !contactperson ||
-      !maincontact ||
-      !email ||
-      !lnf ||
-      !rbhf ||
-      !cnap ||
-      !city ||
-      !approach ||
-      !serviceexecutive
-    ) {
-      alert("Please fill all the fields");
-    } else {
-      try {
-        const config = {
-          url: `/editcustomer/${data._id}`,
-          method: "post",
-          baseURL: apiURL,
-          // data: formdata,
-          headers: { "content-type": "application/json" },
-          data: {
-            cardno: data.cardNo,
-            customerName: customername,
-            contactPerson: contactperson,
-            category:category,
-            mainContact: maincontact,
-            alternateContact: alternatenumber,
-            email: email,
-            gst: gst,
-            rbhf: rbhf,
-            cnap: cnap,
-            lnf: lnf,
-            mainArea: mainarea,
-            city: city,
-            pinCode: pincode,
-            customerType: customertype,
-            size: size,
-            color: color,
-            instructions: instructions,
-            approach: approach,
-            serviceExecute: serviceexecutive,
-          },
-        };
-        await axios(config).then(function (response) {
-          if (response.status === 200) {
-            console.log("success");
-            alert(" Added");
-            navigate(`/customersearchdetails/${data.cardNo}`);
-          }
-        });
-      } catch (error) {
-        console.error(error);
-        alert(" Not Added");
-      }
+    try {
+      const config = {
+        url: `/editcustomer/${data._id}`,
+        method: "post",
+        baseURL: apiURL,
+        // data: formdata,
+        headers: { "content-type": "application/json" },
+        data: {
+          cardno: data.cardNo,
+          customerName: customername,
+          contactPerson: contactperson,
+          category: category,
+          mainContact: maincontact,
+          alternateContact: alternatenumber,
+          email: email,
+          gst: gst,
+          rbhf: rbhf,
+          cnap: cnap,
+          lnf: lnf,
+          mainArea: mainarea,
+          city: city,
+          pinCode: pincode,
+          customerType: customertype,
+          size: size,
+          color: color,
+          instructions: instructions,
+          approach: approach,
+          serviceExecute: serviceexecutive,
+        },
+      };
+      await axios(config).then(function (response) {
+        if (response.status === 200) {
+          console.log("success");
+          alert(" Added");
+          navigate(`/customersearchdetails/${data.cardNo}`);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      alert(" Not Added");
     }
   };
   useEffect(() => {
@@ -102,20 +87,17 @@ function Customeredit() {
     getcustomertype();
     getreferencetype();
     getuser();
-    getAllCustomer();
     getcategory();
   }, []);
 
   const getcity = async () => {
-    let res = await axios.get(apiURL+"/master/getcity");
+    let res = await axios.get(apiURL + "/master/getcity");
     if ((res.status = 200)) {
       setcitydata(res.data?.mastercity);
     }
   };
   const getcustomertype = async () => {
-    let res = await axios.get(
-      apiURL+"/master/getcustomertype"
-    );
+    let res = await axios.get(apiURL + "/master/getcustomertype");
     if ((res.status = 200)) {
       setcustomertypedata(res.data?.mastercustomertype);
     }
@@ -142,14 +124,20 @@ function Customeredit() {
   };
 
   const getAllCustomer = async () => {
-    let res = await axios.get(apiURL+"/getcustomer");
+    let res = await axios.get(apiURL + "/getcustomer");
     if (res.status === 200) {
-      console.log("allCustomer----", res);
-      setallCustomer(res.data?.customers);
-      setLatestCardNo(res.data?.customers[0]?.cardNo);
+      const filterOut = res.data?.customers.filter((i) => i.cardNo == data);
+      setallCustomer(filterOut);
     }
   };
-  console.log("latestCardNo==", latestCardNo + 1);
+
+  useEffect(() => {
+    getAllCustomer();
+  }, []);
+
+  console.log("allCustomer-------", allCustomer);
+
+  // console.log("latestCardNo==", latestCardNo + 1);
   return (
     <div className="">
       <Header />
@@ -165,10 +153,10 @@ function Customeredit() {
                     <h5>Customer Basic Information</h5>
                   </div>
                   <div className="col-md-4 pt-2">
-                    <div className="vhs-sub-heading">
-                      Card No : 
+                    <div className="vhs-sub-heading">Card No :</div>
+                    <div className="group pt-1 vhs-non-editable">
+                      {data.cardNo}{" "}
                     </div>
-                    <div className="group pt-1 vhs-non-editable">{data.cardNo}{" "} </div>
                   </div>
                   <div className="col-md-4 pt-2">
                     <div className="vhs-input-label">Customer Name</div>
@@ -176,8 +164,8 @@ function Customeredit() {
                       <input
                         type="text"
                         className="col-md-12 vhs-input-value"
+                        value={customername}
                         onChange={(e) => setcustomername(e.target.value)}
-                        defaultValue={data.customerName}
                       />
                     </div>
                   </div>
@@ -190,9 +178,8 @@ function Customeredit() {
                       <input
                         type="text"
                         className="col-md-12 vhs-input-value"
+                        value={contactperson}
                         onChange={(e) => setcontactperson(e.target.value)}
-                        defaultValue={data.contactPerson}
-
                       />
                     </div>
                   </div>
@@ -210,9 +197,8 @@ function Customeredit() {
                       <input
                         type="tel"
                         className="col-md-12 vhs-input-value"
+                        value={maincontact}
                         onChange={(e) => setmaincontact(e.target.value)}
-                        defaultValue={data.mainContact}
-
                       />
                     </div>
                   </div>
@@ -222,9 +208,8 @@ function Customeredit() {
                       <input
                         type="tel"
                         className="col-md-12 vhs-input-value"
+                        value={alternatenumber}
                         onChange={(e) => setalternate(e.target.value)}
-                        defaultValue={data.alternateContact}
-
                       />
                     </div>
                   </div>
@@ -236,52 +221,50 @@ function Customeredit() {
                       <input
                         type="email"
                         className="col-md-12 vhs-input-value"
+                        value={email}
                         onChange={(e) => setemail(e.target.value)}
-                        defaultValue={data.email}
-                        
                       />
                     </div>
                   </div>
 
                   <div className="col-md-4 pt-3">
                     <div className="vhs-input-label">
-                   Category<span className="text-danger"> *</span>
+                      Category<span className="text-danger"> *</span>
                     </div>
                     <div className="group pt-1">
-                    <select
+                      <select
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setcategory(e.target.value)}
                       >
                         <option value={data.category}> {data.category}</option>
                         {admin?.category.map((category, index) => (
-                          <option key={index} value={category.name}>
+                          <option key={index} defaultValue={category.name}>
                             {category.name}
                           </option>
                         ))}
                         {/* {categorydata.map((item) => (
-                          <option value={item.category}>{item.category}</option>
+                          <option defaultValue ={item.category}>{item.category}</option>
                         ))} */}
                       </select>
                     </div>
                   </div>
                   <div className="col-md-4 pt-3">
-                    <div className="vhs-input-label">
-                      GSTIN Id.
-                    </div>
+                    <div className="vhs-input-label">GSTIN Id.</div>
                     <div className="group pt-1">
                       <input
                         type="text"
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setgst(e.target.value)}
-                        defaultValue={data.gst}
-
+                        value={gst}
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="row pt-2">
-                  <div className="vhs-sub-heading mt-3" ><h5>Customer Detail Address</h5></div>
+                  <div className="vhs-sub-heading mt-3">
+                    <h5>Customer Detail Address</h5>
+                  </div>
                   <div className="col-md-4 pt-3">
                     <div className="vhs-input-label">
                       Room / Bunglow / House / Flat No.
@@ -292,8 +275,7 @@ function Customeredit() {
                         type="text"
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setrbhf(e.target.value)}
-                        defaultValue={data.rbhf}
-
+                        value={rbhf}
                       />
                     </div>
                   </div>
@@ -308,8 +290,7 @@ function Customeredit() {
                         cols={6}
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setcnap(e.target.value)}
-                        defaultValue={data.cnap}
-
+                        value={cnap}
                       />
                     </div>
                   </div>
@@ -324,8 +305,7 @@ function Customeredit() {
                         cols={6}
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setlnf(e.target.value)}
-                        defaultValue={data.lnf}
-
+                        value={lnf}
                       />
                     </div>
                   </div>
@@ -337,8 +317,7 @@ function Customeredit() {
                         type="text"
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setarea(e.target.value)}
-                        defaultValue={data.mainArea}
-
+                        value={mainarea}
                       />
                     </div>
                   </div>
@@ -354,10 +333,10 @@ function Customeredit() {
                       >
                         <option value={data.city}>{data.city}</option>
                         {admin?.city.map((item) => (
-                          <option value={item.name}>{item.name}</option>
+                          <option defaultValue={item.name}>{item.name}</option>
                         ))}
                         {/* {citydata.map((item) => (
-                          <option value={item.city}>{item.city}</option>
+                          <option defaultValue ={item.city}>{item.city}</option>
                         ))} */}
                       </select>
                     </div>
@@ -370,8 +349,7 @@ function Customeredit() {
                         type="text"
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setpincode(e.target.value)}
-                        defaultValue={data.pinCode}
-
+                        value={pincode}
                       />
                     </div>
                   </div>
@@ -379,7 +357,7 @@ function Customeredit() {
 
                 <div className="row pt-2">
                   <div className="vhs-sub-heading mt-3">
-                   <h5>Customer Other Information</h5> 
+                    <h5>Customer Other Information</h5>
                   </div>
                   <div className="col-md-4 pt-3">
                     <div className="vhs-input-label">
@@ -391,9 +369,11 @@ function Customeredit() {
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setcustomertype(e.target.value)}
                       >
-                        <option value={data.customerType}>{data.customerType}</option>
+                        <option value={data.customerType}>
+                          {data.customerType}
+                        </option>
                         {customertypedata.map((item) => (
-                          <option value={item.customertype}>
+                          <option defaultValue={item.customertype}>
                             {item.customertype}
                           </option>
                         ))}
@@ -410,8 +390,7 @@ function Customeredit() {
                         type="text"
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setsize(e.target.value)}
-                        defaultValue={data.size}
-                        
+                        value={size}
                       />
                     </div>
                   </div>
@@ -424,12 +403,8 @@ function Customeredit() {
                       >
                         <option value={data.color}>-select-</option>
                         <option value="red">RED</option>
-                        <option value="orange">
-                          ORANGE
-                        </option>
-                        <option value="green">
-                          GREEN Company
-                        </option>
+                        <option value="orange">ORANGE</option>
+                        <option value="green">GREEN Company</option>
                       </select>
                     </div>
                   </div>
@@ -442,7 +417,7 @@ function Customeredit() {
                         cols={6}
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setinstructions(e.target.value)}
-                        defaultValue={data.instructions}
+                        value={instructions}
                       />
                     </div>
                   </div>
@@ -459,7 +434,7 @@ function Customeredit() {
                       >
                         <option>-select all-</option>
                         {referecetypedata.map((item) => (
-                          <option value={item.referencetype}>
+                          <option defaultValue={item.referencetype}>
                             {item.referencetype}
                           </option>
                         ))}
@@ -478,9 +453,15 @@ function Customeredit() {
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setserviceexc(e.target.value)}
                       >
-                       {data.serviceExecute?<option value={data.serviceExecute}>{data.serviceExecute}</option>:<option>-select-</option>} 
+                        {data.serviceExecute ? (
+                          <option value={data.serviceExecute}>
+                            {data.serviceExecute}
+                          </option>
+                        ) : (
+                          <option>-select-</option>
+                        )}
                         {userdata.map((item) => (
-                          <option value={item.displayname}>
+                          <option defaultValue={item.displayname}>
                             {item.displayname}
                           </option>
                         ))}

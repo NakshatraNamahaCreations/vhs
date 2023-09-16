@@ -6,7 +6,6 @@ import Button from "react-bootstrap/Button";
 import Sidenav from "./Sidenav";
 import Header from "./Header";
 import axios from "axios";
-import { Title } from "@mui/icons-material";
 
 const active1 = {
   backgroundColor: "rgb(169, 4, 46)",
@@ -16,53 +15,42 @@ const active1 = {
 };
 const inactive1 = { color: "black", backgroundColor: "white" };
 
-function FEQ() {
+function Banner() {
   const [selected1, setSelected1] = useState(0);
 
-  const [banner, setBanner] = useState([]);
+  const [banner, setBanner] = useState("");
   const [bannerdata, setBannerdata] = useState([]);
-  const [images, setImages] = useState([]);
-  const [categoryData, setCategoryData] = useState([]);
-  const [selectCategory, setSelectCategory] = useState("");
   const formdata = new FormData();
   const apiURL = process.env.REACT_APP_API_URL;
   const imgURL = process.env.REACT_APP_IMAGE_API_URL;
   const [show, setShow] = useState(false);
-  const [title, settitle] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const fileSelectedHandler = (e) => {
-    setBanner([...banner, ...e.target.files]);
-  };
-
+  console.log(banner);
   const postbanner = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    for (const file of banner) {
-      formData.append("img", file);
-    }
-    formData.append("title", title);
-    formData.append("category", selectCategory);
-    try {
-      const response = await axios.post(
-        "http://api.vijayhomeservicebengaluru.in/api/userapp/addfeq",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    console.log(banner);
+    formdata.append("banner", banner);
 
-      if (response.status === 200) {
-        alert("Successfully Added");
-        window.location.assign("/feq");
-      }
+    try {
+      const config = {
+        url: "/website/addwebbanner",
+        method: "post",
+        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
+
+        data: formdata,
+      };
+      await axios(config).then(function (response) {
+        if (response.status === 200) {
+          alert("Successfully Added");
+          window.location.assign("/websitebanner");
+        }
+      });
     } catch (error) {
       console.error(error);
-      alert("Title Not Added");
+      alert("  Not Added");
     }
   };
 
@@ -71,22 +59,17 @@ function FEQ() {
   }, []);
 
   const getbannerimg = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getallfeq");
-    if (res.status === 200) {
-      setBannerdata(res.data?.feq);
-      console.log(res.data?.feq);
-      setImages(
-        res.data?.feq.map((element) => {
-          return `http://api.vijayhomeservicebengaluru.in/userbanner/${element.img[0].contentType}`;
-        })
-      );
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/website/getallwebbanner");
+    if ((res.status = 200)) {
+      setBannerdata(res.data?.banner);
+      console.log(res.data?.banner);
     }
   };
 
   const deletebannerimg = async (id) => {
     axios({
       method: "post",
-      url: "http://api.vijayhomeservicebengaluru.in/api/userapp/deletefeq/" + id,
+      url: "http://api.vijayhomeservicebengaluru.in/api/website/deletewebbanner/" + id,
     })
       .then(function (response) {
         //handle success
@@ -100,17 +83,6 @@ function FEQ() {
       });
   };
 
-  useEffect(() => {
-    getcategory();
-  }, []);
-
-  const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
-    if (res.status === 200) {
-      setCategoryData(res.data?.category);
-    }
-  };
-
   return (
     <div className="row">
       <div className="col-md-2">
@@ -121,7 +93,7 @@ function FEQ() {
         <div className="row  set_margin ">
           <div>
             <div className="d-flex  mt-3">
-              <h4 style={{ color: "#FF0060" }}>why need vhs</h4>
+              <h4 style={{ color: "#FF0060" }}>Website banner</h4>
             </div>
           </div>
         </div>
@@ -134,7 +106,7 @@ function FEQ() {
                   variant="danger"
                   onClick={handleShow}
                 >
-                  Add
+                  Add Images
                 </Button>
               </div>
             </div>
@@ -151,9 +123,7 @@ function FEQ() {
                   <thead>
                     <tr>
                       <th>SI.No</th>
-                      <th>Category</th>
-                      <th>Title</th>
-                      <th> Images</th>
+                      <th>Banner Images</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -162,19 +132,14 @@ function FEQ() {
                       return (
                         <tr key={i}>
                           <td>{i + 1}</td>
-                          <td>{element.category}</td>
-                          <td>{element.title}</td>
+
                           <td>
-                            {element.img.map((image, j) => (
-                              <img
-                                className="header_logo"
-                                src={`http://api.vijayhomeservicebengaluru.in/feq/${image.data}`}
-                                width={"100px"}
-                                height={"50px"}
-                                alt={`Image ${j + 1}`}
-                                key={j}
-                              />
-                            ))}
+                            <img
+                              className="header_logo"
+                              src={`http://api.vijayhomeservicebengaluru.in/webBanner/${element.banner}`}
+                              width={"100px"}
+                              height={"50px"}
+                            />
                           </td>
 
                           <td>
@@ -204,44 +169,12 @@ function FEQ() {
       <>
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
-            <Modal.Title> Add </Modal.Title>
+            <Modal.Title>Slider Image</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <div className="vhs-input-label">
-              Select Category <span className="text-danger"> *</span>
-            </div>
-            <div className="group pt-1 ">
-              <select
-                className="col-md-12 vhs-input-value"
-                onChange={(e) => setSelectCategory(e.target.value)}
-              >
-                <option value="">Select category</option>
-                {categoryData?.map((item) => (
-                  <option value={item.category}>{item.category}</option>
-                ))}
-              </select>
-            </div>
-            <div className="vhs-input-label mt-4">
-              Title <span className="text-danger"> *</span>
-            </div>
-            <div className="group pt-1 ">
-              <input
-                type="text"
-                className="col-md-12 vhs-input-value"
-                onChange={(e) => settitle(e.target.value)}
-              />
-            </div>
-
-            <div className="vhs-input-label mt-4">
-              icons <span className="text-danger"> *</span>
-            </div>
-            <div className="mt-3">
-              <input
-                type="file"
-                name="img"
-                onChange={fileSelectedHandler}
-                multiple
-              />
+            <input type="file" onChange={(e) => setBanner(e.target.files[0])} />
+            <div className="mt-3" style={{fontSize:"13px"}}>
+            
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -258,4 +191,4 @@ function FEQ() {
   );
 }
 
-export default FEQ;
+export default Banner;

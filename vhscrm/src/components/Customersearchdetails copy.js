@@ -503,10 +503,33 @@ function Customersearchdetails() {
                         >
                           {item.rbhf},{item.cnap},{item.lnf}
                         </div>
-                        <div style={{ fontSize: "12px" }}>
-                          <b style={{ cursor: "pointer" }} onClick={handleShow}>
-                            Add Delivery Address
-                          </b>
+                        <div style={{ fontSize: "12px", display: "flex" }}>
+                          <span>
+                            <b>
+                              <ul
+                                style={{ cursor: "pointer" }}
+                                onClick={handleShow}
+                              >
+                                Add Delivery Address
+                              </ul>
+                            </b>
+                          </span>
+                          {/* {customerdata &&
+                          customerdata.deliveryAddress &&
+                          customerdata.deliveryAddress.length > 0 ? ( */}
+                          <span>
+                            <b>
+                              <ul
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setViewAddress(true)}
+                              >
+                                View Delivery Address
+                              </ul>
+                            </b>
+                          </span>
+                          {/* ) : (
+                            ""
+                          )} */}
                         </div>
                       </div>
                       <div className="col-md-4 pt-2">
@@ -528,6 +551,27 @@ function Customersearchdetails() {
                   </div>
                 ))}
               </form>
+              {viewAddress &&
+              customerdata &&
+              customerdata.deliveryAddress &&
+              customerdata.deliveryAddress.length > 0 ? (
+                <>
+                  <br />
+                  <div>
+                    <DataTable
+                      columns={columns}
+                      data={extractArray}
+                      pagination
+                      fixedHeader
+                      selectableRowsHighlight
+                      subHeaderAlign="left"
+                      highlightOnHover
+                    />
+                  </div>
+                </>
+              ) : (
+                ""
+              )}
             </div>
             <div className="card-body p-4">
               <h5>Treatment Details</h5>

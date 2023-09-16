@@ -5,11 +5,12 @@ import Table from "react-bootstrap/Table";
 import { useLocation, useParams, Link } from "react-router-dom";
 import DSRnav from "./DSRnav";
 import moment from "moment";
+// import { C } from "@fullcalendar/core/internal-common";
 
 function Dsrcallist() {
   const location = useLocation();
   const { data } = location.state || {};
-  console.log("yogi", data);
+  // console.log("yogi", data);
 
   const [treatmentData, settreatmentData] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -23,6 +24,8 @@ function Dsrcallist() {
   const [searchJobType, setSearchJobType] = useState("");
   const [searchDesc, setSearchDesc] = useState("");
   const [vddata, setvddata] = useState([]);
+  const [techData, setTechData] = useState([]);
+  const [techName, setTechName] = useState([]);
 
   const apiURL = process.env.REACT_APP_API_URL;
   const { date, category } = useParams();
@@ -43,19 +46,22 @@ function Dsrcallist() {
     let res = await axios.get(apiURL + "/getalltechnician");
     if ((res.status = 200)) {
       const TDdata = res.data?.technician;
-      console.log("Technician --", res.data?.technician);
+      // console.log("Technician --", res.data?.technician);
       const filteredTechnicians = TDdata.filter((technician) => {
         return technician.category.some((cat) => cat.name === category);
       });
-
-      console.log(filteredTechnicians);
+      setTechName(TDdata);
       setvddata(
         filteredTechnicians.filter(
           (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
         )
       );
+      // console.log("filteredTechnicians", vddata);
+      // setTechData(TDdata);
     }
   };
+
+  // console.log("techData", techData);
 
   const getservicedata = async () => {
     let res = await axios.get(apiURL + "/getrunningdata");
@@ -68,7 +74,7 @@ function Dsrcallist() {
         );
         return formattedDates.includes(date) && item.category === category;
       });
-
+      console.log("filteredData", filteredData);
       settreatmentData(filteredData);
       setSearchResults(filteredData);
     }
@@ -84,36 +90,28 @@ function Dsrcallist() {
 
       if (res.status === 200) {
         const filteredData = res.data.addcall.filter((i) => {
-          console.log("i.serviceDate:", i.serviceDate);
-          console.log("date:", date);
-          console.log("treatment:", treatmentData);
+          // console.log("i.serviceDate:", i.serviceDate);
+          // console.log("date:", date);
+          // console.log("treatment:", treatmentData);
 
           const dateMatches = i.serviceDate === date;
           const cardNoMatches = treatmentData.some((treatmentItem) => {
             return treatmentItem.cardNo === i.cardNo;
           });
 
-          console.log("dateMatches:", dateMatches);
-          console.log("cardNoMatches:", cardNoMatches);
+          // console.log("dateMatches:", dateMatches);
+          // console.log("cardNoMatches:", cardNoMatches);
 
           return dateMatches && cardNoMatches;
         });
-
-        console.log("filteredData:", filteredData);
-
         setdsrdata(filteredData);
+        // setTechData(mayiru);
       }
     } catch (error) {
       // Handle any errors from the Axios request
       console.error("Error fetching data:", error);
     }
   };
-
-  console.log("date", date);
-  console.log("searchResults", searchResults);
-  console.log("dsrdata", dsrdata);
-  console.log("vddata", vddata);
-  // filter and search
   useEffect(() => {
     const filterResults = () => {
       let results = treatmentData;
@@ -170,8 +168,10 @@ function Dsrcallist() {
       if (searchTechName) {
         results = results.filter(
           (item) =>
-            item.techName && //no technician name
-            item.techName.toLowerCase().includes(searchTechName.toLowerCase())
+            item.dsrdata[0]?.TechorPMorVendorName &&
+            item.dsrdata[0]?.TechorPMorVendorName.toLowerCase().includes(
+              searchTechName.toLowerCase()
+            )
         );
       }
       if (searchJobType) {
@@ -296,9 +296,12 @@ function Dsrcallist() {
                     onChange={(e) => setSearchTechName(e.target.value)}
                   >
                     <option value="">Select</option>
-                    {treatmentData.map((e) => (
-                      <option value={e.techName} key={e.techName}>
-                        {e.techName}{" "}
+                    {dsrdata.map((e) => (
+                      <option
+                        value={e.TechorPMorVendorName}
+                        key={e.TechorPMorVendorName}
+                      >
+                        {e.TechorPMorVendorName}{" "}
                       </option>
                     ))}
                   </select>{" "}
@@ -401,11 +404,16 @@ function Dsrcallist() {
                     </td>
                     <td>{selectedData.customer[0]?.mainContact}</td>
                     <td>
-                      {
+                      {selectedData.dsrdata &&
+                      selectedData.dsrdata.length > 0 &&
+                      selectedData.dsrdata[0].TechorPMorVendorName
+                        ? selectedData.dsrdata[0].TechorPMorVendorName
+                        : "Not Assigned"}
+                      {/* {
                         Technicians.find(
                           (tech) => tech._id === dsrdata[0]?.TechorPMorVenodrID
                         )?.vhsname
-                      }
+                      } */}
                     </td>
 
                     <td>{dsrdata[0]?.workerName}</td>

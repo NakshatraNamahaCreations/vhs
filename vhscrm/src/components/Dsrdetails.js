@@ -9,7 +9,7 @@ function Dsrdetails() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
   const location = useLocation();
   const { data, data1 } = location.state || {};
-  const [dsrdata, setdsrdata] = useState([]); 
+  const [dsrdata, setdsrdata] = useState([]);
 
   const [servicedata, setservicedata] = useState([]);
   const [techniciandata, settechniciandata] = useState([]);
@@ -44,19 +44,28 @@ function Dsrdetails() {
   const [sendSms, setsendSms] = useState(dsrdata[0]?.sendSms);
   const [workerAmount, setworkerAmount] = useState(dsrdata[0]?.workerAmount);
   const [workerName, setworkerName] = useState(dsrdata[0]?.workerName);
-  const [daytoComplete, setdaytoComplete] = useState(dsrdata[0]?.daytoComplete || "") ;
-  console.log("type--", vddata[0]?.Type);
+  const [daytoComplete, setdaytoComplete] = useState(
+    dsrdata[0]?.daytoComplete || ""
+  );
+  console.log("type--", data.dsrdata[0]?.type);
 
   // Determine the initial type value for the radio button
   const initialType = vddata ? vddata[0]?.Type : "";
 
   // Initialize the type state based on the initialType value
-  const [type, settype] = useState(vddata[0]?.Type);
+  let defaultChecked = "";
+  if (data?.dsrdata.length > 0) {
+    defaultChecked = data.dsrdata[0].type;
+  }
+
+  const [type, settype] = useState(defaultChecked);
   // const [type, settype] = useState(vddata.length > 0 ? vddata[0]?.Type : "");
 
   const [selectedTechName, setSelectedTechName] = useState(
     dsrdata[0]?.techName
   );
+
+  const [selectedTechId, setSelectedTechId] = useState("");
 
   const [LatestCardNo, setLatestCardNo] = useState(0);
 
@@ -141,7 +150,11 @@ function Dsrdetails() {
     settype(event.target.value);
   };
   const handleTechNameChange = (event) => {
-    setSelectedTechName(event.target.value);
+    const selectedTech = techniciandata.find(
+      (item) => item._id === event.target.value
+    );
+    setSelectedTechId(event.target.value); // Set the selected ID
+    setSelectedTechName(selectedTech ? selectedTech.vhsname : ""); // Set the selected name
   };
 
   const newdata = async (e) => {
@@ -156,6 +169,7 @@ function Dsrdetails() {
         headers: { "content-type": "application/json" },
         data: {
           serviceDate: data1,
+          serviceInfo: data,
           cardNo: data.cardNo,
           category: data.category,
           bookingDate: moment().format("DD-MM-YYYY"),
@@ -169,7 +183,8 @@ function Dsrdetails() {
           daytoComplete: daytoComplete,
           backofficerno: admin.contactno,
           techName: techName,
-          TechorPMorVendorID: selectedTechName,
+          TechorPMorVendorID: selectedTechId,
+          TechorPMorVendorName: selectedTechName,
           showinApp: Showinapp,
           sendSms: sendSms,
           jobType: jobType,
@@ -192,7 +207,8 @@ function Dsrdetails() {
     }
   };
 
-  const save = async (e) => {
+  // 16-9
+  const Update = async (e) => {
     e.preventDefault();
 
     try {
@@ -204,7 +220,7 @@ function Dsrdetails() {
         headers: { "content-type": "application/json" },
         data: {
           bookingDate: bookingDate,
-
+          serviceInfo: data,
           jobCategory: jobCategory,
           complaintRef: data.complaintRef,
           priorityLevel: priorityLevel,
@@ -222,7 +238,8 @@ function Dsrdetails() {
           workerAmount: workerAmount,
           workerName: workerName,
           daytoComplete: daytoComplete,
-          TechorPMorVendorID: selectedTechName,
+          TechorPMorVendorID: selectedTechId,
+          TechorPMorVendorName: selectedTechName,
         },
       };
       await axios(config).then(function (response) {
@@ -710,10 +727,10 @@ function Dsrdetails() {
                 <select
                   className="col-md-12 vhs-input-value"
                   onChange={handleTechNameChange}
-                  value={selectedTechName}
+                  value={selectedTechId}
                 >
                   {vddata[0]?.vhsname ? (
-                    <option>{vddata[0]?.vhsname}</option>
+                    <option value={vddata[0]._id}>{vddata[0]?.vhsname}</option>
                   ) : (
                     <option>--select--</option>
                   )}
@@ -801,7 +818,6 @@ function Dsrdetails() {
               <div className="group pt-1 col-7">
                 {dsrdata[0]?.startJobTime
                   ? new Date(dsrdata[0]?.startJobTime)
-                     
                   : "0000-00-00 00:00:00"}
               </div>
             </div>
@@ -862,39 +878,39 @@ function Dsrdetails() {
             </label>
           </div>
         </div>
-      
-      <div className="row pt-3  m-auto justify-content-center mt-4">
-        <div className="col-md-2">
-          {!dsrdata[0] ? (
-            <button className="vhs-button" onClick={newdata}>
-              Save
-            </button>
-          ) : (
-            <button className="vhs-button" onClick={save}>
-              Update
-            </button>
-          )}
-        </div>
-        <div className="col-md-2">
-          <button className="vhs-button">Cancel</button>
-        </div>
-        <div className="col-md-2">
-          {!data?.quotedata ? (
-            <button className="vhs-button">Invoice</button>
-          ) : (
-            <Link to="/dsrquote" state={{ data: data, data1: data1 }}>
+
+        <div className="row pt-3  m-auto justify-content-center mt-4">
+          <div className="col-md-2">
+            {!dsrdata[0] ? (
+              <button className="vhs-button" onClick={newdata}>
+                Save
+              </button>
+            ) : (
+              <button className="vhs-button" onClick={Update}>
+                Update
+              </button>
+            )}
+          </div>
+          <div className="col-md-2">
+            <button className="vhs-button">Cancel</button>
+          </div>
+          <div className="col-md-2">
+            {!data?.quotedata ? (
               <button className="vhs-button">Invoice</button>
-            </Link>
-          )}
-        </div>
-        <div className="col-md-2">
-          <button className="vhs-button">Bill SMS</button>
-        </div>
-        <div className="col-md-2">
-          <button className="vhs-button">Bill Whatsapp</button>
+            ) : (
+              <Link to="/dsrquote" state={{ data: data, data1: data1 }}>
+                <button className="vhs-button">Invoice</button>
+              </Link>
+            )}
+          </div>
+          <div className="col-md-2">
+            <button className="vhs-button">Bill SMS</button>
+          </div>
+          <div className="col-md-2">
+            <button className="vhs-button">Bill Whatsapp</button>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
