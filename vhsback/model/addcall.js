@@ -89,6 +89,9 @@ const addCallSchema = new mongoose.Schema(
     TechorPMorVendorID: {
       type: String,
     },
+    TechorPMorVendorName: {
+      type: String,
+    },
     startJobTime: {
       type: Date,
     },

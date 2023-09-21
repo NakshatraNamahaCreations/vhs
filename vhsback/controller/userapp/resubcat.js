@@ -76,7 +76,7 @@ async editSubcategoryList(req, res) {
 
 
   async getappresubcat(req, res) {
-    let subcategory = await appresubcatModel.find({}).sort({ _id: -1 });
+    let subcategory = await appresubcatModel.find({});
     if (subcategory) {
       return res.json({ subcategory: subcategory });
     }

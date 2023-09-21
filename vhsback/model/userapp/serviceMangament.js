@@ -64,16 +64,20 @@ const serviceManagementSchema = new mongoose.Schema({
   },
   morepriceData: [
     {
+      id:String,
       pName: String,
       pofferprice: String,
       pPrice: String,
       pservices: String,
-      servicePeriod:String
+      servicePeriod: String,
     },
   ],
   quantity: {
     type: Number,
     default: 1,
+  },
+  sAddons: {
+    type: String,
   },
   qty: {
     type: String,

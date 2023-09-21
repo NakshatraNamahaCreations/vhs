@@ -88,6 +88,7 @@ const addOnsRoute = require("./route/userapp/serviceAddons");
 const numbersRoute = require("./route/userapp/whatsappNumber");
 const paymentgateway = require("./route/paymentgatway/payment");
 
+const webbanner = require("./route/websitebanner");
 
 
 
@@ -161,10 +162,15 @@ app.use("/api/userapp",uspotlightbanner);
 app.use("/api/userapp",uslots);
 app.use("/api/userapp",ufeq);
 
+
+
 app.use("/api/userapp", addOnsRoute);
 app.use("/api/userapp", numbersRoute);
 app.use("/api", profile);
 app.use("/api/payment", paymentgateway);
+
+//website
+app.use("/api/website",webbanner);
 
 
 

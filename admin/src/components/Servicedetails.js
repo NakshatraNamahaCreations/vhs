@@ -67,6 +67,7 @@ function Servicedetails() {
   const [NofServiceman, setNofServiceman] = useState(
     Servicedata[0]?.NofServiceman
   );
+  const [sAddons, setsAddons] = useState(Servicedata[0]?.sAddons);
   const [Subcategory, setSubcategory] = useState(Servicedata[0]?.Subcategory);
   const [offerPrice, setofferPrice] = useState(Servicedata[0]?.offerPrice);
   const [Servicesno, setServicesno] = useState("");
@@ -352,49 +353,6 @@ function Servicedetails() {
     }
   };
 
-  const postformat = async (e) => {
-    e.preventDefault();
-
-    formdata.append("serviceImg", ServiceImg);
-    formdata.append("sub_subcategory", sub_subcategory);
-    formdata.append("serviceName", ServiceName);
-    formdata.append("category", category);
-
-    formdata.append("Subcategory", Subcategory);
-    formdata.append("serviceIncludes", serviceIncludes);
-    formdata.append("serviceExcludes", serviceExcludes);
-
-    formdata.append("serviceHour", ServiceHour);
-    formdata.append("serviceDesc", ServiceDesc);
-    formdata.append("serviceGst", ServiceGst);
-    formdata.append("serviceDirection", serviceDirection);
-
-    formdata.append("NofServiceman", NofServiceman);
-
-    try {
-      const config = {
-        url: `/userapp/editservices/${id}`,
-        method: "post",
-        baseURL: "http://api.vijayhomeservicebengaluru.in/api",
-        data: formdata,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-
-      const response = await axios(config);
-
-      if (response.status === 200) {
-        alert("Successfully Added");
-        // Handle success case
-        handelgeneralbtn();
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Category Not Added");
-    }
-  };
-
   useEffect(() => {
     getcity();
   }, []);
@@ -409,10 +367,10 @@ function Servicedetails() {
   const handleSaveChanges = () => {
     // Retrieve existing data from local storage or initialize an empty array
     const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
-    console.log("Existing Data:", existingData);
+ 
+    const newId = Date.now(); 
 
-    // Add new data to the array
-    const newData = { startTime, endTime, slotCity, Servicesno };
+    const newData = {id: newId,  startTime, endTime, slotCity, Servicesno };
     existingData.push(newData);
     console.log("New Data:", newData);
 
@@ -463,19 +421,25 @@ function Servicedetails() {
     localStorage.setItem("plansprice", JSON.stringify(morepriceData));
     handleClose3();
   };
-  const handleDeleteCity = (index) => {
-    // Create a copy of the existing data array
-    const updatedData = [...existingData];
+  const handleDeleteCity = (id) => {
+    console.log("id----", id);
+    // Retrieve the existing data from local storage
+    const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
 
-    // Remove the item at the specified index
-    updatedData.splice(index, 1);
+    // Find the index of the item with the specified id
+    const indexToDelete = existingData.findIndex((item) => item.id === id);
 
-    // Update local storage with the updated array
-    localStorage.setItem("Store_Slots", JSON.stringify(updatedData));
+    if (indexToDelete !== -1) {
+      // Remove the item at the specified index
+      existingData.splice(indexToDelete, 1);
 
-    window.location.reload();
+      // Update local storage with the updated array
+      localStorage.setItem("Store_Slots", JSON.stringify(existingData));
+
+      window.location.reload();
+    }
   };
-  
+
   const handleDeleteplan = (index) => {
     // Create a copy of the existing data array
     const updatedData = [...existingData];
@@ -500,7 +464,6 @@ function Servicedetails() {
     dataByCity[slotCity].push({ startTime, endTime, Servicesno });
   });
 
- 
   let currentCity = null;
 
   useEffect(() => {
@@ -522,12 +485,13 @@ function Servicedetails() {
     }
   };
 
-  const handleDeleteClick = async (id, index) => {
+  const handleDeleteClick = async (slotid) => { // Change the parameter to directly accept slotid
+    console.log("slotid", slotid); // Log the slotid directly
     try {
       const response = await axios.delete(
-        `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteStoreSlot/${sid}/${id}`
+        `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteStoreSlot/${sid}/${slotid}`
       );
-
+  
       if (response.status === 200) {
         // Successful deletion
         console.log("Item deleted successfully");
@@ -541,6 +505,11 @@ function Servicedetails() {
       console.error("Error deleting slot:", error);
     }
   };
+ 
+  
+  
+  
+  
 
   const handleDeleteprice = async (id, index) => {
     try {
@@ -593,6 +562,9 @@ function Servicedetails() {
       formdata.append("Subcategory", editSubcategory);
       formdata.append("sub_subcategory", editSubcategoryList);
       formdata.append("serviceName", editServiceName);
+
+      formdata.append("sAddons", sAddons);
+
       editDescriptions.map((desc) =>
         formdata.append(
           "serviceDesc",
@@ -650,75 +622,7 @@ function Servicedetails() {
       alert("Unable to complete the request");
     }
   };
-  console.log(editDescriptions);
-  // const handleDeleteDesc = async (index) => {
-  //   try {
-  //     // const descriptionTextToDelete = editDescriptions[index].text;
-  //     // Assuming you have a server-side API endpoint for deleting a description
-  //     const response = await axios.delete(
-  //       `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteDescription`,
-  //       {
-  //         data: {
-  //           id: id, // Service ID
-  //           serviceDesc: editDescriptions[index].text, //descriptionText, // Description text to delete
-  //         },
-  //       }
-  //     );
 
-  //     if (response.status === 200) {
-  //       // Description deleted successfully on the server
-  //       const updatedDescriptions = [...editDescriptions];
-  //       updatedDescriptions.splice(index, 1);
-  //       setEditDescriptions(updatedDescriptions);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting description:", error);
-  //   }
-  // };
-
-  // const handleDeleteIncludes = async (index, descriptionText) => {
-  //   try {
-  //     const response = await axios.delete(
-  //       `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteincludes`,
-  //       {
-  //         data: {
-  //           id: id,
-  //           serviceIncludes: descriptionText,
-  //         },
-  //       }
-  //     );
-
-  //     if (response.status === 200) {
-  //       const updatedIncludes = [...editServiceIncludes];
-  //       updatedIncludes.splice(index, 1);
-  //       setEditServiceIncludes(updatedIncludes);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting description:", error);
-  //   }
-  // };
-
-  // const handleDeleteExcludes = async (index, descriptionText) => {
-  //   try {
-  //     const response = await axios.delete(
-  //       `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteexcludes`,
-  //       {
-  //         data: {
-  //           id: id,
-  //           serviceExcludes: descriptionText,
-  //         },
-  //       }
-  //     );
-
-  //     if (response.status === 200) {
-  //       const updatedExcludes = [...editServiceExcludes];
-  //       updatedExcludes.splice(index, 1);
-  //       setEditServiceExcludes(updatedExcludes);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting description:", error);
-  //   }
-  // };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -882,83 +786,140 @@ function Servicedetails() {
                       Add Slot's
                     </Button>{" "}
                     <div>
-                      {Servicedata[0]?.store_slots.map((i, index) => {
-                        // Check if the current city is different from the previous slot
-                        const isNewCity = currentCity !== i.slotCity;
+                      <table>
+                        <tbody>
+                          <table>
+                            <tbody>
+                              {Servicedata[0]?.store_slots
+                                .reduce((cityGroups, item) => {
 
-                        // If it's a new city, display the city header
-                        if (isNewCity) {
-                          currentCity = i.slotCity;
-                        }
+                                  console.log(item)
+                                  // Check if there is an existing group for this city
+                                  const existingGroup = cityGroups.find(
+                                    (group) => group.city === item.slotCity
+                                  );
 
-                        return (
-                          <div key={index}>
-                            {isNewCity && <p>{i.slotCity}</p>}
-                            <div style={{ display: "flex", flexWrap: "wrap" }}>
-                              <p className="slots">
-                                {i.startTime}-{i.endTime}
-                              </p>
-                              <p
-                                style={{
-                                  backgroundColor: "lightblue",
-                                  padding: "10px",
-                                }}
-                              >
-                                {i.Servicesno}
-                              </p>
-                              <i
-                                className="fa-solid fa-trash"
-                                style={{
-                                  color: "red",
-                                  padding: "10px",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() => handleDeleteClick(index)}
-                              ></i>
-                            </div>
-                          </div>
-                        );
-                      })}
-                      {Object.entries(dataByCity).map(([city, data], index) => (
-                        <div
-                          key={index}
-                          style={{ display: "flex", alignItems: "center" }}
-                        >
-                          <div>
-                            <p>{city}</p>
-                            {data.map((item, subIndex) => {
-                              // Parse the start and end times using dayjs
-                              const startTime = item.startTime;
-                              const endTime = item.endTime;
+                                  if (existingGroup) {
+                                    // If a group already exists for this city, add the item to it
+                                    existingGroup.data.push(item);
+                                  } else {
+                                    // If no group exists, create a new one
+                                    cityGroups.push({
+                                      city: item.slotCity,
+                                      data: [item],
+                                    });
+                                  }
 
-                              return (
-                                <div key={subIndex} style={{ display: "flex" }}>
-                                  <p className="slots">
-                                    {startTime} - {endTime}
-                                  </p>
-                                  <p
-                                    style={{
-                                      backgroundColor: "lightblue",
-                                      padding: "10px",
-                                    }}
-                                  >
-                                    {item.Servicesno}
-                                  </p>
-                                  <i
-                                    className="fa-solid fa-trash"
-                                    style={{
-                                      color: "red",
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                    }}
-                                    onClick={() => handleDeleteCity(subIndex)}
-                                  ></i>
+                                  return cityGroups;
+                                }, [])
+                                .map((group) => (
+                                  <tr key={group.city}>
+                                    <td>{group.city}</td>
+                                    <td>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "row",
+                                          flexWrap: "wrap",
+                                          padding: 10,
+                                          marginTop: 20,
+                                        }}
+                                      >
+                                        {group.data.map((item) => (
+                                          <div
+                                            key={item.id}
+                                            style={{
+                                              marginRight: "20px",
+                                              display: "flex",
+                                            }}
+                                          >
+                                            <p className="slots">
+                                              {item.startTime} - {item.endTime}
+                                            </p>
+                                            <p
+                                              style={{
+                                                backgroundColor: "lightblue",
+                                                padding: "10px",
+                                              }}
+                                            >
+                                              {item.Servicesno}
+                                            </p>
+                                            <i
+                                              className="fa-solid fa-trash"
+                                              style={{
+                                                color: "red",
+                                                padding: "10px",
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => 
+                                                handleDeleteClick(item.id)
+                                              }
+                                            ></i>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </tbody>
+                      </table>
+
+                      <table>
+                        <tbody>
+                          {Object.entries(dataByCity).map(([city, data]) => (
+                            <tr key={city}>
+                              <td>{city}</td>
+                              <td>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    flexWrap: "wrap",
+                                    // border:"1px solid gray",
+                                    padding: 10,
+                                    marginTop: 20,
+                                  }}
+                                >
+                                  {data.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      style={{
+                                        marginRight: "20px",
+                                        display: "flex",
+                                      }}
+                                    >
+                                      <p className="slots">
+                                        {item.startTime} - {item.endTime}
+                                      </p>
+                                      <p
+                                        style={{
+                                          backgroundColor: "lightblue",
+                                          padding: "10px",
+                                        }}
+                                      >
+                                        {item.Servicesno}
+                                      </p>
+                                      <i
+                                        className="fa-solid fa-trash"
+                                        style={{
+                                          color: "red",
+                                          padding: "10px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                          handleDeleteCity(item.id)
+                                        }
+                                      ></i>
+                                    </div>
+                                  ))}
                                 </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                     <Button
                       variant="light"
@@ -1291,7 +1252,7 @@ function Servicedetails() {
                             {Servicedata[0]?.homepagetitle ? (
                               <option>{Servicedata[0]?.homepagetitle}</option>
                             ) : (
-                              <option>-- Home page title---</option>
+                              <option>---Select---</option>
                             )}
 
                             <option>{Servicedata[0]?.homepagetitle}</option>
@@ -1353,6 +1314,28 @@ function Servicedetails() {
                         </Form.Select>
                       </Form.Group>
                     </Row>
+                    <Form.Group
+                      as={Col}
+                      controlId="formGridEmail"
+                      style={{ width: 320 }}
+                    >
+                      <Form.Label className="mt-3">Service AddOns</Form.Label>
+                      <InputGroup className="mb-2">
+                        <Form.Select
+                          aria-label="Username"
+                          aria-describedby="basic-addon1"
+                          onChange={(e) => setsAddons(e.target.value)}
+                        >
+                          {Servicedata[0]?.sAddons ? (
+                            <option value={Servicedata[0]?.sAddons}>
+                              {Servicedata[0]?.sAddons}
+                            </option>
+                          ) : (
+                            <option>--Select Addons--</option>
+                          )}
+                        </Form.Select>
+                      </InputGroup>
+                    </Form.Group>
 
                     {/* <Row className="mb-3 mt-4">
                       <Form.Group as={Col} controlId="formGridEmail">

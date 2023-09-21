@@ -20,7 +20,7 @@ router.get("/getservices", ServiceManagemntController.getserviceManagement);
 router.post("/editservices/:id", ServiceManagemntController.editserviceManagement);
 router.post("/deleteservices/:id", ServiceManagemntController.postdeleteserviceManagement);
 router.post("/postcategory", ServiceManagemntController.postsubcategory);
-router.delete("/deleteStoreSlot/:id/:index", ServiceManagemntController.deletebyindex);
+router.delete("/deleteStoreSlot/:serviceId/:storeSlotId", ServiceManagemntController.deletebyindex);
 router.delete("/deleteprice/:id/:index", ServiceManagemntController.deletebyindexofprice);
 router.put(
     "/updateservices/:id",

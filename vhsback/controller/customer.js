@@ -256,6 +256,31 @@ class addcustomer {
     const data = await customerModel.deleteOne({ _id: id });
     return res.json({ success: "Delete Successf" });
   }
+
+  async addDeliveryAddress(req, res) {
+    try {
+      const cardNo = req.params.cardNo;
+      const deliveryAddressData = req.body.deliveryAddress;
+
+      // Find the customer by ID
+      const customer = await customerModel.findOne({ cardNo });
+
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      // Add the delivery address to the customer's deliveryAddress array
+      customer.deliveryAddress.push(deliveryAddressData);
+
+      // Save the updated customer
+      await customer.save();
+
+      res.status(200).json({ success: "Delivery address added successfully" });
+    } catch (error) {
+      console.error("Error adding delivery address:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
 }
 const customercontroller = new addcustomer();
 module.exports = customercontroller;

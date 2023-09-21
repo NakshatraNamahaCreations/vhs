@@ -6,7 +6,6 @@ router.post("/addcustomer",customercontroller.addcustomer);
 router.post("/usersign",customercontroller.usersignin);
 
 router.get("/getcustomer",customercontroller.getallcustomer);
-router.post("/deletetercustomer/:id",customercontroller.deletecustomer);
 router.post("/editcustomer/:id", customercontroller.editcustomer);
 
 router.post("/addservicedetails/:id", customercontroller.addservicedetails);
@@ -15,5 +14,9 @@ router.post(
     customercontroller.addCustomersViaExcelSheet
   );
   router.post("/deletetercustomer/:id", customercontroller.deletecustomer);
+  router.post(
+    "/addDeliveryAddress/:cardNo",
+    customercontroller.addDeliveryAddress
+  );
 
 module.exports=router;

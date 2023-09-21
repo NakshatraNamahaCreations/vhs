@@ -26,6 +26,7 @@ function ServiceAddOns() {
   const [editAddOnsPrice, setEditAddOnsPrice] = useState("");
   const [editAddOnsDescription, setEditAddOnsDescription] = useState("");
   const [editAddOnsData, setEditAddOnsData] = useState({});
+  const [servicedata, setServicedata] = useState([]);
 
   const formdata = new FormData();
 
@@ -40,17 +41,11 @@ function ServiceAddOns() {
   };
 
   useEffect(() => {
-    getcategory();
+
     getAllAddOns();
   }, []);
 
-  const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
-    if (res.status === 200) {
-      setdata1(res.data?.category);
-      console.log(res.data?.category);
-    }
-  };
+ 
   const addAddOns = async (e) => {
     e.preventDefault();
     formdata.append("addOnsCategory", category);
@@ -206,6 +201,18 @@ function ServiceAddOns() {
     },
   ];
 
+
+  useEffect(() => {
+    getservicemanagement();
+  }, []);
+
+  const getservicemanagement = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getservices");
+    if ((res.status = 200)) {
+      setServicedata(res.data?.service);
+
+    }
+  };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -223,7 +230,7 @@ function ServiceAddOns() {
                   <div className="row">
                     <div className="col-md-4">
                       <div className="vhs-input-label">
-                        Category <span className="text-danger"> *</span>
+                        Service Name<span className="text-danger"> *</span>
                       </div>
                       <div className="group pt-1">
                         <select
@@ -231,8 +238,8 @@ function ServiceAddOns() {
                           onChange={(e) => setCategory(e.target.value)}
                         >
                           <option>---SELECT---</option>
-                          {data1.map((i) => (
-                            <option value={i.category}>{i.category}</option>
+                          {servicedata.map((i) => (
+                            <option value={i.serviceName}>{i.serviceName}</option>
                           ))}
                         </select>
                       </div>

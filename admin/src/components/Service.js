@@ -45,6 +45,7 @@ function Services() {
   const [Subcategory, setSubcategory] = useState("");
   const [category, setcategory] = useState("");
   const [Servicesno, setServicesno] = useState("");
+  const [sAddons, setsAddons] = useState("");
 
   const [Icon, setIcon] = useState("");
   const [Desc, setDesc] = useState("");
@@ -269,14 +270,14 @@ function Services() {
       alert("Please fill all mandatory fields");
     } else {
       e.preventDefault();
-      // formdata.append("serviceImg", Image);
+      formdata.append("serviceImg", Image);
       formdata.append("sub_subcategory", sub_subcategory);
       formdata.append("serviceName", ServiceName);
       formdata.append("serviceDirection", serviceDirection);
       formdata.append("category", category);
-      // formdata.append("Inimg", Inimg);
-      // formdata.append("Eximg", Eximg);
-      // formdata.append("Desimg", Desimg);
+      formdata.append("Inimg", Inimg);
+      formdata.append("Eximg", Eximg);
+      formdata.append("Desimg", Desimg);
       formdata.append("Subcategory", Subcategory);
       formdata.append("serviceIncludes", JSON.stringify(includes));
       formdata.append("serviceExcludes", JSON.stringify(excludes));
@@ -290,6 +291,8 @@ function Services() {
       formdata.append("serviceDesc", JSON.stringify(desc));
       formdata.append("serviceGst", ServiceGst);
       formdata.append("NofServiceman", NofServiceman);
+
+      formdata.append("setsAddons", setsAddons);
 
       try {
         const config = {
@@ -512,8 +515,11 @@ function Services() {
   const handleSaveChanges = () => {
     const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
 
-    // Add new data to the array
-    const newData = { startTime, endTime, slotCity, Servicesno };
+    // Generate a unique ID for the new data
+    const newId = Date.now(); // You can use a more robust ID generation method if needed
+
+    // Add new data to the array with the ID
+    const newData = { id: newId, startTime, endTime, slotCity, Servicesno };
     existingData.push(newData);
 
     // Update local storage with the updated array
@@ -547,11 +553,13 @@ function Services() {
     localStorage.setItem("homepagetitle", JSON.stringify(homepagetitleData));
     handleClose2();
   };
+
   const handleSaveplanprice = () => {
     const morepriceData = JSON.parse(localStorage.getItem("plansprice")) || [];
+    const newId = Date.now(); // You can use a more robust ID generation method if needed
 
     // Add new data to the array
-    const newData = { pName, pofferprice, pPrice, pservices, servicePeriod };
+    const newData = { id:newId,pName, pofferprice, pPrice, pservices, servicePeriod };
     morepriceData.push(newData);
     console.log("New Data:", newData);
 
@@ -564,44 +572,37 @@ function Services() {
     navigate(`/servicedetails/${row._id}`);
   };
 
-  const handleDeleteCity = (index) => {
-    // Create a copy of the existing data array
-    const updatedData = [...existingData];
-
-    // Remove the item at the specified index
-    updatedData.splice(index, 1);
-
-    // Update local storage with the updated array
-    localStorage.setItem("Store_Slots", JSON.stringify(updatedData));
-
-    window.location.reload();
-  };
-
   const dataByCity = {};
 
-  // Group data by city
   existingData.forEach((item) => {
-    const { slotCity, startTime, endTime, Servicesno } = item;
+    const { id, slotCity, startTime, endTime, Servicesno } = item;
 
     if (!dataByCity[slotCity]) {
       dataByCity[slotCity] = [];
     }
 
-    dataByCity[slotCity].push({ startTime, endTime, Servicesno });
+    dataByCity[slotCity].push({ id, startTime, endTime, Servicesno });
   });
 
-  const handleDeleteplan = (index) => {
-    // Create a copy of the existing data array
-    const updatedData = [...existingData];
+  const handleDeleteCity = (id) => {
+    console.log("id----", id);
+    // Retrieve the existing data from local storage
+    const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
 
-    // Remove the item at the specified index
-    updatedData.splice(index, 1);
+    // Find the index of the item with the specified id
+    const indexToDelete = existingData.findIndex((item) => item.id === id);
 
-    // Update local storage with the updated array
-    localStorage.setItem("plansprice", JSON.stringify(updatedData));
+    if (indexToDelete !== -1) {
+      // Remove the item at the specified index
+      existingData.splice(indexToDelete, 1);
 
-    window.location.reload();
+      // Update local storage with the updated array
+      localStorage.setItem("Store_Slots", JSON.stringify(existingData));
+
+      window.location.reload();
+    }
   };
+
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -676,7 +677,7 @@ function Services() {
                       onChange={onImageChange}
                     />
                   </InputGroup>
-                  <img src={ServiceImg} />
+                  <img src={ServiceImg} height="150px" />
                   <Card.Body>
                     <Card.Text>
                       <p style={{ fontSize: "12px" }}>
@@ -806,53 +807,56 @@ function Services() {
                           // flexWrap: "wrap",
                         }}
                       >
-                        {Object.entries(dataByCity).map(
-                          ([city, data], index) => (
-                            <div
-                              key={index}
-                              style={{ display: "flex", alignItems: "center" }}
-                            >
-                              <div>
-                                <p>{city}</p>
-                                {data.map((item, subIndex) => {
-                                  // Parse the start and end times using dayjs
-                                  const startTime = item.startTime;
-                                  const endTime = item.endTime;
-
-                                  return (
-                                    <div
-                                      key={subIndex}
-                                      style={{ display: "flex" }}
-                                    >
-                                      <p className="slots">
-                                        {startTime} - {endTime}
-                                      </p>
-                                      <p
-                                        style={{
-                                          backgroundColor: "lightblue",
-                                          padding: "10px",
-                                        }}
+                        <table>
+                          <tbody>
+                            {Object.entries(dataByCity).map(([city, data]) => (
+                              <tr key={city}>
+                                <td>{city}</td>
+                                <td>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      flexWrap: "wrap",
+                                      // border:"1px solid gray",
+                                      padding:10,marginTop:20
+                                    }}
+                                  >
+                                    {data.map((item) => (
+                                      <div
+                                        key={item.id}
+                                        style={{ marginRight: "20px",display:"flex" }}
                                       >
-                                        {item.Servicesno}
-                                      </p>
-                                      <i
-                                        className="fa-solid fa-trash"
-                                        style={{
-                                          color: "red",
-                                          padding: "10px",
-                                          cursor: "pointer",
-                                        }}
-                                        onClick={() =>
-                                          handleDeleteCity(subIndex)
-                                        }
-                                      ></i>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )
-                        )}
+                                        <p className="slots">
+                                          {item.startTime} - {item.endTime}
+                                        </p>
+                                        <p
+                                          style={{
+                                            backgroundColor: "lightblue",
+                                            padding: "10px",
+                                          }}
+                                        >
+                                          {item.Servicesno}
+                                        </p>
+                                        <i
+                                          className="fa-solid fa-trash"
+                                          style={{
+                                            color: "red",
+                                            padding: "10px",
+                                            cursor: "pointer",
+                                          }}
+                                          onClick={() =>
+                                            handleDeleteCity(item.id)
+                                          }
+                                        ></i>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                       <Button
                         variant="light"
@@ -876,8 +880,6 @@ function Services() {
                               <th>OfferPrice</th>
                               <th>Services</th>
                               <th>servicePeriod</th>
-                        
-
                             </tr>
                           </thead>
                           <tbody>
@@ -1160,6 +1162,27 @@ function Services() {
                           </Form.Select>
                         </Form.Group>
                       </Row>
+                      <Form.Group
+                        as={Col}
+                        controlId="formGridEmail"
+                        style={{ width: 320 }}
+                      >
+                        <Form.Label className="mt-3">Service AddOns</Form.Label>
+                        <InputGroup className="mb-2">
+                          <Form.Select
+                            aria-label="Username"
+                            aria-describedby="basic-addon1"
+                            onChange={(e) => setsAddons(e.target.value)}
+                          >
+                            <option>--Select service--</option>
+                            {Servicedata.map((item) => (
+                              <option value={item.serviceName}>
+                                {item.serviceName}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </InputGroup>
+                      </Form.Group>
                     </Form>
                     <Button type="button" variant="outline-primary">
                       Cancel

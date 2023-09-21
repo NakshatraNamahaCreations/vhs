@@ -17,7 +17,7 @@ class serviceManagement {
       serviceExcludes,
       serviceIncludes,
       serviceDirection,
-
+      sAddons,
       servicebelow,
       servicetitle,
       homepagetitle,
@@ -61,7 +61,8 @@ class serviceManagement {
       Inimg:file2,
       Eximg:file3,
       qty,
-      quantity
+      quantity,
+      sAddons
     });
     // let save = add.save();
     // Save the user
@@ -146,6 +147,7 @@ class serviceManagement {
       quantity,
       servicebelow,
       servicetitle,
+      sAddons,
       homepagetitle,
     } = req.body;
 
@@ -173,6 +175,7 @@ class serviceManagement {
       servicebelow,
       servicetitle,
       homepagetitle,
+      sAddons
         },
         { new: true } // Make sure to include this to return the updated document
       );
@@ -206,6 +209,7 @@ class serviceManagement {
         serviceGst,
         serviceDirection,
         serviceHour,
+        sAddons,
         NofServiceman,
       } = req.body;
       const file = req.file?.filename;
@@ -244,6 +248,7 @@ class serviceManagement {
         serviceDirection || findService.serviceDirection;
       findService.serviceHour = serviceHour || findService.serviceHour;
       findService.NofServiceman = NofServiceman || findService.NofServiceman;
+      findService.sAddons = sAddons || findService.sAddons;
       if (file) {
         findService.serviceImg = file;
       }
@@ -287,28 +292,49 @@ class serviceManagement {
     }
   }
 
+
+
   async deletebyindex(req, res) {
+    const { serviceId, storeSlotId } = req.params;
     try {
-      const { id, index } = req.params;
-
-      const data = await serviceManagementModel.findById(id);
-
-      if (!data) {
-        return res.status(404).json({ message: "Data not found" });
+      // Find the service document by ID
+      const serviceDocument = await serviceManagementModel.findById(serviceId);
+  
+      if (!serviceDocument) {
+        return res.status(404).json({ message: 'Service not found' });
       }
-
-      // Remove the item at the specified index from store_slots
-      data.store_slots.splice(index, 1);
-
-      // Save the updated document
-      await data.save();
-
-      res.json({ message: "Item deleted successfully" });
+  
+      // Assuming that `store_slots` is an array within the document
+      // Remove the item from the sub-collection
+      const storeSlotsArray = serviceDocument.store_slots;
+      const removedSlotIndex = storeSlotsArray.findIndex(slot => slot.id.toString() === storeSlotId);
+  
+      if (removedSlotIndex === -1) {
+        return res.status(404).json({ message: 'Store slot not found in the document' });
+      }
+  
+      // Remove the item from the array
+      storeSlotsArray.splice(removedSlotIndex, 1);
+  
+      // Save the parent document to update the sub-collection
+      await serviceDocument.save();
+  
+      res.status(200).json({ message: 'Store slot deleted successfully' });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ error: 'Internal server error' });
     }
+    
   }
+  
+    
+  
+  
+  
+  
+  
+  
+  
 
   async deletebyindexofprice(req, res) {
     try {

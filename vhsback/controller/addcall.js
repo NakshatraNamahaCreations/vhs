@@ -10,7 +10,7 @@ class addcall {
       bookingDate,
       jobCategory,
       priorityLevel,
-      TechorPMorVendorID,
+      TechorPMorVendorID, //this
       appoDate,
       appoTime,
       customerFeedback,
@@ -30,7 +30,8 @@ class addcall {
       category,
       amount,
       type,
-      jobType
+      jobType,
+      TechorPMorVendorName,
     } = req.body;
     try {
       // Get the latest card number from the database
@@ -72,7 +73,8 @@ class addcall {
         outSignDateTime,
         jobComplete,
         amount,
-        jobType
+        jobType,
+        TechorPMorVendorName, //this
       });
       // Save the customer data to the database
       const savedCustomer = await customer.save();
@@ -117,7 +119,8 @@ class addcall {
       jobComplete,
       amount,
       TechorPMorVendorID,
-      jobType
+      TechorPMorVendorName, //this
+      jobType,
     } = req.body;
     let data = await addcallModel.findOneAndUpdate(
       { _id: id },
@@ -149,14 +152,14 @@ class addcall {
         jobComplete,
         amount,
         jobType,
-        TechorPMorVendorID
+        TechorPMorVendorID,
+        TechorPMorVendorName,
       }
     );
     if (data) {
       return res.json({ success: "Updated" });
     }
   }
-
 
 
   // update start time

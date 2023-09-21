@@ -94,7 +94,7 @@ async editappsubcat(req, res) {
 
   
   async getappsubcat(req, res) {
-    let subcategory = await appsubcatModel.find({}).sort({ _id: -1 });
+    let subcategory = await appsubcatModel.find({});
     if (subcategory) {
       return res.json({ subcategory: subcategory });
     }
@@ -105,8 +105,7 @@ async editappsubcat(req, res) {
     console.log(category);
     
     let subcategory = await appsubcatModel
-      .find({ category })
-      .sort({ _id: -1 });
+      .find({ category });
 
     if (subcategory) {
       return res.json({ subcategory: subcategory });

@@ -81,6 +81,20 @@ const customerSchema = new mongoose.Schema(
     selectedSlotText: {
       type: String,
     },
+    deliveryAddress: {
+      type: [
+        {
+          houseNumber: String,
+          streetName: String,
+          city: String,
+          state: String,
+          pincode: String,
+          landMark: String,
+        },
+      ],
+      default: [], // Default value is an empty array
+    },
+
   },
   {
     timestamps: true,
