@@ -11,7 +11,7 @@ import { NavLink } from "react-bootstrap";
 const localizer = momentLocalizer(moment);
 
 function Surveycategory() {
-  const admin =JSON.parse(sessionStorage.getItem("admin"));
+  const admin = JSON.parse(sessionStorage.getItem("admin"));
   const [categorydata, setcategorydata] = useState([]);
   const [category, setcategory] = useState([]);
   const [data, setenquiryflwdata] = useState([]);
@@ -21,8 +21,7 @@ function Surveycategory() {
   const apiURL = process.env.REACT_APP_API_URL;
   const [surveycatagoryData, setsurveycatagoryData] = useState([]);
 
-
-  console.log(surveycatdata)
+  console.log(surveycatdata);
   useEffect(() => {
     getcategory();
     // getenquiryadd();
@@ -51,13 +50,11 @@ function Surveycategory() {
 
   const SurveyCatagory = async () => {
     let res = await axios.get(apiURL + "/getsurveydata");
-    if (res.status == 200) {
+    if (res.status === 200) {
       setsurveycatagoryData(res.data?.enquiryfollowup);
-      console.log(res.data?.enquiryfollowup);
+      console.log("survey data====", res.data?.enquiryfollowup);
     }
   };
-
-
 
   const eventCounts = surveycatdata.reduce((counts, item) => {
     const date = item.nxtfoll;
@@ -96,7 +93,7 @@ function Surveycategory() {
   }
 
   const totalCount = calculateTotalCount(surveycatagoryData);
-  console.log("totalCount===", totalCount);
+  // console.log("totalCount===", totalCount);
 
   return (
     <div className="web">

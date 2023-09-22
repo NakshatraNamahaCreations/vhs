@@ -35,9 +35,8 @@ function Enquiryadd() {
   const [subcategorydata, setsubcategorydata] = useState([]);
   const [referecetypedata, setreferecetypedata] = useState([]);
   const [enquirydata, setenquirydata] = useState([]);
-  const [whatsappdata, setwhatsappdata] = useState([])
+  const [whatsappdata, setwhatsappdata] = useState([]);
 
- 
   useEffect(() => {
     getenquiry();
   }, []);
@@ -46,7 +45,7 @@ function Enquiryadd() {
     let res = await axios.get(apiURL + "/getenquiry");
     if (res.status === 200) {
       setenquirydata(res.data?.enquiryadd);
-      console.log("enquiryData===", res.data?.enquiryadd);
+      // console.log("enquiryData===", res.data?.enquiryadd);
       setLatestEnquiryId(res.data?.enquiryadd[0]?.EnquiryId);
     }
   };
@@ -67,7 +66,6 @@ function Enquiryadd() {
     let res = await axios.get(apiURL + "/getwhatsapptemplate");
     if ((res.status = 200)) {
       setwhatsappdata(res.data?.whatsapptemplate);
-     
     }
   };
   const addenquiry = async (e) => {
@@ -145,17 +143,15 @@ function Enquiryadd() {
     }
   };
 
-
   const makeApiCall = async (number) => {
     const apiURL =
       "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
     const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
 
     console.log("91" + number);
-    const contentTemplate = `Happy independence day {name}, your enquiry added`;
-    const content = contentTemplate.replace("{name}", name);
+    const contentTemplate = `<p>Dear <strong>{Customer_name}</strong><br><br>This Is test `;
+    const content = contentTemplate.replace("{Customer_name}", name);
     console.log(content);
-
 
     const requestData = [
       {
@@ -186,8 +182,6 @@ function Enquiryadd() {
       console.error("Error making API call:", error);
     }
   };
-
- 
 
   useEffect(() => {
     getcity();

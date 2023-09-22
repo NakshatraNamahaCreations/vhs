@@ -13,12 +13,13 @@ function Dsrquote() {
   const [bankdata, setbankdata] = useState([]);
   const [treatmentdata, settreatmentdata] = useState([]);
   const location = useLocation();
-  const { data,data1 } = location.state || null;
+  const { data, data1 } = location.state || null;
 
   const apiURL = process.env.REACT_APP_API_URL;
   const imgURL = process.env.REACT_APP_IMAGE_API_URL;
 
-  const [section2data, setsection2data] = useState([]);
+  // const [section2data, setsection2data] = useState([]);
+  const [termsAndCondition, setTemsAndCondition] = useState([]);
 
   console.log(data);
 
@@ -29,16 +30,32 @@ function Dsrquote() {
   const gettermsgroup = async () => {
     let res = await axios.get(apiURL + "/master/gettermgroup");
     if ((res.status = 200)) {
-      settcdata(res.data?.termsgroup);
-    }
-  };
-  const gettermsgroup2 = async () => {
-    let res = await axios.get(apiURL + "/master/gettermgroup2");
-    if ((res.status = 200)) {
-      setsection2data(res.data?.termsgroup2);
+      setTemsAndCondition(res.data?.termsgroup);
+      const invoicType = res.data?.termsgroup.filter(
+        (i) => i.type === "INVOICE"
+      );
+      const filterByCategory = invoicType.filter(
+        (item) => item.category === data.category
+      );
+      settcdata(filterByCategory);
     }
   };
 
+  // const gettermsgroup2 = async () => {
+  //   let res = await axios.get(apiURL + "/master/gettermgroup2");
+  //   if (res.status === 200) {
+  //     setTemsAndCondition(res.data?.termsgroup2);
+  //     const invoicType = res.data?.termsgroup2.filter(
+  //       (i) => i.type === "INVOICE"
+  //     );
+  //     const filterByCategory = invoicType.filter(
+  //       (item) => item.category === data.category
+  //     );
+  //     setsection2data(filterByCategory);
+  //   }
+  // };
+
+  console.log("termsAndCondition", termsAndCondition);
   let i = 1;
 
   useEffect(() => {
@@ -46,7 +63,7 @@ function Dsrquote() {
     getfooterimg();
     getbank();
 
-    gettermsgroup2();
+    // gettermsgroup2();
   }, []);
 
   const getheaderimg = async () => {
@@ -134,6 +151,7 @@ function Dsrquote() {
                   <thead>
                     <tr className="hclr">
                       <th className="text-center">S.No</th>
+                      <th className="text-center">Category</th>
                       <th className="text-center">Description</th>
                       <th className="text-center">Contract</th>
                       <th className="text-center">Service Date</th>
@@ -144,36 +162,56 @@ function Dsrquote() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td scope="row" className="text-center">{i++}</td>
-                      <td scope="row" className="text-center">{data.desc}</td>
+                      <td scope="row" className="text-center">
+                        {i++}
+                      </td>
+                      <td scope="row" className="text-center">
+                        {data.category}
+                      </td>
+                      <td scope="row" className="text-center">
+                        {data.desc}
+                      </td>
 
                       <td className="text-center">{data?.contractType}</td>
-                      {(data?.contractType ==="AMC") ? <td>
-                        {data.dividedDates.map((item) => (
-                          <div>
-                            <p className="text-center">
-                              {new Date(item).toLocaleDateString()}
-                            </p>
-                          </div>
-                        ))}
-                      </td>:<td>{data?.dateofService}</td>}
+                      {data?.contractType === "AMC" ? (
+                        <td>
+                          {data.dividedDates.map((item) => (
+                            <div>
+                              <p className="text-center">
+                                {new Date(item).toLocaleDateString()}
+                              </p>
+                            </div>
+                          ))}
+                        </td>
+                      ) : (
+                        <td>{data?.dateofService}</td>
+                      )}
 
-                      {(data?.contractType ==="AMC") ?   <td>
-                        {data.dividedamtDates.map((item) => (
-                          <div>
-                            <p className="text-end">{new Date(item).toLocaleDateString()}</p>
-                          </div>
-                        ))}
-                      </td>:<td>{data?.dateofService}</td>}
-                    
-                     {(data?.contractType ==="AMC") ?   <td>
-                        {data.dividedamtCharges.map((item) => (
-                          <div>
-                            <p className="text-end">{item}</p>
-                          </div>
-                        ))}
-                      </td>:<td>{data?.serviceCharge}</td>}
-                    
+                      {data?.contractType === "AMC" ? (
+                        <td>
+                          {data.dividedamtDates.map((item) => (
+                            <div>
+                              <p className="text-end">
+                                {new Date(item).toLocaleDateString()}
+                              </p>
+                            </div>
+                          ))}
+                        </td>
+                      ) : (
+                        <td>{data?.dateofService}</td>
+                      )}
+
+                      {data?.contractType === "AMC" ? (
+                        <td>
+                          {data.dividedamtCharges.map((item) => (
+                            <div>
+                              <p className="text-end">{item}</p>
+                            </div>
+                          ))}
+                        </td>
+                      ) : (
+                        <td>{data?.serviceCharge}</td>
+                      )}
                     </tr>
                   </tbody>
                 </table>
@@ -185,47 +223,12 @@ function Dsrquote() {
               </div>
             </div>
             <div className="text-end px-2" style={{ fontWeight: "bold" }}>
-            Amount In Words :{" "}
+              Amount In Words :{" "}
               <span style={{ fontWeight: 400 }}>
                 {numberToWords.toWords(data.serviceCharge) + " Only"}
               </span>
             </div>
 
-            <div className="p-3">
-              <h3>Terms & Conditions</h3>
-              <ul>
-                <li>100% Payment Post Work Completion Immediately.</li>
-                <li>In Cleaning Any Hard Stain Will Not Be Resolved 100%.</li>
-                <li>
-                  If Any Compliant On Service Quality, Customer Need To Notify
-                  Within 24 Hours.
-                </li>
-                <li>
-                  Customer Need To Verify The Work Before Service Team Leaves
-                  The Premises.
-                </li>
-                <li>
-                  For GPC Warranty Would Be 90 Days From The Date Of First
-                  Service.
-                </li>
-                <li>
-                  For BBMS Warranty Would Be 60 Days From The Date Of First
-                  Service.
-                </li>
-
-                <li>
-                  In Case Of Any Renovation Happened In The Premises Then The
-                  Warranty Will Not Be Applicable.{" "}
-                </li>
-                <li>
-                  Result Of Pest Control Service Is Based On Weather Variation,
-                  House Maintenance And House Surrounding Environments.
-                </li>
-                <li>
-                  This Is A Computer Generated Invoice, No Need Of Signature.
-                </li>
-              </ul>
-            </div>
             <div className="mx-5">
               <div>
                 <div className="" style={{ fontWeight: "bold" }}>
@@ -281,9 +284,49 @@ function Dsrquote() {
                   </div>
                 </div>
               ))}
-
-           
             </div>
+
+            {/* <div className="p-3">
+              <h3>Terms & Conditions</h3>
+              {section2data.map((e) => (
+                <>{e.content}</>
+              ))}
+            </div> */}
+
+            {tcdata.map((item) => (
+              <div>
+                <div
+                  className="row m-auto mt-3"
+                  style={{
+                    backgroundColor: "#a9042e",
+                    color: "white",
+                    fontWeight: "bold",
+                    justifyContent: "center",
+                    padding: "8px",
+                  }}
+                >
+                  {item.header}
+                </div>
+                <table class="table table-bordered border-danger">
+                  <tbody>
+                    <tr>
+                      <td scope="row">
+                        <div class="form-check">
+                          <div className="mt-2">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: item.content,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      {/* <td className="">{item.content}</td> */}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
           {/* <div
             className=" shadow  "
@@ -312,11 +355,7 @@ function Dsrquote() {
             </div>
           </div> */}
         </div>
-        
-        
       </div>
-
-  
     </div>
   );
 }

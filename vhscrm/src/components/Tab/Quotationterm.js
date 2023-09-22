@@ -4,7 +4,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { da } from "date-fns/locale";
-import numberToWords from "number-to-words";
+import { toWords } from "number-to-words";
 import { filledInputClasses } from "@mui/material";
 
 function Quotationterm() {
@@ -15,7 +15,7 @@ function Quotationterm() {
   const [materialdata, setmaterialdata] = useState([]);
   const location = useLocation();
   const { data } = location.state || null;
-  console.log(data);
+  console.log("data", data);
   const apiURL = process.env.REACT_APP_API_URL;
   const imgURL = process.env.REACT_APP_IMAGE_API_URL;
 
@@ -113,7 +113,7 @@ function Quotationterm() {
     tcdata.some((tcItem) => tcItem.category === item.category)
   );
 
-  console.log(filteredItems);
+  // console.log(filteredItems);
   function calculateTotalPrice(data) {
     let totalPrice = 0;
     for (let i = 0; i < data.length; i++) {
@@ -121,9 +121,17 @@ function Quotationterm() {
     }
     return totalPrice;
   }
-
   const total = calculateTotalPrice(data[0]?.treatmentdetails);
 
+  const dataType = parseInt(data[0]?.quotedata[0]?.netTotal);
+
+  const netTotal = isNaN(dataType) ? 0 : dataType;
+  let netTotalInWords = "";
+
+  if (typeof netTotal === "number" && isFinite(netTotal)) {
+    netTotalInWords = toWords(netTotal).replace(/,/g, ""); // Remove commas
+  }
+  // console.log("netTotalInWords:", netTotalInWSords);
   return (
     <div className="row">
       {/* <Header /> */}
@@ -261,7 +269,7 @@ function Quotationterm() {
                   style={{ justifyContent: "flex-end", marginTop: "10px" }}
                 >
                   <div className="col-2">
-                    <h5 style={{ textAlign: "right" }}> Gst :</h5>
+                    <h5 style={{ textAlign: "right" }}> Gst(5%) :</h5>
                   </div>
                   <div className="col-1">
                     <h5>{total * 0.05}</h5>
@@ -306,10 +314,15 @@ function Quotationterm() {
                 >
                   In Words :{" "}
                   <span style={{ fontWeight: 400 }}>
-                    {data[0]?.quotedata[0]?.netTotal === 0
-                      ? null
-                      : numberToWords.toWords(data[0]?.quotedata[0]?.netTotal)}
-                    {/* {numberToWords.toWords(data[0]?.quotedata[0]?.netTotal)} */}
+                    {netTotalInWords !== "" ? (
+                      <>
+                        {" "}
+                        {netTotalInWords.charAt(0).toUpperCase() +
+                          netTotalInWords.slice(1)}
+                      </>
+                    ) : (
+                      <>{data[0]?.quotedata[0]?.netTotal}</>
+                    )}
                   </span>
                 </div>
               </div>
@@ -472,3 +485,29 @@ function Quotationterm() {
 }
 
 export default Quotationterm;
+
+{
+  /* <div> */
+}
+{
+  /* {data[0]?.quotedata[0]?.netTotal} */
+}
+{
+  /* {data.quotedata[0]?.netTotal &&
+                    data.quotedata[0].netTotal.length > 0
+                      ? numberToWords.toWords(data.quotedata[0]?.netTotal)
+                      : 0} */
+}
+{
+  /* {data?.quotedata &&
+                    data.quotedata[0]?.netTotal &&
+                    data.quotedata[0].netTotal.length > 0
+                      ? numberToWords.toWords(data.quotedata[0]?.netTotal)
+                      : null} */
+}
+{
+  /* {netTotalInWords} */
+}
+{
+  /* </div> */
+}

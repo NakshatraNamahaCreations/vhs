@@ -231,8 +231,8 @@ class serviceManagement {
         ? serviceDesc?.map((i) => JSON.parse(i))
         : [JSON.parse(serviceDesc)] || findService.serviceDesc;
 
-      findService.servicetitle = servicetitle || findService.servicetitle;
-      findService.servicebelow = servicebelow || findService.servicebelow;
+      findService.servicetitle = servicetitle ;
+      findService.servicebelow = servicebelow ;
 
       findService.serviceIncludes = Array.isArray(serviceIncludes)
         ? serviceIncludes?.map((i) => JSON.parse(i))
@@ -296,8 +296,7 @@ class serviceManagement {
 
   async deletebyindex(req, res) {
     const { serviceId, storeSlotId } = req.params;
-    try {
-      // Find the service document by ID
+    try { // Find the service document by ID
       const serviceDocument = await serviceManagementModel.findById(serviceId);
   
       if (!serviceDocument) {

@@ -62,7 +62,6 @@ function Dsrcallist() {
   };
 
   // console.log("techData", techData);
-
   const getservicedata = async () => {
     let res = await axios.get(apiURL + "/getrunningdata");
     if (res.status === 200) {
@@ -207,7 +206,7 @@ function Dsrcallist() {
   // Fetch all technicians from your API
   const fetchTechnicians = async () => {
     try {
-      const res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getalltechnician");
+      const res = await axios.get("http://localhost:8080/api/getalltechnician");
       if (res.status === 200) {
         setTechnicians(res.data.technician);
       }
@@ -406,8 +405,12 @@ function Dsrcallist() {
                     <td>
                       {selectedData.dsrdata &&
                       selectedData.dsrdata.length > 0 &&
-                      selectedData.dsrdata[0].TechorPMorVendorName
-                        ? selectedData.dsrdata[0].TechorPMorVendorName
+                      selectedData.dsrdata.find(
+                        (dsrItem) => dsrItem.serviceDate === date
+                      )
+                        ? selectedData.dsrdata.find(
+                            (dsrItem) => dsrItem.serviceDate === date
+                          ).TechorPMorVendorName
                         : "Not Assigned"}
                       {/* {
                         Technicians.find(

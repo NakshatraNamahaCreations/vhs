@@ -4,7 +4,6 @@ import Nav from "../Nav1";
 import Modal from "react-bootstrap/Modal";
 import axios from "axios";
 
-
 function Whatsapptemplate() {
   const [show, setShow] = useState(false);
 
@@ -20,7 +19,6 @@ function Whatsapptemplate() {
 
   const addwhatsappTemplate = async (e) => {
     e.preventDefault();
-
     try {
       const config = {
         url: "/addwhatsapptemplae",

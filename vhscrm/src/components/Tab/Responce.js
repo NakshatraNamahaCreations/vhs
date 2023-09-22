@@ -4,6 +4,9 @@ import Nav from "../Nav1";
 import Modal from "react-bootstrap/Modal";
 import axios from "axios";
 import DataTable from "react-data-table-component";
+import { useRef } from "react";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const active = {
   backgroundColor: "rgb(169, 4, 46)",
@@ -38,6 +41,13 @@ function Responce() {
     handleShow();
   };
 
+  const [editorContent, setEditorContent] = useState("");
+
+  const handleEditorChange = (event, editor) => {
+    const data = editor.getData();
+    setEditorContent(data);
+  };
+
   const save = async (e) => {
     e.preventDefault();
 
@@ -50,14 +60,14 @@ function Responce() {
         headers: { "content-type": "application/json" },
         data: {
           response: response,
-          template: template,
+          template: editorContent,
           variable: variable,
         },
       };
       await axios(config).then(function (response) {
         if (response.status === 200) {
           console.log("success");
-          alert(" Added");
+          alert("Added");
           window.location.assign("/responce");
         }
       });
@@ -118,7 +128,9 @@ function Responce() {
     },
     {
       name: "WhatsApp template",
-      selector: (row) => row.template,
+      selector: (row) => (
+        <div dangerouslySetInnerHTML={{ __html: row.template }} />
+      ),
     },
     // {
     //   name: "Variable",
@@ -139,7 +151,6 @@ function Responce() {
     },
   ];
 
-
   const edit = (data) => {
     setdata(data);
     handleShow1(true);
@@ -154,7 +165,7 @@ function Responce() {
   const deleteresponse = async (id) => {
     axios({
       method: "post",
-      url: apiURL+"/deleteresponse/" + id,
+      url: apiURL + "/deleteresponse/" + id,
     })
       .then(function (response) {
         //handle success
@@ -216,23 +227,22 @@ function Responce() {
           <div className="card" style={{ marginTop: "30px" }}>
             <div className="card-body p-3">
               <form>
-             
-                  <div className="col-md-4">
-                    <div className="vhs-input-label">
-                      Response <span className="text-danger"> *</span>
-                    </div>
-                    <div className="group pt-1">
-                      <input
-                        type="text"
-                        className="col-md-12 vhs-input-value"
-                        onChange={(e) => setresponse(e.target.value)}
-                      />
-                    </div>
+                <div className="col-md-4">
+                  <div className="vhs-input-label">
+                    Response <span className="text-danger"> *</span>
                   </div>
-                  <div className="row">
+                  <div className="group pt-1">
+                    <input
+                      type="text"
+                      className="col-md-12 vhs-input-value"
+                      onChange={(e) => setresponse(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="row">
                   <div className="col-md-8">
                     <div className="vhs-input-label">WhatsApp Template</div>
-                    <div className="group pt-1">
+                    {/* <div className="group pt-1">
                       <textarea
                         rows={10}
                         cols={6}
@@ -240,11 +250,22 @@ function Responce() {
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setwhatsptemplate(e.target.value)}
                       />
-                    </div>
+                    </div> */}
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={editorContent}
+                      onChange={handleEditorChange}
+                    />
                   </div>
 
                   <div className="col-md-4">
-                    <div className="vhs-input-label">VARIABLES</div>
+                    <div className="vhs-input-label">
+                      VARIABLES{" "}
+                      <b>
+                        (&#x60;Don't Change Sms Text Except
+                        &#123;&#36;#Var#&#125;)
+                      </b>
+                    </div>
                     <div className="group pt-1">
                       <p>{"Customer_name"}</p>
                       <p>Executive_name</p>
@@ -256,7 +277,7 @@ function Responce() {
                 <div className="row pt-3">
                   <div className="col-md-2">
                     <button className="vhs-button" onClick={save}>
-                      Save
+                      Add
                     </button>
                   </div>
                 </div>
@@ -332,5 +353,3 @@ function Responce() {
   );
 }
 export default Responce;
-
-

@@ -18,10 +18,10 @@ function Enquirynewdetail() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
 
   const navigate = useNavigate();
-
+  // const [response, setResponse] = useState(null);
   const [staffname, setstaffname] = useState("pankaj");
   const [folldate, setfolldate] = useState("");
-  const [response, setresponse] = useState("");
+  const [whatsappTemplate, setWhatsappTemplate] = useState("");
   const [desc, setdesc] = useState("");
   const [colorcode, setcolorcode] = useState("");
   const [nxtfoll, setnxtfoll] = useState("00/00/0000");
@@ -32,7 +32,8 @@ function Enquirynewdetail() {
 
   const apiURL = process.env.REACT_APP_API_URL;
 
-  console.log("color code", colorcode);
+  console.log("whatsappTemplate", whatsappTemplate.response);
+  // console.log("color code", colorcode);
 
   useEffect(() => {
     getresponse();
@@ -40,8 +41,8 @@ function Enquirynewdetail() {
 
   const getresponse = async () => {
     let res = await axios.get(apiURL + "/getresponse");
-    if ((res.status = 200)) {
-      console.log(res.data.response);
+    if (res.status === 200) {
+      console.log("ResponseData:", res.data.response);
       setresponsedata(res.data?.response);
     }
   };
@@ -73,47 +74,112 @@ function Enquirynewdetail() {
   const addenquiryfollowup1 = async (e) => {
     e.preventDefault();
 
-    if (!desc || !response) {
-      alert("Fill all feilds");
-    } else {
-      try {
-        const config = {
-          url: `/addenquiryfollowup`,
-          method: "post",
-          baseURL: apiURL,
-          // data: formdata,
-          headers: { "content-type": "application/json" },
-          data: {
-            EnquiryId: EnquiryId,
-            staffname: admin.displayname,
-            category: filterdata[0]?.category,
-            folldate: moment().format("llll"),
-            response: response,
-            desc: desc,
-            value: value,
-            colorcode: colorcode,
-            nxtfoll: nxtfoll,
-          },
-        };
-        await axios(config).then(function (response) {
-          if (response.status === 200) {
-            console.log("success");
-            alert(" Added");
+    try {
+      const config = {
+        url: `/addenquiryfollowup`,
+        method: "post",
+        baseURL: apiURL,
+        // data: formdata,
+        headers: { "content-type": "application/json" },
+        data: {
+          EnquiryId: EnquiryId,
+          staffname: admin.displayname,
+          category: filterdata[0]?.category,
+          folldate: moment().format("llll"),
+          response: whatsappTemplate.response,
+          desc: desc,
+          value: value,
+          colorcode: colorcode,
+          nxtfoll: nxtfoll,
+        },
+      };
+      await axios(config).then(function (response) {
+        if (response.status === 200) {
+          console.log("success");
+          alert(" Added");
+          makeApiCall(JSON.stringify(response.data.response));
 
-            window.location.assign(`/enquirydetail/${EnquiryId}`);
-          }
-        });
-      } catch (error) {
-        console.error(error);
-        alert(" Not Added");
+          console.log("success", response.data.response);
+          // window.location.assign(`/enquirydetail/${EnquiryId}`);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      alert(" Not Added");
+    }
+  };
+
+  const makeApiCall = async () => {
+    const apiURL =
+      "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
+    const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
+    console.log("whatsappTemplate:", whatsappTemplate.length); // Log the whatsappTemplate
+    console.log(
+      "responsedata:",
+      responsedata.map((item) => item.response.length)
+    ); // Log the responsedata
+
+    const selectedResponse = responsedata.find(
+      (item) => item.response === whatsappTemplate
+    );
+    if (!selectedResponse) {
+      console.error("Selected response not found.");
+      return;
+    }
+
+    const contentTemplate = selectedResponse?.template || "";
+
+    console.log("Selected response:", whatsappTemplate);
+    console.log("Content template:", contentTemplate);
+
+    if (!contentTemplate) {
+      console.error("Content template is empty. Cannot proceed.");
+      return;
+    }
+
+    console.log("91" + filterdata[0]?.contact1);
+
+    // console.log("yresponse---", contentTemplate);
+    const content = contentTemplate.replace(
+      "{Customer_name}",
+      filterdata[0]?.name
+    );
+    console.log("content", content);
+
+    const requestData = [
+      {
+        dst: "91" + filterdata[0]?.contact1,
+        messageType: "0",
+        textMessage: {
+          content: content,
+        },
+      },
+    ];
+
+    try {
+      const response = await axios.post(apiURL, requestData, {
+        headers: {
+          "access-token": accessToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        setWhatsappTemplate(response.data);
+        alert("Sent");
+        // navigate(`/enquirydetail/${latestEnquiryId ? latestEnquiryId + 1 : 1}`);
+      } else {
+        console.error("API call unsuccessful. Status code:", response.status);
       }
+    } catch (error) {
+      console.error("Error making API call:", error);
     }
   };
 
   const addcalllater = async (e) => {
     e.preventDefault();
 
-    if (!desc || !response || !nxtfoll || !colorcode) {
+    if (!desc || !whatsappTemplate || !nxtfoll || !colorcode) {
       alert("Fill all feilds");
     } else {
       try {
@@ -128,12 +194,11 @@ function Enquirynewdetail() {
             staffname: admin.displayname,
             category: filterdata[0]?.category,
             folldate: moment().format("llll"),
-            response: response,
+            response: whatsappTemplate,
             desc: desc,
             value: value,
             colorcode: colorcode,
             nxtfoll: nxtfoll,
-           
           },
         };
         await axios(config).then(function (response) {
@@ -150,9 +215,9 @@ function Enquirynewdetail() {
       }
     }
   };
+
   const addsurvey = async (e) => {
     e.preventDefault();
-
     if (!desc || !nxtfoll) {
       alert("Fill all feilds");
     } else {
@@ -168,7 +233,7 @@ function Enquirynewdetail() {
             staffname: admin.displayname,
             category: filterdata[0]?.category,
             folldate: moment().format("llll"),
-            response: response,
+            response: whatsappTemplate?.response,
             desc: desc,
             value: value,
             colorcode: colorcode,
@@ -208,7 +273,7 @@ function Enquirynewdetail() {
             category: filterdata[0]?.category,
             staffname: admin.displayname,
             folldate: moment().format("llll"),
-            response: response,
+            response: whatsappTemplate,
             desc: desc,
             value: value,
             nxtfoll: nxtfoll,
@@ -231,7 +296,7 @@ function Enquirynewdetail() {
   const postcreatequote = async (e) => {
     e.preventDefault();
 
-    if (!desc ||!nxtfoll ) {
+    if (!desc || !nxtfoll) {
       alert("fill all fields");
     } else {
       try {
@@ -246,7 +311,7 @@ function Enquirynewdetail() {
             category: filterdata[0]?.category,
             staffname: admin.displayname,
             folldate: moment().format("llll"),
-            response: response,
+            response: whatsappTemplate,
             desc: desc,
             value: value,
             nxtfoll: nxtfoll,
@@ -535,7 +600,9 @@ function Enquirynewdetail() {
                                         Foll. Date
                                       </div>
                                       <div className="group pt-1 vhs-non-editable">
-                                       <p style={{fontSize:"12px"}}>{moment().format("llll")}</p> 
+                                        <p style={{ fontSize: "12px" }}>
+                                          {moment().format("llll")}
+                                        </p>
                                       </div>
                                     </div>
                                     <div className="col-md-4">
@@ -546,9 +613,39 @@ function Enquirynewdetail() {
                                       <div className="group pt-1">
                                         <select
                                           className="col-md-12 vhs-input-value"
-                                          onChange={(e) =>
-                                            setresponse(e.target.value)
-                                          }
+                                          // onChange={(e) => {
+                                          //   const selectedResponse =
+                                          //     responsedata.find(
+                                          //       (item) =>
+                                          //         item.response ===
+                                          //         whatsappTemplate
+                                          //     );
+                                          //   console.log(
+                                          //     "Comparing with:",
+                                          //     e.target.value
+                                          //   );
+                                          //   setWhatsappTemplate(
+                                          //     selectedResponse,
+                                          //     () => {
+                                          //       console.log(
+                                          //         "Selected response:",
+                                          //         selectedResponse
+                                          //       );
+                                          //       makeApiCall(selectedResponse);
+                                          //     }
+                                          //   );
+                                          // }}
+                                          onChange={(e) => {
+                                            const selectedResponse =
+                                              responsedata.find(
+                                                (item) =>
+                                                  item.response ===
+                                                  e.target.value
+                                              );
+                                            setWhatsappTemplate(
+                                              selectedResponse
+                                            );
+                                          }}
                                         >
                                           <option>--select--</option>
                                           {responsedata.map((i) => (
@@ -579,7 +676,8 @@ function Enquirynewdetail() {
                                     </div>
                                   </div>
 
-                                  {response == "New" ? (
+                                  {whatsappTemplate &&
+                                  whatsappTemplate.response === "New" ? (
                                     <>
                                       <div className="row pt-3">
                                         <div className="col-md-4"></div>
@@ -597,7 +695,7 @@ function Enquirynewdetail() {
                                     <></>
                                   )}
 
-                                  {response == "Not Intrested" ? (
+                                  {whatsappTemplate == "Not Intrested" ? (
                                     <>
                                       <div className="row pt-3">
                                         <div className="col-md-4"></div>
@@ -614,54 +712,50 @@ function Enquirynewdetail() {
                                   ) : (
                                     <></>
                                   )}
-                                   {response == "Quote" ? (
+                                  {whatsappTemplate == "Quote" ? (
                                     <>
                                       <div className="col-md-4">
+                                        <div className="vhs-input-label">
+                                          color code
+                                          <span className="text-danger">*</span>
+                                        </div>
+                                        <div className="group pt-1">
+                                          <select
+                                            className="col-md-12 vhs-input-value"
+                                            onChange={(e) =>
+                                              setcolorcode(e.target.value)
+                                            }
+                                          >
+                                            <option>--select--</option>
+                                            <option value="easy">Easy</option>
+                                            <option value="medium">
+                                              Medium
+                                            </option>
+                                            <option value="different">
+                                              Different
+                                            </option>
+                                          </select>
+                                        </div>
+
+                                        <div className="col-md-12 mt-2">
                                           <div className="vhs-input-label">
-                                            color code
+                                            Nxt Foll date
                                             <span className="text-danger">
                                               *
                                             </span>
                                           </div>
                                           <div className="group pt-1">
-                                            <select
+                                            <input
+                                              type="date"
                                               className="col-md-12 vhs-input-value"
                                               onChange={(e) =>
-                                                setcolorcode(e.target.value)
+                                                setnxtfoll(e.target.value)
                                               }
-                                            >
-                                              <option>--select--</option>
-                                              <option value="easy">Easy</option>
-                                              <option value="medium">
-                                                Medium
-                                              </option>
-                                              <option value="different">
-                                                Different
-                                              </option>
-                                            </select>
-                                          </div>
-
-                                          <div className="col-md-12 mt-2">
-                                            <div className="vhs-input-label">
-                                              Nxt Foll date
-                                              <span className="text-danger">
-                                                *
-                                              </span>
-                                            </div>
-                                            <div className="group pt-1">
-                                              <input
-                                                type="date"
-                                                className="col-md-12 vhs-input-value"
-                                                onChange={(e) =>
-                                                  setnxtfoll(e.target.value)
-                                                }
-                                                placeholder={moment().format(
-                                                  "L"
-                                                )}
-                                              />
-                                            </div>
+                                              placeholder={moment().format("L")}
+                                            />
                                           </div>
                                         </div>
+                                      </div>
                                       <div className="row pt-3">
                                         <div className="col-md-4"></div>
                                         <div className="col-md-5">
@@ -678,7 +772,8 @@ function Enquirynewdetail() {
                                     <></>
                                   )}
 
-                                  {response == "Survey" ? (
+                                  {whatsappTemplate &&
+                                  whatsappTemplate.response === "Survey" ? (
                                     <>
                                       <div className="row pt-3">
                                         <div className="col-md-4">
@@ -712,7 +807,7 @@ function Enquirynewdetail() {
                                   ) : (
                                     <></>
                                   )}
-                                  {response == "Call Later" ? (
+                                  {whatsappTemplate == "Call Later" ? (
                                     <>
                                       {" "}
                                       <div className="row pt-3">
@@ -777,44 +872,42 @@ function Enquirynewdetail() {
                                     <></>
                                   )}
 
-                                 
-                                    {response === "Confirmed" ? (
-                                      <div className="col-md-12 mt-2">
-                                        <div className="vhs-input-label">
-                                          Value
-                                          <span className="text-danger">*</span>
-                                        </div>
-                                        <div className="group pt-1">
-                                          <input
-                                            type="text"
-                                            className="col-md-4 vhs-input-value"
-                                            onChange={(e) =>
-                                              setvalue(e.target.value)
-                                            }
-                                          />
-                                        </div>
-
-                                        <div className="col-md-1 mt-2">
-                                          <button
-                                            className="vhs-button mx-5"
-                                            style={{ width: "150px" }}
-                                            onClick={postconvertcustomer}
-                                          >
-                                            Convert to Customer{" "}
-                                          </button>
-                                        </div>
+                                  {whatsappTemplate === "Confirmed" ? (
+                                    <div className="col-md-12 mt-2">
+                                      <div className="vhs-input-label">
+                                        Value
+                                        <span className="text-danger">*</span>
                                       </div>
-                                    ) : (
-                                      <div className="col-md-2">
-                                        {/* <button
+                                      <div className="group pt-1">
+                                        <input
+                                          type="text"
+                                          className="col-md-4 vhs-input-value"
+                                          onChange={(e) =>
+                                            setvalue(e.target.value)
+                                          }
+                                        />
+                                      </div>
+
+                                      <div className="col-md-1 mt-2">
+                                        <button
+                                          className="vhs-button mx-5"
+                                          style={{ width: "150px" }}
+                                          onClick={postconvertcustomer}
+                                        >
+                                          Convert to Customer{" "}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="col-md-2">
+                                      {/* <button
                                           className="vhs-button mx-5"
                                           onClick={addenquiryfollowup1}
                                         >
                                           Save
                                         </button> */}
-                                      </div>
-                                    )}
-                                 
+                                    </div>
+                                  )}
                                 </form>
                               </div>
                             </div>

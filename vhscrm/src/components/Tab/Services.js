@@ -21,6 +21,7 @@ function Services() {
   const [subcategory1, setsubcategory1] = useState(data.subcategory);
   const [videolink1, setvideolink1] = useState(data.videolink);
   const [subcategorydata, setsubcategorydata] = useState([]);
+  const [serviceData, setServiceData] = useState([]);
   const formdata = new FormData();
   const apiURL = process.env.REACT_APP_API_URL;
 
@@ -34,15 +35,28 @@ function Services() {
   }, []);
 
   const getcategory = async () => {
-    let res = await axios.get(apiURL+"/getcategory");
+    let res = await axios.get(apiURL + "/getcategory");
     if ((res.status = 200)) {
       setdata1(res.data?.category);
       console.log(res.data?.category);
     }
   };
+
+  const getServiceByCategory = async () => {
+    let res = await axios.post(apiURL + `/postsubcategory/`, { category });
+    if (res.status === 200) {
+      setServiceData(res.data?.subcategory);
+    } else {
+      setServiceData([]);
+    }
+  };
+  useEffect(() => {
+    getServiceByCategory();
+  }, [category]);
+
   const postsubcategory = async (e) => {
     e.preventDefault();
-   
+
     try {
       const config = {
         url: "/addsubcategory",
@@ -50,17 +64,17 @@ function Services() {
         baseURL: apiURL,
         // headers: { "content-type": "application/json" },
         // data: { categoryName: categoryName, subcategoryName: subcategoryName },
-        data:{
-          category:category,
-          subcategory:subcategory,
-          videolink:videolink
-        } ,
+        data: {
+          category: category,
+          subcategory: subcategory,
+          videolink: videolink,
+        },
       };
       await axios(config).then(function (response) {
         if (response.status === 200) {
           console.log("success");
           alert("Service added successfuly");
-           window.location.reload();
+          window.location.reload();
         }
       });
     } catch (error) {
@@ -69,7 +83,7 @@ function Services() {
     }
   };
   const getsubcategory = async () => {
-    let res = await axios.get(apiURL+"/getsubcategory");
+    let res = await axios.get(apiURL + "/getsubcategory");
     if ((res.status = 200)) {
       console.log(res);
       setsubcategorydata(res.data?.subcategory);
@@ -87,8 +101,8 @@ function Services() {
         headers: { "content-type": "application/json" },
         data: {
           category: category1,
-          subcategory:subcategory1,
-          videolink:videolink1
+          subcategory: subcategory1,
+          videolink: videolink1,
         },
       };
       await axios(config).then(function (response) {
@@ -105,7 +119,7 @@ function Services() {
   const columns = [
     {
       name: "Sl  No",
-      selector: (row,index) => index+1,
+      selector: (row, index) => index + 1,
     },
     {
       name: "Customer ",
@@ -146,7 +160,6 @@ function Services() {
   }, [search]);
   let i = 0;
 
-
   const deleteservices = async (id) => {
     axios({
       method: "post",
@@ -184,9 +197,7 @@ function Services() {
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setcategory(e.target.value)}
                       >
-                         <option >
-                           ---SELECT---
-                          </option>
+                        <option>---SELECT---</option>
                         {admin?.category.map((category, index) => (
                           <option key={index} value={category.name}>
                             {category.name}
@@ -201,11 +212,17 @@ function Services() {
                       Service Type <span className="text-danger"> *</span>
                     </div>
                     <div className="group pt-1">
-                      <input
-                        type="text"
-                        className="vhs-input-value col-md-12"
+                      <select
+                        className="col-md-12 vhs-input-value"
                         onChange={(e) => setsubcategory(e.target.value)}
-                      />
+                      >
+                        <option>---SELECT---</option>
+                        {serviceData.map((item) => (
+                          <option value={item.subcategory}>
+                            {item.subcategory}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -231,7 +248,7 @@ function Services() {
               </form>
             </div>
           </div>
-        
+
           <div className="mt-5">
             <input
               type="text"
@@ -271,15 +288,17 @@ function Services() {
                   Category <span className="text-danger"> *</span>
                 </div>
                 <div className="group pt-1">
-                <div className="group pt-1">
-                      <select className="col-md-12 vhs-input-value" onChange={(e)=>setcategory1(e.target.value)} >
+                  <div className="group pt-1">
+                    <select
+                      className="col-md-12 vhs-input-value"
+                      onChange={(e) => setcategory1(e.target.value)}
+                    >
                       <option value={data.category}>{data.category}</option>
-                        {data1.map((item) => (
-                          <option value={item.category}>{item.category}</option>
-                        ))}
-                       
-                      </select>
-                    </div>
+                      {data1.map((item) => (
+                        <option value={item.category}>{item.category}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="col-md-4">

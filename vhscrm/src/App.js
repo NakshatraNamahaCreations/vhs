@@ -163,6 +163,7 @@ import OneCommunityReports from "./components/OneCommunityReports";
 import Report_B2B from "./components/Report/Report_B2B";
 import Report_1Community from "./components/Report/Report_1Community";
 import Paymentinvoice from "./components/Paymentinvoice";
+import SendMessages from "./components/SendMessages";
 
 function App() {
   return (
@@ -292,7 +293,10 @@ function App() {
 
           <Route path="/dsrcallist/:date/:category" element={<Dsrcallist />} />
           <Route path="/paymentcalender" element={<Paymentcalender />} />
-          <Route path="/paymentfilterlist/:date" element={<Paymentfilterlist />} />
+          <Route
+            path="/paymentfilterlist/:date"
+            element={<Paymentfilterlist />}
+          />
 
           <Route
             path="/quotedatatable/:date/:category"
@@ -318,7 +322,7 @@ function App() {
           <Route path="/report/survey" element={<ReportSurvey />} />
           <Route path="/report/quotation" element={<ReportQuotation />} />
           <Route path="/report/b2b" element={<Report_B2B />} />
-        <Route path="/report/onecommunity" element={<Report_1Community />} />
+          <Route path="/report/onecommunity" element={<Report_1Community />} />
 
           <Route
             path="/report/runningprojects"
@@ -338,9 +342,9 @@ function App() {
           <Route path="/payment/:id" element={<Payment />} />
 
           <Route path="/customerservnav" element={<Customersernav />} />
-      
+
           <Route path="/paymentreports" element={<Payment_Reports />} />
-        
+
           <Route
             path="/enquirydatatable/:date"
             element={<Enquirydatatable />}
@@ -357,6 +361,7 @@ function App() {
         <Route path="/raiseinvoice" element={<Paymentinvoice />} />
 
         <Route path="/onecommnityreport" element={<OneCommunityReports />} />
+        <Route path="/sendmessage" element={<SendMessages />} />
       </Routes>
     </BrowserRouter>
   );

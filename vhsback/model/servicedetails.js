@@ -27,6 +27,9 @@ const serviceSchema = new mongoose.Schema(
       type: Array,
       default: "00-00-0000",
     },
+    deliveryAddress:{
+      type:Object
+    },
     desc: {
       type: String,
     },

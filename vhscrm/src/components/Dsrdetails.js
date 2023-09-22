@@ -4,12 +4,14 @@ import DSRnav from "../components/DSRnav";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import axios from "axios";
 import moment from "moment";
+import Moment from "react-moment";
 
 function Dsrdetails() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
   const location = useLocation();
   const { data, data1 } = location.state || {};
   const [dsrdata, setdsrdata] = useState([]);
+  console.log("service date:", data1);
 
   const [servicedata, setservicedata] = useState([]);
   const [techniciandata, settechniciandata] = useState([]);
@@ -55,21 +57,24 @@ function Dsrdetails() {
   // Initialize the type state based on the initialType value
   let defaultChecked = "";
   if (data?.dsrdata.length > 0) {
-    defaultChecked = data.dsrdata[0].type;
+    defaultChecked = data.dsrdata.find((item) => item.serviceDate === data1)
+      ? data.dsrdata.find((item) => item.serviceDate === data1).type
+      : "";
   }
 
   const [type, settype] = useState(defaultChecked);
   // const [type, settype] = useState(vddata.length > 0 ? vddata[0]?.Type : "");
 
   const [selectedTechName, setSelectedTechName] = useState(
-    dsrdata[0]?.techName
+    data.dsrdata.find((dsrItem) => dsrItem.serviceDate === data1)
+      ? data.dsrdata.find((itemAmount) => itemAmount.serviceDate === data1)
+          .TechorPMorVendorName
+      : ""
   );
 
   const [selectedTechId, setSelectedTechId] = useState("");
 
   const [LatestCardNo, setLatestCardNo] = useState(0);
-
-  console.log("new", data);
 
   useEffect(() => {
     getservices();
@@ -78,6 +83,7 @@ function Dsrdetails() {
     getAlldata();
   }, []);
 
+  //
   const getservices = async () => {
     let res = await axios.get(apiURL + "/getsubcategory");
     if ((res.status = 200)) {
@@ -283,7 +289,35 @@ function Dsrdetails() {
     }
   };
 
+  const isoToFormattedDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZoneName: "short",
+    };
+    if (isNaN(date)) {
+      return "0000-00-00 00:00:00";
+    }
+    return date.toLocaleDateString("en-US", options);
+    // return date.toLocaleDateString("en-US", options);
+  };
+
+  const updatedStartTime = isoToFormattedDate(data.dsrdata[0]?.startJobTime);
+  const updatedEndTime = isoToFormattedDate(data.dsrdata[0]?.endJobTime);
+
+  const renderStartDate = updatedStartTime || "0000-00-00 00:00:00";
+  const renderEndDate = updatedEndTime || "0000-00-00 00:00:00";
+
+  // console.log("Formatted Start Date:", renderStartDate);
+  // console.log("Formatted End Date:", renderEndDate);
+
   let i = 1;
+
   return (
     <div className="web">
       <Header />
@@ -532,7 +566,7 @@ function Dsrdetails() {
                       <td>{data?.desc}</td>
 
                       <td>
-                        {data.contractType === "AMC" ? (
+                        {/* {data.contractType === "AMC" ? (
                           <ul>
                             {data.dividedamtDates.map((a, index) => {
                               const formattedDate = new Date(a)
@@ -559,7 +593,14 @@ function Dsrdetails() {
                           </ul>
                         ) : (
                           data.dateofService
-                        )}
+                        )} */}
+                        {data.dsrdata.find(
+                          (dsrItem) => dsrItem.serviceDate === data1
+                        )
+                          ? data.dsrdata.find(
+                              (itemAmount) => itemAmount.serviceDate === data1
+                            ).jobAmount
+                          : ""}
                       </td>
                     </tr>
                   </tbody>
@@ -727,7 +768,16 @@ function Dsrdetails() {
                 <select
                   className="col-md-12 vhs-input-value"
                   onChange={handleTechNameChange}
-                  value={selectedTechId}
+                  value={
+                    selectedTechId ||
+                    (data.dsrdata.find(
+                      (dsrItem) => dsrItem.serviceDate === data1
+                    )
+                      ? data.dsrdata.find(
+                          (itemAmount) => itemAmount.serviceDate === data1
+                        ).TechorPMorVendorName
+                      : "")
+                  }
                 >
                   {vddata[0]?.vhsname ? (
                     <option value={vddata[0]._id}>{vddata[0]?.vhsname}</option>
@@ -816,9 +866,14 @@ function Dsrdetails() {
               <div className="col-4">(IN) Sign Date & Time</div>
               <div className="col-1">:</div>
               <div className="group pt-1 col-7">
-                {dsrdata[0]?.startJobTime
-                  ? new Date(dsrdata[0]?.startJobTime)
+                {data.dsrdata.find((dsrItem) => dsrItem.serviceDate === data1)
+                  ? renderStartDate
                   : "0000-00-00 00:00:00"}
+
+                {/* {renderStartDate} */}
+                {/* {dsrdata[0]?.startJobTime
+                  ? moment().format("lll")(dsrdata[0]?.startJobTime)
+                  : "0000-00-00 00:00:00"} */}
               </div>
             </div>
 
@@ -829,11 +884,15 @@ function Dsrdetails() {
               </div>
               <div className="col-1">:</div>
               <div className="group pt-1 col-7">
-                {dsrdata[0]?.endJobTime
+                {data.dsrdata.find((dsrItem) => dsrItem.serviceDate === data1)
+                  ? renderEndDate
+                  : "0000-00-00 00:00:00"}
+
+                {/* {data && data.dsrdata && data.dsrdata[0]?.endJobTime
                   ? moment(dsrdata[0]?.endJobTime)
                       .utc()
                       .format("YYYY-MM-DD h:mm:ss a")
-                  : "0000-00-00 00:00:00"}
+                  : "0000-00-00 00:00:00"} */}
               </div>
             </div>
           </div>

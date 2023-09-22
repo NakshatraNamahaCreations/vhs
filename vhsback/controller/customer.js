@@ -129,39 +129,10 @@ class addcustomer {
     }
   }
 
-  //edit customer
   async editcustomer(req, res) {
-    let id = req.params.id;
-
-    let {
-      cardNo,
-      EnquiryId,
-      customerName,
-      contactPerson,
-      category,
-      mainContact,
-      alternateContact,
-      email,
-      gst,
-      rbhf,
-      cnap,
-      lnf,
-      mainArea,
-      city,
-      pinCode,
-      customerType,
-      size,
-      color,
-      instructions,
-      approach,
-      password,
-      cpassword,
-      type,
-      serviceExecute,
-    } = req.body;
-    let data = await customerModel.findOneAndUpdate(
-      { _id: id },
-      {
+    try {
+      let id = req.params.id;
+      let {
         cardNo,
         EnquiryId,
         customerName,
@@ -182,14 +153,44 @@ class addcustomer {
         color,
         instructions,
         approach,
-        password,
-        cpassword,
-        type,
         serviceExecute,
+      } = req.body;
+
+      let data = await customerModel.findOneAndUpdate(
+        { _id: id },
+        {
+          cardNo,
+          EnquiryId,
+          customerName,
+          contactPerson,
+          category,
+          mainContact,
+          alternateContact,
+          email,
+          gst,
+          rbhf,
+          cnap,
+          lnf,
+          mainArea,
+          city,
+          pinCode,
+          customerType,
+          size,
+          color,
+          instructions,
+          approach,
+          serviceExecute,
+        }
+      );
+
+      if (data) {
+        return res.json({ success: "Updated" });
+      } else {
+        return res.status(401).send("Not Updated");
       }
-    );
-    if (data) {
-      return res.json({ success: "Updated" });
+    } catch (error) {
+      console.error("Error editing customer:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
   async addCustomersViaExcelSheet(req, res) {

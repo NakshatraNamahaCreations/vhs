@@ -33,6 +33,7 @@ function Customersearchdetails() {
   const [firstDateamt, setfirstDateamt] = useState("");
   const [expiryDateamt, setexpiryDateamt] = useState("");
   const [communityData, setCommunityData] = useState([]);
+  const [serviceDetails, setServiceDetails] = useState([]);
   const [newCharge, setnewCharge] = useState("");
   // delivery address
   const [houseNumber, setHouseNumber] = useState("");
@@ -56,7 +57,7 @@ function Customersearchdetails() {
       setcustomerdata(res.data?.customers.filter((i) => i.cardNo == id));
     }
   };
-  console.log("customerdata", customerdata);
+  // console.log("customerdata", customerdata);
 
   const [show, setShow] = useState(false);
 
@@ -75,6 +76,28 @@ function Customersearchdetails() {
       setservicedata(res.data?.subcategory);
     }
   };
+
+  useEffect(() => {
+    getServicebyCategory();
+  }, [category]);
+
+  const getServicebyCategory = async () => {
+    try {
+      let res = await axios.post(apiURL + `/getservicebycategory/`, {
+        category,
+      });
+      if (res.status === 200) {
+        setServiceDetails(res.data?.serviceData);
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  console.log("serviceDetails", serviceDetails);
+  // getservices
+  console.log("servicedata", servicedata);
+
   const getcategory = async () => {
     let res = await axios.get(apiURL + "/getcategory");
     if ((res.status = 200)) {
@@ -219,7 +242,7 @@ function Customersearchdetails() {
             service: treatment,
             serviceCharge: serviceCharge,
             dateofService: dateofService,
-
+            deliveryAddress: addingDeliveryAddress,
             desc: desc,
             serviceFrequency: serviceFrequency,
             startDate: dateofService,
@@ -351,7 +374,33 @@ function Customersearchdetails() {
   //     selector: (row) => row.deliveryAddress.landMark,
   //   },
   // ];
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedResponse, setSelectedResponse] = useState({});
+  const [highlightRow, setHighlightRow] = useState(false);
+
+  const handleRowClick = (row) => {
+    const deliveryAddresses = customerdata?.map((ele) => ele.deliveryAddress);
+    let deliveryAddressesfilter = deliveryAddresses?.map((ele) =>
+      ele.filter((item) => item._id === row)
+    );
+    setSelectedRow(deliveryAddressesfilter);
+    // setSelectedResponse(row);
+    setHighlightRow(true);
+  };
+
+  const addingDeliveryAddress = selectedRow?.flatMap((address) =>
+    address.flatMap((item) => item)
+  );
+
   const columns = [
+    // {
+    //   name: "Select",
+    //   selector: (row) => (
+    //     <div>
+    //       {selectedResponse === row ? <i class="fa-solid fa-check"></i> : ""}
+    //     </div>
+    //   ),
+    // },
     {
       name: "Sl No",
       selector: (row, i) => <div>{i + 1}</div>,
@@ -363,39 +412,25 @@ function Customersearchdetails() {
     {
       name: "Colony/Apartment/Plot Name",
       selector: "streetName",
-      // .map((address) => address.streetName).join(", "),
     },
     {
       name: "City",
       selector: "city",
-      // .map((address) => address.city).join(", "),
     },
     {
       name: "State",
       selector: "state",
-      // .map((address) => address.state).join(", "),
     },
     {
       name: "Pincode",
       selector: "pincode",
-      // .map((address) => address.pincode).join(", "),
     },
     {
       name: "Landmark/Near By Famous Place",
       selector: "landMark",
-      // .map((address) => address.landMark).join(", "),
-    },
-    {
-      name: "Action",
-      selector: (row) => (
-        <div
-        // onClick={()=> handleDelete(row.id)}
-        >
-          Delete
-        </div>
-      ),
     },
   ];
+
   let i = 1;
 
   const extractArray = customerdata.flatMap((item) =>
@@ -506,6 +541,13 @@ function Customersearchdetails() {
                         <div style={{ fontSize: "12px" }}>
                           <b style={{ cursor: "pointer" }} onClick={handleShow}>
                             Add Delivery Address
+                          </b>{" "}
+                          <b
+                            className="ms-2"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setViewAddress(true)}
+                          >
+                            View Delivery Address
                           </b>
                         </div>
                       </div>
@@ -529,6 +571,54 @@ function Customersearchdetails() {
                 ))}
               </form>
             </div>
+            <div className="card-body p-4">
+              {viewAddress ? (
+                <>
+                  <div
+                    className="d-flex"
+                    style={{ justifyContent: "space-between" }}
+                  >
+                    <h5>Delivery Address</h5>
+                    <i
+                      class="fa-solid fa-xmark"
+                      title="Close"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setViewAddress(false)}
+                    ></i>
+                  </div>
+
+                  <hr />
+
+                  <div>
+                    <DataTable
+                      columns={columns}
+                      data={extractArray}
+                      pagination
+                      fixedHeader
+                      selectableRowsHighlight
+                      subHeaderAlign="left"
+                      highlightOnHover
+                      onRowClicked={(row) => {
+                        handleRowClick(row._id);
+                        // setHighlightRow(!highlightRow);
+                      }}
+                    />
+                    {highlightRow ? (
+                      <u>
+                        {" "}
+                        <li>
+                          Room/House/Flat No :{" "}
+                          {addingDeliveryAddress.houseNumber}
+                        </li>{" "}
+                      </u>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </>
+              ) : null}
+            </div>
+
             <div className="card-body p-4">
               <h5>Treatment Details</h5>
               <hr />

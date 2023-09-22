@@ -60,7 +60,7 @@ function Quotedetails() {
   const [paymentAmount, setPaymentAmount] = useState("");
   const [colorcode, setcolorcode] = useState("");
   const [advpaymentdata, setAdvPaymentData] = useState([]);
-  const id=enquirydata[0]?._id;
+  const id = enquirydata[0]?._id;
   const getquote = async () => {
     let res = await axios.get(apiURL + "/getquote");
     if ((res.status = 200)) {
@@ -261,7 +261,7 @@ function Quotedetails() {
     });
     if ((res.status = 200)) {
       setajobdatarate(res.data?.ajob);
-      const a=res.data?.ajob;
+      const a = res.data?.ajob;
       setrate(a[0]?.rate);
     }
   };
@@ -451,15 +451,15 @@ function Quotedetails() {
       if (res.status === 200) {
         setAdvPaymentData(res.data.payments);
       } else {
-        console.error('Received non-200 status:', res.status);
+        console.error("Received non-200 status:", res.status);
         // Handle the error appropriately
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
       // Handle the error appropriately
     }
   };
-console.log(enquirydata[0]?._id)
+  console.log(enquirydata[0]?._id);
   function getColor(colorcode) {
     if (colorcode === "easy") {
       return "#ffb9798f";

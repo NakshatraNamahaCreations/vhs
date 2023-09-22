@@ -25,6 +25,7 @@ function Servicebill() {
   const [sgstRate, setSgstRate] = useState(2.5);
   const [cgstAmount, setCgstAmount] = useState(0);
   const [sgstAmount, setSgstAmount] = useState(0);
+  const [termsAndCondition, setTemsAndCondition] = useState([]);
   console.log(data);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ function Servicebill() {
     try {
       let res = await axios.get(apiURL + "/master/gettermgroup2");
       if (res.status === 200) {
+        setTemsAndCondition(res.data?.termsgroup2);
         setsection2data(res.data?.termsgroup2);
         const a1 = res.data?.termsgroup2.filter((i) => i.type === "INVOICE"); // Corrected line
         const filteredsec2data = a1.filter(
@@ -58,7 +60,7 @@ function Servicebill() {
       console.error("An error occurred:", error);
     }
   };
-
+  console.log("termsAndCondition", termsAndCondition);
   let i = 1;
 
   useEffect(() => {

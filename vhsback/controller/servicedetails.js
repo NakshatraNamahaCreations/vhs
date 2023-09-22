@@ -91,6 +91,7 @@ class servicedetails {
         oneCommunity,
         communityId,
         BackofficeExecutive,
+        deliveryAddress
       } = req.body;
   
       // Initialize the variables as empty arrays
@@ -145,6 +146,7 @@ class servicedetails {
         oneCommunity,
         communityId,
         BackofficeExecutive,
+        deliveryAddress
       });
   
       let save = await add.save();
@@ -178,6 +180,7 @@ class servicedetails {
       dividedDates,
       dividedCharges,
       BackofficeExecutive,
+      deliveryAddress
     } = req.body;
 
     let data = await servicedetailsmodel.findOneAndUpdate(
@@ -199,6 +202,7 @@ class servicedetails {
         dividedDates,
         dividedCharges,
         BackofficeExecutive,
+        deliveryAddress
       }
     );
     if (data) {

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 function Enquirysearch() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [citydata, setcitydata] = useState([]);
   const [enquiryAddData, setenquiryadddata] = useState([]);
   const [name, setname] = useState("");
@@ -19,7 +19,7 @@ function Enquirysearch() {
   const [status, setstatus] = useState("");
   const [executive, setexecutive] = useState("");
   const [filterdata, setfilterdata] = useState([]);
-   const apiURL = process.env.REACT_APP_API_URL;
+  const apiURL = process.env.REACT_APP_API_URL;
 
   // console.log(enquiryadddata);
 
@@ -32,7 +32,7 @@ function Enquirysearch() {
   const getenquiryadd = async () => {
     let res = await axios.get(apiURL + "/getenquiry");
     if (res.status === 200) {
-      console.log("enquiryadddata", res);
+      // console.log("enquiryadddata", res);
       setenquiryadddata(res.data?.enquiryadd);
     }
   };
@@ -58,12 +58,10 @@ function Enquirysearch() {
 
   const handleSearchClick = (e) => {
     e.preventDefault();
-    
 
     filterData();
   };
 
-  
   const columns = [
     {
       name: "Sl  No",
@@ -116,7 +114,6 @@ function Enquirysearch() {
   ];
 
   const handleRowClick = (row) => {
-
     navigate(`/enquirydetail/${row.EnquiryId}`);
   };
 
@@ -184,7 +181,7 @@ function Enquirysearch() {
                   <div className="col-md-4 pt-3">
                     <div className="vhs-input-label">City</div>
                     <div className="group pt-1">
-                    <select
+                      <select
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setcity(e.target.value)}
                       >
@@ -192,7 +189,6 @@ function Enquirysearch() {
                         {admin?.city.map((item) => (
                           <option value={item.name}>{item.name}</option>
                         ))}
-                      
                       </select>
                     </div>
                   </div>
