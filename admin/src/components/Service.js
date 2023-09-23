@@ -12,6 +12,8 @@ import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
+import Multiselect from "multiselect-react-dropdown";
+
 
 import { useNavigate } from "react-router-dom";
 
@@ -603,6 +605,15 @@ function Services() {
     }
   };
 
+  const onSelectCatagory = (selectedList, selectedItem) => {
+    // Handle select event
+    setsAddons(selectedList);
+  };
+
+  const onRemoveCatagory = (selectedList, removedItem) => {
+    // Handle remove event
+    setsAddons(selectedList);
+  };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -1169,18 +1180,20 @@ function Services() {
                       >
                         <Form.Label className="mt-3">Service AddOns</Form.Label>
                         <InputGroup className="mb-2">
-                          <Form.Select
-                            aria-label="Username"
-                            aria-describedby="basic-addon1"
-                            onChange={(e) => setsAddons(e.target.value)}
-                          >
-                            <option>--Select service--</option>
-                            {Servicedata.map((item) => (
-                              <option value={item.serviceName}>
-                                {item.serviceName}
-                              </option>
-                            ))}
-                          </Form.Select>
+
+                        <Multiselect
+                          className="mt-3"
+                          options={Servicedata.map((i) => ({
+                            name: i.serviceName,
+                          }))}
+                          placeholder="Select Service"
+                          selectedValues={sAddons}
+                          onSelect={onSelectCatagory}
+                          onRemove={onRemoveCatagory}
+                          displayValue="name"
+                          showCheckbox={true}
+                        />
+                         
                         </InputGroup>
                       </Form.Group>
                     </Form>

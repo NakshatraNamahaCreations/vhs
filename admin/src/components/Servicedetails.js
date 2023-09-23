@@ -15,6 +15,7 @@ import axios from "axios";
 import DataTable from "react-data-table-component";
 import Table from "react-bootstrap/Table";
 import { Settings } from "@mui/icons-material";
+import Multiselect from "multiselect-react-dropdown";
 
 function Servicedetails() {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ function Servicedetails() {
   const [NofServiceman, setNofServiceman] = useState(
     Servicedata[0]?.NofServiceman
   );
-  const [sAddons, setsAddons] = useState(Servicedata[0]?.sAddons);
+  const [sAddons, setsAddons] = useState(Servicedata[0]?.sAddons || []);
   const [Subcategory, setSubcategory] = useState(Servicedata[0]?.Subcategory);
   const [offerPrice, setofferPrice] = useState(Servicedata[0]?.offerPrice);
   const [Servicesno, setServicesno] = useState("");
@@ -123,6 +124,7 @@ function Servicedetails() {
   const [editServiceExcludes, setEditServiceExcludes] = useState([]);
   const [editServiceDirection, setEditServiceDirection] = useState("");
   const [editServiceGst, setEditServiceGst] = useState("");
+  const [Sdata, setSdata] = useState([]);
   const [showAddedData2, setShowAddedData2] = useState(false);
   // descriotions
 
@@ -159,7 +161,7 @@ function Servicedetails() {
         const serviceData = res.data?.service.filter((i) => i._id === id);
         setServicedata(serviceData);
         console.log("serviceData", serviceData);
-
+        setSdata(res.data?.service);
         // Convert the existing array of strings to an array of objects
         setEditDescriptions(serviceData[0]?.serviceDesc);
         setEditServiceIncludes(serviceData[0]?.serviceIncludes);
@@ -284,13 +286,17 @@ function Servicedetails() {
   }, []);
 
   const getallcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
+    let res = await axios.get(
+      "http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat"
+    );
     if ((res.status = 200)) {
       setcategorydata(res.data?.subcategory);
     }
   };
   const getcategory = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
+    let res = await axios.get(
+      "http://api.vijayhomeservicebengaluru.in/api/getcategory"
+    );
     if ((res.status = 200)) {
       setcatdata(res.data?.category);
     }
@@ -358,7 +364,9 @@ function Servicedetails() {
   }, []);
 
   const getcity = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/master/getcity");
+    let res = await axios.get(
+      "http://api.vijayhomeservicebengaluru.in/api/master/getcity"
+    );
     if ((res.status = 200)) {
       setcitydata(res.data?.mastercity);
     }
@@ -367,10 +375,10 @@ function Servicedetails() {
   const handleSaveChanges = () => {
     // Retrieve existing data from local storage or initialize an empty array
     const existingData = JSON.parse(localStorage.getItem("Store_Slots")) || [];
- 
-    const newId = Date.now(); 
 
-    const newData = {id: newId,  startTime, endTime, slotCity, Servicesno };
+    const newId = Date.now();
+
+    const newData = { id: newId, startTime, endTime, slotCity, Servicesno };
     existingData.push(newData);
     console.log("New Data:", newData);
 
@@ -472,26 +480,31 @@ function Servicedetails() {
   }, []);
 
   const getslots = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getslots");
+    let res = await axios.get(
+      "http://api.vijayhomeservicebengaluru.in/api/userapp/getslots"
+    );
     if ((res.status = 200)) {
       setslotsdata(res.data?.slots);
     }
   };
 
   const gettitle = async () => {
-    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/gettitle");
+    let res = await axios.get(
+      "http://api.vijayhomeservicebengaluru.in/api/userapp/gettitle"
+    );
     if ((res.status = 200)) {
       settitledata(res.data?.homepagetitle);
     }
   };
 
-  const handleDeleteClick = async (slotid) => { // Change the parameter to directly accept slotid
+  const handleDeleteClick = async (slotid) => {
+    // Change the parameter to directly accept slotid
     console.log("slotid", slotid); // Log the slotid directly
     try {
       const response = await axios.delete(
         `http://api.vijayhomeservicebengaluru.in/api/userapp/deleteStoreSlot/${sid}/${slotid}`
       );
-  
+
       if (response.status === 200) {
         // Successful deletion
         console.log("Item deleted successfully");
@@ -505,11 +518,6 @@ function Servicedetails() {
       console.error("Error deleting slot:", error);
     }
   };
- 
-  
-  
-  
-  
 
   const handleDeleteprice = async (id, index) => {
     try {
@@ -623,6 +631,15 @@ function Servicedetails() {
     }
   };
 
+  const onSelectCatagory = (selectedList, selectedItem) => {
+    // Handle select event
+    setsAddons(selectedList);
+  };
+
+  const onRemoveCatagory = (selectedList, removedItem) => {
+    // Handle remove event
+    setsAddons(selectedList);
+  };
   return (
     <div div className="row">
       <div className="col-md-2">
@@ -792,8 +809,7 @@ function Servicedetails() {
                             <tbody>
                               {Servicedata[0]?.store_slots
                                 .reduce((cityGroups, item) => {
-
-                                  console.log(item)
+                                  console.log(item);
                                   // Check if there is an existing group for this city
                                   const existingGroup = cityGroups.find(
                                     (group) => group.city === item.slotCity
@@ -851,7 +867,7 @@ function Servicedetails() {
                                                 padding: "10px",
                                                 cursor: "pointer",
                                               }}
-                                              onClick={() => 
+                                              onClick={() =>
                                                 handleDeleteClick(item.id)
                                               }
                                             ></i>
@@ -1255,7 +1271,7 @@ function Servicedetails() {
                               <option>---Select---</option>
                             )}
 
-                            <option>{Servicedata[0]?.homepagetitle}</option>
+                            <option>NA</option>
                             {homepagetitleData.map((item) => (
                               <option value={item.titleName}>
                                 {item.titleName}
@@ -1286,7 +1302,7 @@ function Servicedetails() {
                             ) : (
                               <option>--select --</option>
                             )}
-
+                            <option>NA</option>
                             <option value="Enquiry">Enquiry</option>
                             <option value="Survey">Survey</option>
                             <option value="DSR">DSR single service</option>
@@ -1321,19 +1337,18 @@ function Servicedetails() {
                     >
                       <Form.Label className="mt-3">Service AddOns</Form.Label>
                       <InputGroup className="mb-2">
-                        <Form.Select
-                          aria-label="Username"
-                          aria-describedby="basic-addon1"
-                          onChange={(e) => setsAddons(e.target.value)}
-                        >
-                          {Servicedata[0]?.sAddons ? (
-                            <option value={Servicedata[0]?.sAddons}>
-                              {Servicedata[0]?.sAddons}
-                            </option>
-                          ) : (
-                            <option>--Select Addons--</option>
-                          )}
-                        </Form.Select>
+                        <Multiselect
+                          className="mt-3"
+                          options={Sdata.map((i) => ({
+                            name: i.serviceName,
+                          }))}
+                          placeholder="Select Service"
+                          selectedValues={sAddons}
+                          onSelect={onSelectCatagory}
+                          onRemove={onRemoveCatagory}
+                          displayValue="name"
+                          showCheckbox={true}
+                        />
                       </InputGroup>
                     </Form.Group>
 

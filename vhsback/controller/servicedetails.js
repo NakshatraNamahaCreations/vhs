@@ -91,38 +91,44 @@ class servicedetails {
         oneCommunity,
         communityId,
         BackofficeExecutive,
-        deliveryAddress
+        deliveryAddress,
       } = req.body;
-  
+
       // Initialize the variables as empty arrays
       let dividedDateObjects = [];
       let dividedamtDateObjects = [];
       let dividedamtChargeObjects = [];
-  
+
       if (contractType === "AMC") {
-        dividedDateObjects = dividedDates.map((date) => {
-          const uniqueId = uuidv4(); // Generate a UUID for the date
-          return { id: uniqueId, date: new Date(date) };
-        });
-  
-        dividedamtDateObjects = dividedamtDates.map((date) => {
-          const uniqueId = uuidv4(); // Generate a UUID for the date
-          return { id: uniqueId, date: new Date(date) };
-        });
-  
-        dividedamtChargeObjects = dividedamtCharges.map((charge) => {
-          const uniqueId = uuidv4(); // Generate a UUID for the charge
-          return { id: uniqueId, charge };
-        });
-      }else{
-        dividedDateObjects = dividedDates.map((date) => {
-          const uniqueId = uuidv4(); // Generate a UUID for the date
-          return { id: uniqueId, date: new Date(date) };
-        });
+        if (dividedDates) {
+          dividedDateObjects = dividedDates.map((date) => {
+            const uniqueId = uuidv4(); // Generate a UUID for the date
+            return { id: uniqueId, date: new Date(date) };
+          });
+        }
+
+        if (dividedamtDates) {
+          dividedamtDateObjects = dividedamtDates.map((date) => {
+            const uniqueId = uuidv4(); // Generate a UUID for the date
+            return { id: uniqueId, date: new Date(date) };
+          });
+        }
+
+        if (dividedamtCharges) {
+          dividedamtChargeObjects = dividedamtCharges.map((charge) => {
+            const uniqueId = uuidv4(); // Generate a UUID for the charge
+            return { id: uniqueId, charge };
+          });
+        }
+      } else {
+        if (dividedDates) {
+          dividedDateObjects = dividedDates.map((date) => {
+            const uniqueId = uuidv4(); // Generate a UUID for the date
+            return { id: uniqueId, date: new Date(date) };
+          });
+        }
       }
 
-    
-  
       let add = new servicedetailsmodel({
         customerData,
         cardNo: cardNo,
@@ -146,11 +152,11 @@ class servicedetails {
         oneCommunity,
         communityId,
         BackofficeExecutive,
-        deliveryAddress
+        deliveryAddress,
       });
-  
+
       let save = await add.save();
-  
+
       if (save) {
         return res.json({ success: "Added successfully" });
       }
@@ -159,7 +165,7 @@ class servicedetails {
       res.status(500).json({ error: "An error occurred" });
     }
   }
-  
+
   //edit
   async editservicedetails(req, res) {
     let id = req.params.id;
@@ -180,7 +186,7 @@ class servicedetails {
       dividedDates,
       dividedCharges,
       BackofficeExecutive,
-      deliveryAddress
+      deliveryAddress,
     } = req.body;
 
     let data = await servicedetailsmodel.findOneAndUpdate(
@@ -202,7 +208,7 @@ class servicedetails {
         dividedDates,
         dividedCharges,
         BackofficeExecutive,
-        deliveryAddress
+        deliveryAddress,
       }
     );
     if (data) {

@@ -206,7 +206,7 @@ function Dsrcallist() {
   // Fetch all technicians from your API
   const fetchTechnicians = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/getalltechnician");
+      const res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getalltechnician");
       if (res.status === 200) {
         setTechnicians(res.data.technician);
       }
