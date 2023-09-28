@@ -286,15 +286,12 @@ function Services() {
       formdata.append("quantity", quantity);
       formdata.append("servicetitle", servicetitle);
       formdata.append("servicebelow", servicebelow);
-
       formdata.append("homepagetitle", homepagetitle);
-
       formdata.append("serviceHour", ServiceHour);
       formdata.append("serviceDesc", JSON.stringify(desc));
       formdata.append("serviceGst", ServiceGst);
       formdata.append("NofServiceman", NofServiceman);
-
-      formdata.append("setsAddons", setsAddons);
+      formdata.append("sAddons", JSON.stringify(sAddons));
 
       try {
         const config = {
@@ -609,6 +606,7 @@ function Services() {
     // Handle select event
     setsAddons(selectedList);
   };
+  console.log("sAddons",sAddons)
 
   const onRemoveCatagory = (selectedList, removedItem) => {
     // Handle remove event

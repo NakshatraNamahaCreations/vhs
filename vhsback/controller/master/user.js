@@ -110,8 +110,8 @@ class masteruser {
           .status(404)
           .json({ error: "User not found or invalid password" });
       }
-    
-      if (password !==user.password) {
+  
+      if (password !== user.password) {
         return res.status(401).json({ error: "Invalid password" });
       }
       await usermodel.findOneAndUpdate(

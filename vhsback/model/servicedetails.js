@@ -5,6 +5,12 @@ const serviceSchema = new mongoose.Schema(
     customerData: {
       type: Array,
     },
+    userId:{
+      type:Number,
+    },
+    selectedSlotText:{
+      type:String,
+    },
     cardNo: {
       type: Number,
     },
@@ -19,6 +25,9 @@ const serviceSchema = new mongoose.Schema(
     },
     service: {
       type: String,
+    },
+    serviceID:{
+      type:String
     },
     serviceCharge: {
       type: String,

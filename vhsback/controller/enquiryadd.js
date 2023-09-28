@@ -22,6 +22,7 @@ class addenquiry {
         reference3,
         comment,
         intrestedfor,
+        responseType,
         // counter,
       } = req.body;
 
@@ -32,16 +33,16 @@ class addenquiry {
       const latestEquiry = latestCustomer ? latestCustomer.EnquiryId : 0;
       const newEquiry = latestEquiry + 1;
 
-      // firstname = toTitleCase(firstname);
-      const Email = await enquiryaddmodel.findOne({ email: email });
-      if (Email) {
-        return res.status(500).json({ error: "Email already exits" });
-      }
+      // // firstname = toTitleCase(firstname);
+      // const Email = await enquiryaddmodel.findOne({ email: email });
+      // if (Email) {
+      //   return res.status(500).json({ error: "Email already exits" });
+      // }
 
-      const phone = await enquiryaddmodel.findOne({ contact1: contact1 });
-      if (phone) {
-        return res.status(500).json({ error: "mobile number already exits" });
-      }
+      // const phone = await enquiryaddmodel.findOne({ contact1: contact1 });
+      // if (phone) {
+      //   return res.status(500).json({ error: "mobile number already exits" });
+      // }
       const newVendor = new enquiryaddmodel({
         EnquiryId: newEquiry,
         enquirydate,
@@ -59,6 +60,7 @@ class addenquiry {
         reference3,
         comment,
         intrestedfor,
+        responseType,
         // counter,
       });
       newVendor.save().then((data) => {
@@ -156,6 +158,7 @@ class addenquiry {
       reference3,
       comment,
       intrestedfor,
+      responseType,
     } = req.body;
     let data = await enquiryaddmodel.findOneAndUpdate(
       { _id: id },
@@ -176,6 +179,7 @@ class addenquiry {
         reference3,
         comment,
         intrestedfor,
+        responseType
       }
     );
     if (data) {

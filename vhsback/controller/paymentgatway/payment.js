@@ -24,13 +24,13 @@ class Paymentgetway {
       // Construct payment data
       const base64 = Buffer.from(
         JSON.stringify({
-          merchantId: "M1PNSB831LY3",
+          merchantId: "M1PX7BZG1R4G",
           merchantTransactionId: transactionId,
           merchantUserId: "nnc123",
           amount,
           redirectUrl: "",
           redirectMode: "POST",
-          callbackUrl: `http://192.168.1.67:8000/api/payment/status/M1PNSB831LY3/${transactionId}`,
+          callbackUrl: `http://192.168.1.67:8000/api/payment/status/M1PX7BZG1R4G/${transactionId}`,
           mobileNumber: "9900566466",
           paymentInstrument: {
             type: "PAY_PAGE",
@@ -40,7 +40,7 @@ class Paymentgetway {
       console.log("base64===", base64);
 
       const sha256encode =
-        sha256(base64 + "/pg/v1/pay485c1368-9241-4e41-aacf-0a67ec5a812f") +
+        sha256(base64 + "/pg/v1/paya01d076b-dc15-4c1f-bac8-c53852439d04") +
         "###1";
       console.log("sha256encode===", sha256encode);
 
@@ -50,7 +50,7 @@ class Paymentgetway {
         message: "Payment initiated successfully",
         base64,
         sha256encode,
-        merchantId: "M1PNSB831LY3",
+        merchantId: "M1PX7BZG1R4G",
         merchantTransactionId: transactionId,
       });
     } catch (error) {
@@ -64,7 +64,7 @@ class Paymentgetway {
 
   async checkTransactionStatus(req, res) {
     const { merchantId, merchantTransactionId, userId } = req.params;
-    const saltKey = "485c1368-9241-4e41-aacf-0a67ec5a812f";
+    const saltKey = "a01d076b-dc15-4c1f-bac8-c53852439d04";
     const url = `/pg/v1/status/${merchantId}/${merchantTransactionId}`;
     const xVerify =
       crypto
@@ -81,7 +81,7 @@ class Paymentgetway {
           headers: {
             "Content-Type": "application/json",
             "X-VERIFY": xVerify,
-            " X-MERCHANT-ID": "M1PNSB831LY3",
+            " X-MERCHANT-ID": "M1PX7BZG1R4G",
           },
         }
       );

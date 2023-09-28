@@ -74,6 +74,7 @@ class servicedetails {
         cardNo,
         contractType,
         service,
+        serviceID,
         serviceCharge,
         dateofService,
         desc,
@@ -92,13 +93,17 @@ class servicedetails {
         communityId,
         BackofficeExecutive,
         deliveryAddress,
+        type,
+        userId,
+        selectedSlotText
       } = req.body;
-
+      let file = req.file?.filename;
+  
       // Initialize the variables as empty arrays
       let dividedDateObjects = [];
       let dividedamtDateObjects = [];
       let dividedamtChargeObjects = [];
-
+  
       if (contractType === "AMC") {
         if (dividedDates) {
           dividedDateObjects = dividedDates.map((date) => {
@@ -106,14 +111,14 @@ class servicedetails {
             return { id: uniqueId, date: new Date(date) };
           });
         }
-
+      
         if (dividedamtDates) {
           dividedamtDateObjects = dividedamtDates.map((date) => {
             const uniqueId = uuidv4(); // Generate a UUID for the date
             return { id: uniqueId, date: new Date(date) };
           });
         }
-
+      
         if (dividedamtCharges) {
           dividedamtChargeObjects = dividedamtCharges.map((charge) => {
             const uniqueId = uuidv4(); // Generate a UUID for the charge
@@ -128,7 +133,10 @@ class servicedetails {
           });
         }
       }
+      
 
+    
+  
       let add = new servicedetailsmodel({
         customerData,
         cardNo: cardNo,
@@ -136,6 +144,7 @@ class servicedetails {
         category: category,
         contractType: contractType,
         service: service,
+        serviceID:serviceID,
         serviceCharge: serviceCharge,
         dateofService: dateofService,
         desc: desc,
@@ -153,10 +162,14 @@ class servicedetails {
         communityId,
         BackofficeExecutive,
         deliveryAddress,
+        type,
+        userId,
+        selectedSlotText,
+        serviceImg:file
       });
-
+  
       let save = await add.save();
-
+  
       if (save) {
         return res.json({ success: "Added successfully" });
       }
@@ -165,7 +178,7 @@ class servicedetails {
       res.status(500).json({ error: "An error occurred" });
     }
   }
-
+  
   //edit
   async editservicedetails(req, res) {
     let id = req.params.id;
@@ -186,7 +199,7 @@ class servicedetails {
       dividedDates,
       dividedCharges,
       BackofficeExecutive,
-      deliveryAddress,
+      deliveryAddress
     } = req.body;
 
     let data = await servicedetailsmodel.findOneAndUpdate(
@@ -208,7 +221,7 @@ class servicedetails {
         dividedDates,
         dividedCharges,
         BackofficeExecutive,
-        deliveryAddress,
+        deliveryAddress
       }
     );
     if (data) {

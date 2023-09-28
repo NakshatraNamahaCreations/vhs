@@ -12,8 +12,8 @@ function Dsrdetails() {
   const { data, data1 } = location.state || {};
   const [dsrdata, setdsrdata] = useState([]);
   console.log("service date:", data1);
-
-  const [servicedata, setservicedata] = useState([]);
+  console.log("service details:", data);
+  console.log("dsrdata--", dsrdata);
   const [techniciandata, settechniciandata] = useState([]);
   const [PMdata, setPMdata] = useState([]);
   const [vddata, setvddata] = useState([]);
@@ -34,6 +34,7 @@ function Dsrdetails() {
   const [techName, settechName] = useState(dsrdata[0]?.techName);
   const [complaintRef, setcomplaintRefo] = useState([]);
   const [vendordata, setvendordata] = useState([]);
+  const [serviceData, setServiceData] = useState([]);
   // const [Showinapp, setShowinapp] = useState(
   //   data.dsrdata[0]?.showinApp  ? data.dsrdata[0]?.showinApp : true
   // );
@@ -49,7 +50,6 @@ function Dsrdetails() {
   const [daytoComplete, setdaytoComplete] = useState(
     dsrdata[0]?.daytoComplete || ""
   );
-  console.log("type--", data.dsrdata[0]?.type);
 
   // Determine the initial type value for the radio button
   const initialType = vddata ? vddata[0]?.Type : "";
@@ -77,19 +77,12 @@ function Dsrdetails() {
   const [LatestCardNo, setLatestCardNo] = useState(0);
 
   useEffect(() => {
-    getservices();
     gettechnician();
     getaddcall();
     getAlldata();
+    getServiceManagement();
   }, []);
 
-  //
-  const getservices = async () => {
-    let res = await axios.get(apiURL + "/getsubcategory");
-    if ((res.status = 200)) {
-      setservicedata(res.data?.subcategory);
-    }
-  };
   const gettechnician = async () => {
     let res = await axios.get(apiURL + "/getalltechnician");
     if ((res.status = 200)) {
@@ -270,12 +263,30 @@ function Dsrdetails() {
     }
   };
 
+  const getServiceManagement = async () => {
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getservices");
+    if (res.status === 200) {
+      setServiceData(res.data?.service);
+      // console.log(res.data?.service);
+    }
+  };
+
+  const getServieSlots = serviceData.filter(
+    (item) => item._id === data.serviceID
+  );
+  console.log("getSeriveSlots====", getServieSlots);
+
+  // console.log("serviceData", serviceData);
+
   const getAlldata = async () => {
     let res = await axios.get(apiURL + "/getaggredsrdata");
     if (res.status === 200) {
       setdsrdata(
         res.data.addcall.filter(
-          (i) => i.serviceDate === data1 && i.cardNo == data.cardNo
+          (i) =>
+            i.serviceDate === data1 &&
+            i.cardNo == data.cardNo &&
+            i.serviceInfo[0]?._id === data?._id
         )
       );
       console.log(
@@ -317,7 +328,7 @@ function Dsrdetails() {
   // console.log("Formatted End Date:", renderEndDate);
 
   let i = 1;
-
+  const dataByCity = {};
   return (
     <div className="web">
       <Header />
@@ -399,12 +410,27 @@ function Dsrdetails() {
                 <div className="col-md-4">
                   <div className="vhs-input-label">Appointment Time</div>
                   <div className="group pt-1">
-                    <input
+                    <select
+                      className="col-md-12 vhs-input-value"
+                      onChange={(e) => setappoTime(e.target.value)}
+                    >
+                      <option>Choose Slot</option>
+                      {getServieSlots[0]?.store_slots.map((slot, index) => (
+                        <option
+                          key={index}
+                          value={`${slot.startTime}-${slot.endTime}`}
+                        >
+                          {`${slot.startTime} - ${slot.endTime}`}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* <input
                       type="time"
                       className="col-md-12 vhs-input-value"
                       defaultValue={dsrdata[0]?.appoTime}
                       onChange={(e) => setappoTime(e.target.value)}
-                    />
+                    /> */}
                     <p>Time Given</p>
                   </div>
                 </div>
@@ -765,25 +791,28 @@ function Dsrdetails() {
               </div>
 
               <div className="group pt-1 col-6">
+                {dsrdata &&
+                dsrdata.length > 0 &&
+                dsrdata.find((dsrItem) => dsrItem.serviceDate === data1)
+                  ? data.dsrdata.find(
+                      (dsrItem) => dsrItem.serviceDate === data1
+                    ).TechorPMorVendorName
+                  : ""}
+
                 <select
                   className="col-md-12 vhs-input-value"
                   onChange={handleTechNameChange}
                   value={
                     selectedTechId ||
-                    (data.dsrdata.find(
-                      (dsrItem) => dsrItem.serviceDate === data1
-                    )
-                      ? data.dsrdata.find(
+                    (dsrdata.find((dsrItem) => dsrItem.serviceDate === data1)
+                      ? dsrdata.find(
                           (itemAmount) => itemAmount.serviceDate === data1
                         ).TechorPMorVendorName
                       : "")
                   }
                 >
-                  {vddata[0]?.vhsname ? (
-                    <option value={vddata[0]._id}>{vddata[0]?.vhsname}</option>
-                  ) : (
-                    <option>--select--</option>
-                  )}
+                  <option>--select--</option>
+
                   {type === "technician" &&
                     techniciandata.map((item) => (
                       <option key={item.id} value={item._id}>

@@ -48,6 +48,13 @@ function Responce() {
     setEditorContent(data);
   };
 
+  const [editTemplate, setEditTemplate] = useState("");
+
+  const handleEditTemplate = (event, editor) => {
+    const data = editor.getData();
+    setEditTemplate(data);
+  };
+
   const save = async (e) => {
     e.preventDefault();
 
@@ -100,9 +107,7 @@ function Responce() {
         baseURL: apiURL,
         headers: { "content-type": "application/json" },
         data: {
-          response: response1,
-          template: template1,
-          variable: variable1,
+          template: editTemplate,
         },
       };
       await axios(config).then(function (response) {
@@ -262,7 +267,7 @@ function Responce() {
                     <div className="vhs-input-label">
                       VARIABLES{" "}
                       <b>
-                        (&#x60;Don't Change Sms Text Except
+                        (&#x60;Don't Change Sms Text Variables
                         &#123;&#36;#Var#&#125;)
                       </b>
                     </div>
@@ -293,15 +298,11 @@ function Responce() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title> Responce</Modal.Title>
+          <Modal.Title> Response : {data.response} </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="card" style={{ marginTop: "30px" }}>
-            <div className="card-body p-3">
-              <form>
-                <div className="row">
-                  <div className="col-md-4">
-                    <div className="vhs-input-label">
+          <div>
+            {/* <div className="vhs-input-label">
                       Response <span className="text-danger"> *</span>
                     </div>
                     <div className="group pt-1">
@@ -311,10 +312,16 @@ function Responce() {
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setresponse1(e.target.value)}
                       />
-                    </div>
-                  </div>
+                    </div> */}
+            <div className="group pt-1">
+              <CKEditor
+                editor={ClassicEditor}
+                data={data.template}
+                onChange={handleEditTemplate}
+              />
+            </div>
 
-                  {/* <div className="col-md-4">
+            {/* <div className="col-md-4">
                     <div className="vhs-input-label">WhatsApp Template</div>
                     <div className="group pt-1">
                       <textarea
@@ -335,16 +342,13 @@ function Responce() {
                       <p>Executive_contact</p>
                     </div>
                   </div> */}
-                </div>
+          </div>
 
-                <div className="row pt-3">
-                  <div className="col-md-2">
-                    <button className="vhs-button" onClick={editresponse}>
-                      Save
-                    </button>
-                  </div>
-                </div>
-              </form>
+          <div className="row pt-3">
+            <div className="col-md-2">
+              <button className="vhs-button" onClick={editresponse}>
+                Save
+              </button>
             </div>
           </div>
         </Modal.Body>

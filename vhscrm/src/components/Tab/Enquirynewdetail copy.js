@@ -11,7 +11,6 @@ import Header from "../layout/Header";
 import { Link, json, useLocation } from "react-router-dom";
 import moment from "moment";
 import axios from "axios";
-import DOMPurify from "dompurify";
 
 function Enquirynewdetail() {
   const { EnquiryId } = useParams();
@@ -35,60 +34,43 @@ function Enquirynewdetail() {
 
   // console.log("whatsappTemplate", whatsappTemplate.response);
   // console.log("color code", colorcode);
-  console.log("filterdata", filterdata);
 
   useEffect(() => {
-    const getresponse = async () => {
-      try {
-        let res = await axios.get(apiURL + "/getresponse");
-        if (res.status === 200) {
-          console.log("ResponseData:", res.data.response);
-          setresponsedata(res.data?.response);
-        }
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
     getresponse();
   }, []);
 
-  useEffect(() => {
-    const getenquiryadd = async () => {
-      try {
-        let res = await axios.get(apiURL + "/getenquiry");
-        if ((res.status = 200)) {
-          setfilterdata(
-            res.data?.enquiryadd.filter((item) => item.EnquiryId == EnquiryId)
-          );
-        }
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
-    getenquiryadd();
-  }, []);
+  const getresponse = async () => {
+    let res = await axios.get(apiURL + "/getresponse");
+    if (res.status === 200) {
+      console.log("ResponseData:", res.data.response);
+      setresponsedata(res.data?.response);
+    }
+  };
 
   useEffect(() => {
-    const getenquiryfollowup = async () => {
-      try {
-        let res = await axios.get(apiURL + "/getenquiryfollowup");
-        if ((res.status = 200)) {
-          setflwdata(
-            res.data?.enquiryfollowup.filter(
-              (item) => item.EnquiryId == EnquiryId
-            )
-          );
-        }
-      } catch (error) {
-        console.log("Error", error);
-      }
-    };
+    getenquiryadd();
     getenquiryfollowup();
   }, []);
 
+  const getenquiryadd = async () => {
+    let res = await axios.get(apiURL + "/getenquiry");
+    if ((res.status = 200)) {
+      setfilterdata(
+        res.data?.enquiryadd.filter((item) => item.EnquiryId == EnquiryId)
+      );
+    }
+  };
+
+  const getenquiryfollowup = async () => {
+    let res = await axios.get(apiURL + "/getenquiryfollowup");
+    if ((res.status = 200)) {
+      setflwdata(
+        res.data?.enquiryfollowup.filter((item) => item.EnquiryId == EnquiryId)
+      );
+    }
+  };
   let i = 1;
 
-  // new and not interested
   const addenquiryfollowup1 = async (e) => {
     e.preventDefault();
 
@@ -113,13 +95,12 @@ function Enquirynewdetail() {
       };
       await axios(config).then(function (response) {
         if (response.status === 200) {
-          // console.log("success", response.data);
-          alert("Added");
-          // makeApiCall(JSON.stringify(response.data.response));
-          makeApiCall(whatsappTemplate, filterdata[0]?.contact1);
-          // console.log("success", response.data.response);
-          console.log("successWhatsappmessage", response.data);
-          window.location.assign(`/enquirydetail/${EnquiryId}`);
+          console.log("success");
+          alert(" Added");
+          makeApiCall(JSON.stringify(response.data.response));
+
+          console.log("success", response.data.response);
+          // window.location.assign(`/enquirydetail/${EnquiryId}`);
         }
       });
     } catch (error) {
@@ -128,7 +109,139 @@ function Enquirynewdetail() {
     }
   };
 
-  // call later
+  const makeApiCall = async () => {
+    const apiURL =
+      "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
+    const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
+    console.log("whatsappTemplate:", whatsappTemplate.length); // Log the whatsappTemplate
+    console.log(
+      "responsedata:",
+      responsedata.map((item) => item.response.length)
+    ); // Log the responsedata
+
+    const selectedResponse = responsedata.find(
+      (item) => item.response === whatsappTemplate
+    );
+    if (!selectedResponse) {
+      console.error("Selected response not found.");
+      return;
+    }
+
+    const contentTemplate = selectedResponse?.template || "";
+
+    console.log("Selected response:", whatsappTemplate);
+    console.log("Content template:", contentTemplate);
+
+    if (!contentTemplate) {
+      console.error("Content template is empty. Cannot proceed.");
+      return;
+    }
+
+    console.log("91" + filterdata[0]?.contact1);
+
+    // console.log("yresponse---", contentTemplate);
+    const content = contentTemplate.replace(
+      "{Customer_name}",
+      filterdata[0]?.name
+    );
+    console.log("content", content);
+
+    const requestData = [
+      {
+        dst: "91" + filterdata[0]?.contact1,
+        messageType: "0",
+        textMessage: {
+          content: content,
+        },
+      },
+    ];
+
+    try {
+      const response = await axios.post(apiURL, requestData, {
+        headers: {
+          "access-token": accessToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        setWhatsappTemplate(response.data);
+        alert("Sent");
+        // navigate(`/enquirydetail/${latestEnquiryId ? latestEnquiryId + 1 : 1}`);
+      } else {
+        console.error("API call unsuccessful. Status code:", response.status);
+      }
+    } catch (error) {
+      console.error("Error making API call:", error);
+    }
+  };
+
+  // const makeApiCall = async (selectedResponse, contactNumber) => {
+  //   const apiURL =
+  //     "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
+  //   const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
+
+  //   // const selectedResponse = responsedata.find(
+  //   //   (item) => item.response === whatsappTemplate
+  //   // );
+  //   // if (!selectedResponse) {
+  //   //   console.error("Selected response not found.");
+  //   //   return;
+  //   // }
+
+  //   const contentTemplate = selectedResponse?.template || "";
+
+  //   console.log("Selected response in the makeapi:", whatsappTemplate);
+  //   console.log("Content template:", contentTemplate);
+
+  //   if (!contentTemplate) {
+  //     console.error("Content template is empty. Cannot proceed.");
+  //     return;
+  //   }
+
+  //   console.log("91" + filterdata[0]?.contact1);
+
+  //   // console.log("yresponse---", contentTemplate);
+  //   const content = contentTemplate.replace(
+  //     /\{Customer_name\}/g,
+  //     filterdata[0]?.name
+  //   );
+  //   // console.log("content", content);
+
+  //   const plainTextContent = stripHtml(content);
+  //   console.log("plainTextContent", plainTextContent);
+  //   const requestData = [
+  //     {
+  //       dst: "91" + contactNumber,
+  //       messageType: "0",
+  //       textMessage: {
+  //         content: plainTextContent,
+  //       },
+  //     },
+  //   ];
+  //   // console.log("contactNumber", contactNumber);
+
+  //   try {
+  //     const response = await axios.post(apiURL, requestData, {
+  //       headers: {
+  //         "access-token": accessToken,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     if (response.status === 200) {
+  //       // console.log("whatsappMessageStatus:", response.data);
+  //       setWhatsappTemplate(response.data);
+  //       alert("Sent");
+  //       // navigate(`/enquirydetail/${latestEnquiryId ? latestEnquiryId + 1 : 1}`);
+  //     } else {
+  //       console.error("API call unsuccessful. Status code:", response.status);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error making API call:", error);
+  //   }
+  // };
+
   const addcalllater = async (e) => {
     e.preventDefault();
 
@@ -147,7 +260,7 @@ function Enquirynewdetail() {
             staffname: admin.displayname,
             category: filterdata[0]?.category,
             folldate: moment().format("llll"),
-            response: whatsappTemplate.response,
+            response: whatsappTemplate,
             desc: desc,
             value: value,
             colorcode: colorcode,
@@ -156,11 +269,9 @@ function Enquirynewdetail() {
         };
         await axios(config).then(function (response) {
           if (response.status === 200) {
-            // console.log("success");
+            console.log("success");
             alert(" Added");
-            makeApiCall(whatsappTemplate, filterdata[0]?.contact1);
-            // console.log("success", response);
-            console.log("successWhatsappmessage", response.data);
+
             window.location.assign(`/enquirydetail/${EnquiryId}`);
           }
         });
@@ -171,7 +282,6 @@ function Enquirynewdetail() {
     }
   };
 
-  // survey
   const addsurvey = async (e) => {
     e.preventDefault();
     if (!desc || !nxtfoll) {
@@ -200,19 +310,17 @@ function Enquirynewdetail() {
           if (response.status === 200) {
             console.log("success");
             alert(" Added");
-            makeApiCall(whatsappTemplate, filterdata[0]?.contact1);
-            // console.log("success", response.data.response);
-            console.log("successWhatsappmessage", response.data);
+
             window.location.assign(`/enquirydetail/${EnquiryId}`);
           }
         });
       } catch (error) {
         console.error(error);
-        alert("Not Added");
+        alert(" Not Added");
       }
     }
   };
-  // confirm
+
   const postconvertcustomer = async (e) => {
     e.preventDefault();
 
@@ -241,8 +349,6 @@ function Enquirynewdetail() {
           if (response.status === 200) {
             console.log("success");
             alert(" Added");
-            makeApiCall(whatsappTemplate, filterdata[0]?.contact1);
-            console.log("successWhatsappmessage", response.data);
             navigate(`/convertcustomer/${EnquiryId}`);
             // window.location.assign("/convertcustomer",{data});
           }
@@ -253,8 +359,6 @@ function Enquirynewdetail() {
       }
     }
   };
-
-  // Quote
   const postcreatequote = async (e) => {
     e.preventDefault();
 
@@ -283,8 +387,6 @@ function Enquirynewdetail() {
           if (response.status === 200) {
             console.log("success");
             alert("Added");
-            makeApiCall(whatsappTemplate, filterdata[0]?.contact1);
-            console.log("successWhatsappmessage", response.data);
             navigate(`/createquote/${EnquiryId}`);
             // window.location.assign("/convertcustomer",{data});
           }
@@ -336,69 +438,6 @@ function Enquirynewdetail() {
       return "transparent";
     }
   }
-
-  function stripHtml(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const plainText = doc.body.textContent || "";
-    return plainText.replace(/\r?\n/g, " "); // Remove all HTML tags but keep line breaks
-  }
-  const makeApiCall = async (selectedResponse, contactNumber) => {
-    const apiURL =
-      "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
-    const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
-
-    const contentTemplate = selectedResponse?.template || "";
-
-    console.log("Selected response in the makeapi:", whatsappTemplate);
-    console.log("Content template:", contentTemplate);
-
-    if (!contentTemplate) {
-      console.error("Content template is empty. Cannot proceed.");
-      return;
-    }
-    console.log("91" + filterdata[0]?.contact1);
-    const content = contentTemplate.replace(
-      /\{Customer_name\}/g,
-      filterdata[0]?.name
-    );
-    const contentWithNames = content.replace(
-      /\{Executive_name\}/g,
-      filterdata[0]?.executive
-    );
-    const contentWithMobile = contentWithNames.replace(
-      /\{Executive_contact\}/g,
-      admin?.contactno
-    );
-
-    const plainTextContent = stripHtml(contentWithMobile);
-    console.log("plainTextContent", plainTextContent);
-    const requestData = [
-      {
-        dst: "91" + contactNumber,
-        messageType: "0",
-        textMessage: {
-          content: plainTextContent,
-        },
-      },
-    ];
-    try {
-      const response = await axios.post(apiURL, requestData, {
-        headers: {
-          "access-token": accessToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.status === 200) {
-        setWhatsappTemplate(response.data);
-        alert("Sent");
-      } else {
-        console.error("API call unsuccessful. Status code:", response.status);
-      }
-    } catch (error) {
-      console.error("Error making API call:", error);
-    }
-  };
 
   return (
     <div className="row">
@@ -640,6 +679,46 @@ function Enquirynewdetail() {
                                       <div className="group pt-1">
                                         <select
                                           className="col-md-12 vhs-input-value"
+                                          // onChange={(e) => {
+                                          //   const selectedResponse =
+                                          //     responsedata.find(
+                                          //       (item) =>
+                                          //         item.response ===
+                                          //         whatsappTemplate
+                                          //     );
+                                          //   console.log(
+                                          //     "Comparing with:",
+                                          //     e.target.value
+                                          //   );
+                                          //   setWhatsappTemplate(
+                                          //     selectedResponse,
+                                          //     () => {
+                                          //       console.log(
+                                          //         "Selected response:",
+                                          //         selectedResponse
+                                          //       );
+                                          //       makeApiCall(selectedResponse);
+                                          //     }
+                                          //   );
+                                          // // }}
+                                          // onChange={(e) => {
+                                          //   const selectedResponse =
+                                          //     responsedata.find(
+                                          //       (item) =>
+                                          //         item.response ===
+                                          //         e.target.value
+                                          //     );
+                                          //   if (selectedResponse) {
+                                          //     setWhatsappTemplate(
+                                          //       selectedResponse.whatsappTemplate
+                                          //     ); // Assuming whatsappTemplate is a property of the data object
+                                          //     console.log(
+                                          //       "selectedResponse",
+                                          //       selectedResponse.response,
+                                          //       selectedResponse
+                                          //     );
+                                          //   }
+
                                           onChange={(e) => {
                                             const selectedResponse =
                                               responsedata.find(

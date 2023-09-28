@@ -44,21 +44,36 @@ function Enquirysearch() {
 
   const filterData = () => {
     const result = enquiryAddData.filter((item) => {
-      return (
-        item.name.toLowerCase().match(name.toLowerCase()) &&
-        item.city.toLowerCase().match(city.toLowerCase()) &&
-        item.enquirydate.match(item.fromdate) &&
-        item.enquirydate.match(item.todate) &&
-        item.executive.toLowerCase().match(executive.toLowerCase()) &&
-        item.contact1.toLowerCase().match(contact.toLowerCase())
-      );
+      const itemName = item.name ? item.name.toLowerCase() : "";
+      const itemCity = item.city ? item.city.toLowerCase() : "";
+      const itemEnquiryFromDate = item.enquirydate ? item.enquirydate : "";
+      const itemEnquiryToDate = item.enquirydate ? item.enquirydate : "";
+      const itemExecutive = item.executive ? item.executive.toLowerCase() : "";
+      const itemContact = item.contact1 ? item.contact1.toLowerCase() : "";
+
+      const filterName = name ? name.toLowerCase() : "";
+      const filterCity = city ? city.toLowerCase() : "";
+      const filterEnquiryFromDate = item.fromdate ? item.fromdate : "";
+      const filterEnquiryToDate = item.todate ? item.todate : "";
+      const filterExecutive = executive ? executive.toLowerCase() : "";
+      const filterContact = contact ? contact.toLowerCase() : "";
+
+      return itemName.includes(filterName) &&
+        itemCity.includes(filterCity) &&
+        // itemEnquiryFromDate == fromdate || todate===""? true: false&&
+        itemEnquiryFromDate.includes(filterEnquiryFromDate) &&
+        itemEnquiryToDate.includes(filterEnquiryToDate) &&
+        // itemEnquiryToTime.includes(filterEnquiryToTime)||toTime===" "?true:false&&
+        itemExecutive.includes(filterExecutive) &&
+        itemContact.includes(filterContact)
+        ? true
+        : false;
     });
     setfilterdata(result);
   };
 
   const handleSearchClick = (e) => {
     e.preventDefault();
-
     filterData();
   };
 

@@ -77,7 +77,7 @@ const serviceManagementSchema = new mongoose.Schema({
     default: 1,
   },
   sAddons: {
-    type: String,
+    type: Array,
   },
   qty: {
     type: String,

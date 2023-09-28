@@ -16,18 +16,18 @@ function Customersearchdetails() {
   const [serviceCharge, setserviceCharge] = useState("");
   const [dateofService, setdateofService] = useState([]);
   const [desc, setdesc] = useState("");
+  const [categoryData, setCategoryData] = useState([]);
   const [serviceFrequency, setserviceFrequency] = useState(1);
-  const [startDate, setstartDate] = useState("00-00-0000");
   const [expiryDate, setexpiryDate] = useState("00-00-0000");
   const [category, setcategory] = useState("");
   const [firstserviceDate, setfirstserviceDate] = useState("00-00-0000");
   const [contractType, setcontractType] = useState("");
+  const [serviceId, setServiceId] = useState("");
   const [treatment, settreatment] = useState("");
   const [oneCommunity, setOneCommunity] = useState({}); //string to obj
   const [treatmentdata, settreatmentdata] = useState([]);
   const [customerdata, setcustomerdata] = useState([]);
   const [servicedata, setservicedata] = useState([]);
-  const [categorydata, setcategorydata] = useState([]);
   const [editenable, seteditEnable] = useState(false);
   const [amtFrequency, setamtFrequency] = useState("");
   const [firstDateamt, setfirstDateamt] = useState("");
@@ -40,134 +40,137 @@ function Customersearchdetails() {
   const [streetName, setStreetName] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  // const [mainArea, setMainArea] = useState("");
   const [pincode, setPincode] = useState("");
   const [landmark, setLankmark] = useState("");
 
-  useEffect(() => {
-    getcustomer();
-    getsubcategory();
-    getcategory();
-    gettreatment();
-  }, []);
-
-  const getcustomer = async () => {
-    let res = await axios.get(apiURL + "/getcustomer");
-    if (res.status === 200) {
-      setcustomerdata(res.data?.customers.filter((i) => i.cardNo == id));
-    }
-  };
-  // console.log("customerdata", customerdata);
-
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
   const [viewAddress, setViewAddress] = useState(false);
 
   useEffect(() => {
+    const getcustomer = async () => {
+      try {
+        let res = await axios.get(apiURL + "/getcustomer");
+        if (res.status === 200) {
+          setcustomerdata(res.data?.customers.filter((i) => i.cardNo == id));
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    getcustomer();
+  }, []);
+
+  // useEffect(() => {
+  //   getsubcategory();
+  // }, [category]);
+  useEffect(() => {
+    const getcategory = async () => {
+      try {
+        let res = await axios.get(apiURL + "/getcategory");
+        if ((res.status = 200)) {
+          setCategoryData(res.data?.category);
+        }
+      } catch (error) {
+        console.log("error:", error);
+      }
+    };
+    getcategory();
+  }, []);
+
+  useEffect(() => {
+    const getsubcategory = async () => {
+      try {
+        let res = await axios.post(apiURL + `/postsubcategory/`, { category });
+        if ((res.status = 200)) {
+          setservicedata(res.data?.subcategory);
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
     getsubcategory();
   }, [category]);
 
-  const getsubcategory = async () => {
-    let res = await axios.post(apiURL + `/postsubcategory/`, { category });
-    if ((res.status = 200)) {
-      setservicedata(res.data?.subcategory);
-    }
-  };
-
   useEffect(() => {
+    const getServicebyCategory = async () => {
+      try {
+        let res = await axios.post(apiURL + `/userapp/getservicebycategory/`, {
+          category,
+        });
+        if (res.status === 200) {
+          setServiceDetails(res.data?.serviceData);
+        }
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+
     getServicebyCategory();
   }, [category]);
 
-  const getServicebyCategory = async () => {
-    try {
-      let res = await axios.post(apiURL + `/getservicebycategory/`, {
-        category,
-      });
-      if (res.status === 200) {
-        setServiceDetails(res.data?.serviceData);
+  useEffect(() => {
+    const gettreatment = async () => {
+      try {
+        let res = await axios.get(apiURL + "/getservicedetails");
+        if (res.status === 200) {
+          console.log("treatmentdata", res);
+          const filteredData = res.data?.servicedetails.filter(
+            (i) => i.cardNo == id
+          );
+
+          // Calculate totalCharge for each item in the array
+          filteredData.forEach((item) => {
+            const oneCommunity = parseInt(item.oneCommunity);
+            const serviceCharge = parseInt(item.serviceCharge);
+
+            if (!isNaN(oneCommunity) && !isNaN(serviceCharge)) {
+              const totalCharge = serviceCharge - oneCommunity;
+              console.log(
+                "Total Charge for item with cardNo " +
+                  item.cardNo +
+                  ": " +
+                  totalCharge
+              );
+              // You can choose to store the totalCharge value back to the item if needed.
+              // Store the difference (divided charges) in the item object
+              item.dividedCharges = totalCharge;
+              setnewCharge(item.dividedCharges);
+
+              console.log("hey", totalCharge);
+            } else {
+              console.log(
+                "One or both values are not valid numbers for item with cardNo " +
+                  item.cardNo
+              );
+            }
+          });
+
+          // Update the state with the filtered data containing the calculated totalCharge
+          settreatmentdata(filteredData);
+        }
+      } catch (error) {
+        console.log("error", error);
       }
-    } catch (error) {
-      console.log("Error", error);
-    }
-  };
-
-  console.log("serviceDetails", serviceDetails);
-  // getservices
-  console.log("servicedata", servicedata);
-
-  const getcategory = async () => {
-    let res = await axios.get(apiURL + "/getcategory");
-    if ((res.status = 200)) {
-      setcategorydata(res.data?.category);
-    }
-  };
-  // const gettreatment = async () => {
-  //   let res = await axios.get(apiURL + "/getservicedetails");
-  //   if (res.status === 200) {
-  //     console.log("treatmentdata", res);
-  //     settreatmentdata(res.data?.servicedetails.filter((i) => i.cardNo == id));
-
-  //   }
-  // };
-
-  const gettreatment = async () => {
-    try {
-      let res = await axios.get(apiURL + "/getservicedetails");
-      if (res.status === 200) {
-        console.log("treatmentdata", res);
-        const filteredData = res.data?.servicedetails.filter(
-          (i) => i.cardNo == id
-        );
-
-        // Calculate totalCharge for each item in the array
-        filteredData.forEach((item) => {
-          const oneCommunity = parseInt(item.oneCommunity);
-          const serviceCharge = parseInt(item.serviceCharge);
-
-          if (!isNaN(oneCommunity) && !isNaN(serviceCharge)) {
-            const totalCharge = serviceCharge - oneCommunity;
-            console.log(
-              "Total Charge for item with cardNo " +
-                item.cardNo +
-                ": " +
-                totalCharge
-            );
-            // You can choose to store the totalCharge value back to the item if needed.
-            // Store the difference (divided charges) in the item object
-            item.dividedCharges = totalCharge;
-            setnewCharge(item.dividedCharges);
-
-            console.log("hey", totalCharge);
-          } else {
-            console.log(
-              "One or both values are not valid numbers for item with cardNo " +
-                item.cardNo
-            );
-          }
-        });
-
-        // Update the state with the filtered data containing the calculated totalCharge
-        settreatmentdata(filteredData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    };
+    gettreatment();
+  }, []);
 
   //community details
   const getCommunityDetails = async () => {
     let res = await axios.get(apiURL + "/getcommunity");
     if (res.status === 200) {
-      // console.log("CommunitDetails", res);
       setCommunityData(res.data?.community);
     }
   };
-  console.log();
+
   useEffect(() => {
-    getCommunityDetails();
+    try {
+      getCommunityDetails();
+    } catch (error) {
+      console.log("error:", error);
+    }
   }, []);
 
   const sDate = moment(dateofService, "YYYY-MM-DD");
@@ -175,26 +178,17 @@ function Customersearchdetails() {
 
   const totalDays = Math.ceil(eDate.diff(sDate, "days"));
   const interval = Math.ceil(totalDays / serviceFrequency);
-  // const dividedServiceCharge = Math.ceil(serviceCharge / serviceFrequency);
 
   const dividedDates = [];
-  // const dividedCharges = [];
 
   for (let i = 0; i < serviceFrequency; i++) {
     const date = sDate.clone().add(interval * i, "days");
     dividedDates.push(date);
-
-    // const charge =
-    //   i === serviceFrequency - 1
-    //     ? serviceCharge - dividedServiceCharge * (serviceFrequency - 1)
-    //     : dividedServiceCharge;
-    // dividedCharges.push(charge);
   }
   const communityPercentage = (serviceCharge * oneCommunity.percentage) / 100; //this line
   const remainingAmt = oneCommunity.percentage
     ? serviceCharge - communityPercentage
     : serviceCharge;
-  // console.log("newCharge", newCharge);
   const sAmtDate = moment(firstDateamt, "YYYY-MM-DD");
   const eamtDate = moment(expiryDateamt, "YYYY-MM-DD");
 
@@ -215,8 +209,6 @@ function Customersearchdetails() {
         : dividedamtCharge;
     dividedamtCharges.push(charge);
   }
-
-  // console.log("dividedDates", dividedDates);
 
   const addtreatmentdetails = async (e) => {
     e.preventDefault();
@@ -240,6 +232,7 @@ function Customersearchdetails() {
             category: category,
             contractType: contractType,
             service: treatment,
+            serviceID: serviceId,
             serviceCharge: serviceCharge,
             dateofService: dateofService,
             deliveryAddress: addingDeliveryAddress,
@@ -257,9 +250,7 @@ function Customersearchdetails() {
         };
         await axios(config).then(function (response) {
           if (response.status === 200) {
-            console.log("success");
-            alert(" Added");
-
+            alert("Added");
             window.location.reload("");
           }
         });
@@ -276,13 +267,11 @@ function Customersearchdetails() {
       url: apiURL + "/deleteservicedetails/" + id,
     })
       .then(function (response) {
-        //handle success
         console.log(response);
         alert("Deleted successfully");
         window.location.reload();
       })
       .catch(function (error) {
-        //handle error
         console.log(error.response.data);
       });
   };
@@ -341,41 +330,7 @@ function Customersearchdetails() {
     }
   };
 
-  // const deliveryAddresses = customerdata?.deliveryAddress;
-
-  // const columns = [
-  //   {
-  //     name: "Sl  No",
-  //     cell: (row, i) => <div>{i + 1}</div>,
-  //   },
-  //   {
-  //     name: "Room/House/Flat No",
-  //     selector: (row) => row.houseNumber,
-  //   },
-  //   {
-  //     name: "Colony/Apartment/Plot Name",
-  //     selector: (row) => row.deliveryAddress.streetName,
-  //   },
-  //   {
-  //     name: "City",
-  //     selector: (row) => row.deliveryAddress.city,
-  //   },
-  //   {
-  //     name: "State",
-  //     selector: (row) => row.deliveryAddress.state,
-  //   },
-  //   {
-  //     name: "Pincode",
-  //     selector: (row) => row.deliveryAddress.pincode,
-  //   },
-
-  //   {
-  //     name: "Landmark/Near By Famous Place",
-  //     selector: (row) => row.deliveryAddress.landMark,
-  //   },
-  // ];
   const [selectedRow, setSelectedRow] = useState(null);
-  const [selectedResponse, setSelectedResponse] = useState({});
   const [highlightRow, setHighlightRow] = useState(false);
 
   const handleRowClick = (row) => {
@@ -384,7 +339,6 @@ function Customersearchdetails() {
       ele.filter((item) => item._id === row)
     );
     setSelectedRow(deliveryAddressesfilter);
-    // setSelectedResponse(row);
     setHighlightRow(true);
   };
 
@@ -393,14 +347,6 @@ function Customersearchdetails() {
   );
 
   const columns = [
-    // {
-    //   name: "Select",
-    //   selector: (row) => (
-    //     <div>
-    //       {selectedResponse === row ? <i class="fa-solid fa-check"></i> : ""}
-    //     </div>
-    //   ),
-    // },
     {
       name: "Sl No",
       selector: (row, i) => <div>{i + 1}</div>,
@@ -451,19 +397,6 @@ function Customersearchdetails() {
           <div className="card" style={{ marginTop: "20px" }}>
             <div className="card-body p-4">
               <form>
-                {/* <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <h5>Billing Details</h5>
-                  <h6
-                    style={{ color: "red" }}
-                    onClick={() => handleRowClick(id)}
-                  >
-                    Add call
-                  </h6>
-                </div> */}
-
-                {/* <hr /> */}
                 {customerdata.map((item) => (
                   <div>
                     <div className="row">
@@ -603,17 +536,6 @@ function Customersearchdetails() {
                         // setHighlightRow(!highlightRow);
                       }}
                     />
-                    {highlightRow ? (
-                      <u>
-                        {" "}
-                        <li>
-                          Room/House/Flat No :{" "}
-                          {addingDeliveryAddress.houseNumber}
-                        </li>{" "}
-                      </u>
-                    ) : (
-                      ""
-                    )}
                   </div>
                 </>
               ) : null}
@@ -637,9 +559,9 @@ function Customersearchdetails() {
                           name="material"
                         >
                           <option>--select--</option>
-                          {admin?.category.map((category, index) => (
-                            <option key={index} value={category.name}>
-                              {category.name}
+                          {categoryData.map((category, index) => (
+                            <option key={index} value={category.category}>
+                              {category.category}
                             </option>
                           ))}
                         </select>
@@ -668,13 +590,24 @@ function Customersearchdetails() {
                         </div>
                         <select
                           className="col-md-12 vhs-input-value"
-                          onChange={(e) => settreatment(e.target.value)}
+                          onChange={(e) => {
+                            const selectedService = serviceDetails.find(
+                              (item) => item._id === e.target.value
+                            );
+                            setServiceId(e.target.value);
+                            settreatment(
+                              selectedService
+                                ? selectedService.serviceName &&
+                                    selectedService.servicetitle
+                                : ""
+                            );
+                          }}
                           name="material"
                         >
                           <option>--select--</option>
-                          {servicedata.map((item) => (
-                            <option value={item.subcategory}>
-                              {item.subcategory}
+                          {serviceDetails.map((item) => (
+                            <option key={item.id} value={item._id}>
+                              {item.serviceName}/{item.servicetitle}
                             </option>
                           ))}
                         </select>

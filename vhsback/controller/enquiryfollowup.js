@@ -37,6 +37,13 @@ class addenquiry {
         value,
         colorcode,
         nxtfoll,
+        appoTime,
+        sendSms,
+        appoDate,
+        slotid,
+        userId,
+        type,
+        responseType
       } = req.body;
       const newVendor = new enquiryfollowupModel({
         EnquiryId,
@@ -48,6 +55,13 @@ class addenquiry {
         value,
         colorcode,
         nxtfoll,
+        appoTime,
+        sendSms,
+        appoDate,
+        slotid,
+        userId,
+        type,
+        responseType,
       });
       newVendor.save().then((data) => {
         return res

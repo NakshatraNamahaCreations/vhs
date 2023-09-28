@@ -9,16 +9,16 @@ import Modal from "react-bootstrap/Modal";
 function Services() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
 
-  const [data1, setdata1] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
   const [category, setcategory] = useState("");
-  const [subcategory, setsubcategory] = useState("");
+  const [serivceName, setSeviceName] = useState("");
   const [videolink, setvideolink] = useState("");
   const [search, setsearch] = useState("");
   const [filterdata, setfilterdata] = useState([]);
   const [data, setdata] = useState([]);
 
   const [category1, setcategory1] = useState(data.category);
-  const [subcategory1, setsubcategory1] = useState(data.subcategory);
+  const [serivceName1, setSeviceName1] = useState(data.serviceName);
   const [videolink1, setvideolink1] = useState(data.videolink);
   const [subcategorydata, setsubcategorydata] = useState([]);
   const [serviceData, setServiceData] = useState([]);
@@ -37,24 +37,30 @@ function Services() {
   const getcategory = async () => {
     let res = await axios.get(apiURL + "/getcategory");
     if ((res.status = 200)) {
-      setdata1(res.data?.category);
-      console.log(res.data?.category);
+      setCategoryData(res.data?.category);
+      console.log("categoryData=====", res.data?.category);
     }
   };
 
   const getServiceByCategory = async () => {
-    let res = await axios.post(apiURL + `/postsubcategory/`, { category });
-    if (res.status === 200) {
-      setServiceData(res.data?.subcategory);
-    } else {
-      setServiceData([]);
+    try {
+      let res = await axios.post(apiURL + `/userapp/getservicebycategory/`, {
+        category,
+      });
+      if (res.status === 200) {
+        setServiceData(res.data?.serviceData);
+      } else {
+        setServiceData([]);
+      }
+    } catch (error) {
+      console.log("err", error);
     }
   };
   useEffect(() => {
     getServiceByCategory();
   }, [category]);
 
-  const postsubcategory = async (e) => {
+  const addSerive = async (e) => {
     e.preventDefault();
 
     try {
@@ -62,11 +68,16 @@ function Services() {
         url: "/addsubcategory",
         method: "post",
         baseURL: apiURL,
-        // headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json" },
         // data: { categoryName: categoryName, subcategoryName: subcategoryName },
+        // data: {
+        //   category: category,
+        //   subcategory: subcategory,
+        //   videolink: videolink,
+        // },
         data: {
           category: category,
-          subcategory: subcategory,
+          serviceName: serivceName,
           videolink: videolink,
         },
       };
@@ -74,12 +85,12 @@ function Services() {
         if (response.status === 200) {
           console.log("success");
           alert("Service added successfuly");
-          window.location.reload();
+          // window.location.reload();
         }
       });
     } catch (error) {
       console.error(error);
-      alert("category Name Not Added");
+      alert(error.response.data.error);
     }
   };
   const getsubcategory = async () => {
@@ -101,7 +112,7 @@ function Services() {
         headers: { "content-type": "application/json" },
         data: {
           category: category1,
-          subcategory: subcategory1,
+          serviceName: serivceName1,
           videolink: videolink1,
         },
       };
@@ -126,12 +137,16 @@ function Services() {
       selector: (row) => row.category,
     },
     {
-      name: "Service type",
-      selector: (row) => row.subcategory,
+      name: "Service Name",
+      selector: (row) => row.serviceName,
     },
     {
       name: "Videolink",
-      selector: (row) => row.videolink,
+      selector: (row) => (
+        <a href={row.videolink} target="_blank" alt="">
+          {row.videolink}
+        </a>
+      ),
     },
     {
       name: "Action",
@@ -198,9 +213,9 @@ function Services() {
                         onChange={(e) => setcategory(e.target.value)}
                       >
                         <option>---SELECT---</option>
-                        {admin?.category.map((category, index) => (
-                          <option key={index} value={category.name}>
-                            {category.name}
+                        {categoryData.map((category, index) => (
+                          <option key={index} value={category.category}>
+                            {category.category}
                           </option>
                         ))}
                       </select>
@@ -214,12 +229,12 @@ function Services() {
                     <div className="group pt-1">
                       <select
                         className="col-md-12 vhs-input-value"
-                        onChange={(e) => setsubcategory(e.target.value)}
+                        onChange={(e) => setSeviceName(e.target.value)}
                       >
                         <option>---SELECT---</option>
                         {serviceData.map((item) => (
-                          <option value={item.subcategory}>
-                            {item.subcategory}
+                          <option value={item.serviceName}>
+                            {item.serviceName}
                           </option>
                         ))}
                       </select>
@@ -240,7 +255,7 @@ function Services() {
 
                 <div className="row pt-3 justify-content-center">
                   <div className="col-md-2">
-                    <button className="vhs-button" onClick={postsubcategory}>
+                    <button className="vhs-button" onClick={addSerive}>
                       Save
                     </button>
                   </div>
@@ -294,7 +309,7 @@ function Services() {
                       onChange={(e) => setcategory1(e.target.value)}
                     >
                       <option value={data.category}>{data.category}</option>
-                      {data1.map((item) => (
+                      {categoryData.map((item) => (
                         <option value={item.category}>{item.category}</option>
                       ))}
                     </select>
@@ -309,7 +324,7 @@ function Services() {
                   <input
                     type="text"
                     className="col-md-12 vhs-input-value"
-                    onChange={(e) => setsubcategory1(e.target.value)}
+                    onChange={(e) => setSeviceName1(e.target.value)}
                     placeholder={data.subcategory}
                   />
                 </div>

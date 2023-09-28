@@ -68,7 +68,8 @@ function Servicedetails() {
   const [NofServiceman, setNofServiceman] = useState(
     Servicedata[0]?.NofServiceman
   );
-  const [sAddons, setsAddons] = useState(Servicedata[0]?.sAddons || []);
+
+  const [sAddons, setsAddons] = useState(Servicedata[0]?.sAddons ||[]);
   const [Subcategory, setSubcategory] = useState(Servicedata[0]?.Subcategory);
   const [offerPrice, setofferPrice] = useState(Servicedata[0]?.offerPrice);
   const [Servicesno, setServicesno] = useState("");
@@ -126,7 +127,26 @@ function Servicedetails() {
   const [editServiceGst, setEditServiceGst] = useState("");
   const [Sdata, setSdata] = useState([]);
   const [showAddedData2, setShowAddedData2] = useState(false);
-  // descriotions
+ 
+  useEffect(() => {
+    if (Servicedata[0]?.sAddons) {
+      try {
+        // Attempt to parse the JSON string
+        const initialSelectedValues = JSON.parse(Servicedata[0]?.sAddons);
+        setsAddons(initialSelectedValues);
+      } catch (error) {
+        // Handle the case where parsing fails (invalid JSON string)
+        console.error('Error parsing JSON:', error);
+        // You can set a default value or handle it as needed.
+        setsAddons([]); // For example, set it to an empty array
+      }
+    } else {
+      // Handle the case where Servicedata[0]?.sAddons is undefined or null
+      // You can set a default value or handle it as needed.
+      setsAddons([]); // For example, set it to an empty array
+    }
+  }, [Servicedata]);
+  
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -286,17 +306,13 @@ function Servicedetails() {
   }, []);
 
   const getallcategory = async () => {
-    let res = await axios.get(
-      "http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat"
-    );
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getappsubcat");
     if ((res.status = 200)) {
       setcategorydata(res.data?.subcategory);
     }
   };
   const getcategory = async () => {
-    let res = await axios.get(
-      "http://api.vijayhomeservicebengaluru.in/api/getcategory"
-    );
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getcategory");
     if ((res.status = 200)) {
       setcatdata(res.data?.category);
     }
@@ -364,9 +380,7 @@ function Servicedetails() {
   }, []);
 
   const getcity = async () => {
-    let res = await axios.get(
-      "http://api.vijayhomeservicebengaluru.in/api/master/getcity"
-    );
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/master/getcity");
     if ((res.status = 200)) {
       setcitydata(res.data?.mastercity);
     }
@@ -480,18 +494,14 @@ function Servicedetails() {
   }, []);
 
   const getslots = async () => {
-    let res = await axios.get(
-      "http://api.vijayhomeservicebengaluru.in/api/userapp/getslots"
-    );
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/getslots");
     if ((res.status = 200)) {
       setslotsdata(res.data?.slots);
     }
   };
 
   const gettitle = async () => {
-    let res = await axios.get(
-      "http://api.vijayhomeservicebengaluru.in/api/userapp/gettitle"
-    );
+    let res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/userapp/gettitle");
     if ((res.status = 200)) {
       settitledata(res.data?.homepagetitle);
     }
@@ -571,7 +581,7 @@ function Servicedetails() {
       formdata.append("sub_subcategory", editSubcategoryList);
       formdata.append("serviceName", editServiceName);
 
-      formdata.append("sAddons", sAddons);
+      formdata.append("sAddons", JSON.stringify(sAddons));
 
       editDescriptions.map((desc) =>
         formdata.append(
@@ -1302,7 +1312,7 @@ function Servicedetails() {
                             ) : (
                               <option>--select --</option>
                             )}
-                            <option>NA</option>
+
                             <option value="Enquiry">Enquiry</option>
                             <option value="Survey">Survey</option>
                             <option value="DSR">DSR single service</option>
@@ -1348,65 +1358,12 @@ function Servicedetails() {
                           onRemove={onRemoveCatagory}
                           displayValue="name"
                           showCheckbox={true}
+                          
                         />
                       </InputGroup>
                     </Form.Group>
 
-                    {/* <Row className="mb-3 mt-4">
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>
-                          Service Price
-                          <span style={{ fontSize: "12px" }}>
-                            (for single price)
-                          </span>{" "}
-                        </Form.Label>
-                        <Form.Control
-                          type="number"
-                          name="Price"
-                          defaultValue={Servicedata[0]?.servicePrice}
-                          onChange={(e) => setServicePrice(e.target.value)}
-                        />
-                      </Form.Group>
-
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>
-                          Offer price
-                          <span style={{ fontSize: "12px" }}>
-                            (for single price)
-                          </span>{" "}
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          name=""
-                          defaultValue={Servicedata[0]?.offerPrice}
-                          onChange={(e) => setofferPrice(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>Quantity</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name=""
-                          defaultValue={Servicedata[0]?.quantity}
-                          onChange={(e) => setquantity(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Label>GST Percentage</Form.Label>
-
-                        <Form.Select
-                          aria-label="Username"
-                          aria-describedby="basic-addon1"
-                          onChange={(e) => setServiceGst(e.target.value)}
-                        >
-                          <option>---Select GST---</option>
-
-                          <option value="0.05">5%</option>
-                          <option value="0.18">18%</option>
-                          <option value="0.22">22%</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Row> */}
+                   
                   </Form>
                   <Button
                     type="button"

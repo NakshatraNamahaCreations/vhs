@@ -15,6 +15,8 @@ function Dsrcallist() {
   const [treatmentData, settreatmentData] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [dsrdata, setdsrdata] = useState([]);
+  const [dsrdata1, setdsrdata1] = useState([]);
+
   const [searchJobCatagory, setSearchJobCatagory] = useState("");
   const [searchCustomerName, setSearchCustomerName] = useState("");
   const [searchCity, setSearchCity] = useState("");
@@ -46,7 +48,6 @@ function Dsrcallist() {
     let res = await axios.get(apiURL + "/getalltechnician");
     if ((res.status = 200)) {
       const TDdata = res.data?.technician;
-      // console.log("Technician --", res.data?.technician);
       const filteredTechnicians = TDdata.filter((technician) => {
         return technician.category.some((cat) => cat.name === category);
       });
@@ -56,12 +57,11 @@ function Dsrcallist() {
           (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
         )
       );
-      // console.log("filteredTechnicians", vddata);
-      // setTechData(TDdata);
     }
   };
 
   // console.log("techData", techData);
+
   const getservicedata = async () => {
     let res = await axios.get(apiURL + "/getrunningdata");
     if (res.status === 200) {
@@ -103,6 +103,7 @@ function Dsrcallist() {
 
           return dateMatches && cardNoMatches;
         });
+        setdsrdata1(res.data.addcall);
         setdsrdata(filteredData);
         // setTechData(mayiru);
       }
@@ -111,86 +112,91 @@ function Dsrcallist() {
       console.error("Error fetching data:", error);
     }
   };
+
   useEffect(() => {
-    const filterResults = () => {
-      let results = treatmentData;
-      if (searchJobCatagory) {
-        results = results.filter(
-          (item) =>
-            item.jobCategory &&
-            item.jobCategory
-              .toLowerCase()
-              .includes(searchJobCatagory.toLowerCase())
-        );
-      }
-      if (searchCustomerName) {
-        results = results.filter(
-          (item) =>
-            item.customer[0]?.customerName &&
-            item.customer[0]?.customerName
-              .toLowerCase()
-              .includes(searchCustomerName.toLowerCase())
-        );
-      }
-      if (searchCity) {
-        results = results.filter(
-          (item) =>
-            item.customer[0]?.city &&
-            item.customer[0]?.city
-              .toLowerCase()
-              .includes(searchCity.toLowerCase())
-        );
-      }
-      if (searchAddress) {
-        results = results.filter(
-          (item) =>
-            (item.customer[0]?.cnap &&
-              item.customer[0]?.cnap
+    async function filterResults() {
+      try {
+        let results = treatmentData;
+        if (searchJobCatagory) {
+          results = results.filter(
+            (item) =>
+              item.jobCategory &&
+              item.jobCategory
                 .toLowerCase()
-                .includes(searchAddress.toLowerCase())) ||
-            (item.customer[0]?.rbhf &&
-              item.customer[0]?.rbhf
+                .includes(searchJobCatagory.toLowerCase())
+          );
+        }
+        if (searchCustomerName) {
+          results = results.filter(
+            (item) =>
+              item.customer[0]?.customerName &&
+              item.customer[0]?.customerName
                 .toLowerCase()
-                .includes(searchAddress.toLowerCase()))
-        );
-      }
-      if (searchContact) {
-        results = results.filter((item) =>
-          item.customer[0]?.mainContact &&
-          typeof item.customer[0]?.mainContact === "string"
-            ? item.mainContact
+                .includes(searchCustomerName.toLowerCase())
+          );
+        }
+        if (searchCity) {
+          results = results.filter(
+            (item) =>
+              item.customer[0]?.city &&
+              item.customer[0]?.city
                 .toLowerCase()
-                .includes(searchContact.toLowerCase())
-            : ""
-        );
+                .includes(searchCity.toLowerCase())
+          );
+        }
+        if (searchAddress) {
+          results = results.filter(
+            (item) =>
+              (item.customer[0]?.cnap &&
+                item.customer[0]?.cnap
+                  .toLowerCase()
+                  .includes(searchAddress.toLowerCase())) ||
+              (item.customer[0]?.rbhf &&
+                item.customer[0]?.rbhf
+                  .toLowerCase()
+                  .includes(searchAddress.toLowerCase()))
+          );
+        }
+        if (searchContact) {
+          results = results.filter((item) =>
+            item.customer[0]?.mainContact &&
+            typeof item.customer[0]?.mainContact === "string"
+              ? item.mainContact
+                  .toLowerCase()
+                  .includes(searchContact.toLowerCase())
+              : ""
+          );
+        }
+        if (searchTechName) {
+          results = results.filter(
+            (item) =>
+              item.dsrdata[0]?.TechorPMorVendorName &&
+              item.dsrdata[0]?.TechorPMorVendorName.toLowerCase().includes(
+                searchTechName.toLowerCase()
+              )
+          );
+        }
+        if (searchJobType) {
+          results = results.filter(
+            (item) =>
+              item.service &&
+              item.service.toLowerCase().includes(searchJobType.toLowerCase())
+          );
+        }
+        if (searchDesc) {
+          results = results.filter(
+            (item) =>
+              item.customerFeedback &&
+              item.customerFeedback
+                .toLowerCase()
+                .includes(searchDesc.toLowerCase())
+          );
+        }
+        setSearchResults(results);
+      } catch (error) {
+        console.log("Error in Search", error);
       }
-      if (searchTechName) {
-        results = results.filter(
-          (item) =>
-            item.dsrdata[0]?.TechorPMorVendorName &&
-            item.dsrdata[0]?.TechorPMorVendorName.toLowerCase().includes(
-              searchTechName.toLowerCase()
-            )
-        );
-      }
-      if (searchJobType) {
-        results = results.filter(
-          (item) =>
-            item.service &&
-            item.service.toLowerCase().includes(searchJobType.toLowerCase())
-        );
-      }
-      if (searchDesc) {
-        results = results.filter(
-          (item) =>
-            item.customerFeedback &&
-            item.customerFeedback
-              .toLowerCase()
-              .includes(searchDesc.toLowerCase())
-        );
-      }
-      setSearchResults(results);
-    };
+    }
     filterResults();
   }, [
     searchJobCatagory,
@@ -202,25 +208,17 @@ function Dsrcallist() {
     searchDesc,
   ]);
 
-  const [Technicians, setTechnicians] = useState([]);
-  // Fetch all technicians from your API
-  const fetchTechnicians = async () => {
-    try {
-      const res = await axios.get("http://api.vijayhomeservicebengaluru.in/api/getalltechnician");
-      if (res.status === 200) {
-        setTechnicians(res.data.technician);
-      }
-    } catch (error) {
-      console.error("Error fetching technicians:", error);
-    }
+  let i = 1;
+
+  console.log("dsrdata1", dsrdata1);
+  const passfunction = (sId) => {
+    const filt = dsrdata1.filter(
+      (i) => i.serviceInfo[0]?._id === sId._id && i.serviceDate == date
+    );
+
+    return filt[0]?.TechorPMorVendorName;
   };
 
-  // Fetch dsrdata and technicians when the component mounts
-  useEffect(() => {
-    fetchTechnicians(); // Fetch technicians
-    // Your other logic for fetching dsrdata here
-  }, []);
-  let i = 1;
   return (
     <div className="web">
       <Header />
@@ -403,7 +401,7 @@ function Dsrcallist() {
                     </td>
                     <td>{selectedData.customer[0]?.mainContact}</td>
                     <td>
-                      {selectedData.dsrdata &&
+                      {/* {selectedData.dsrdata &&
                       selectedData.dsrdata.length > 0 &&
                       selectedData.dsrdata.find(
                         (dsrItem) => dsrItem.serviceDate === date
@@ -411,12 +409,9 @@ function Dsrcallist() {
                         ? selectedData.dsrdata.find(
                             (dsrItem) => dsrItem.serviceDate === date
                           ).TechorPMorVendorName
-                        : "Not Assigned"}
-                      {/* {
-                        Technicians.find(
-                          (tech) => tech._id === dsrdata[0]?.TechorPMorVenodrID
-                        )?.vhsname
-                      } */}
+                        : "Not Assigned"} */}
+
+                      {passfunction(selectedData)}
                     </td>
 
                     <td>{dsrdata[0]?.workerName}</td>

@@ -14,7 +14,7 @@ function Enquiryadd() {
   const [citydata, setcitydata] = useState([]);
   const [categorydata, setcategorydata] = useState([]);
   const [latestEnquiryId, setLatestEnquiryId] = useState(0);
-
+  const [whatsappTemplate, setWhatsappTemplate] = useState("");
   const [enquirydate, setenquirydate] = useState(moment().format("MM-DD-YYYY"));
   const [executive, setexecutive] = useState("pankaj");
   const [name, setname] = useState("");
@@ -64,74 +64,84 @@ function Enquiryadd() {
 
   const getwhatsapptemplate = async () => {
     let res = await axios.get(apiURL + "/getwhatsapptemplate");
-    if ((res.status = 200)) {
+    if (res.status === 200) {
       setwhatsappdata(res.data?.whatsapptemplate);
     }
   };
+
+  let getTemplateDatails = whatsappdata.find(
+    (item) => item.templatename === "Enquiry Add"
+  );
+
+  console.log("whatsappData:", getTemplateDatails);
+
   const addenquiry = async (e) => {
     e.preventDefault();
 
-    if (
-      !name ||
-      !email ||
-      !contact1 ||
-      !city ||
-      !category ||
-      !reference1 ||
-      !intrestedfor
-    ) {
-      alert("Please enter all fields");
-    } else {
-      try {
-        const config = {
-          url: "/addenquiry",
-          method: "post",
-          baseURL: apiURL,
-          // data: formdata,
-          headers: { "content-type": "application/json" },
-          data: {
-            enquirydate: enquirydate,
-            executive: admin?.displayname,
-            name: name,
-            time: moment().format("h:mm:ss a"),
-            contact1: contact1,
-            email: email,
-            contact2: contact2,
-            address: address,
-            category: category,
-            reference1: reference1,
-            reference2: reference2,
-            city: city,
-            reference3: reference3,
-            comment: comment,
-            intrestedfor: intrestedfor,
-          },
-        };
-        await axios(config).then(function (response) {
-          if (response.status === 200) {
-            console.log("success");
-            // const data =  response.json();
+    // if (
+    //   !name ||
+    //   !email ||
+    //   !contact1 ||
+    //   !city ||
+    //   !category ||
+    //   !reference1
+    //   // !intrestedfor
+    // ) {
+    //   alert("Please enter all fields");
+    // } else {
+    try {
+      const config = {
+        url: "/addenquiry",
+        method: "post",
+        baseURL: apiURL,
+        // data: formdata,
+        headers: { "content-type": "application/json" },
+        data: {
+          enquirydate: enquirydate,
+          executive: admin?.displayname,
+          name: name,
+          time: moment().format("h:mm:ss a"),
+          contact1: contact1,
+          email: email,
+          contact2: contact2,
+          address: address,
+          category: category,
+          reference1: reference1,
+          reference2: reference2,
+          city: city,
+          reference3: reference3,
+          comment: comment,
+          intrestedfor: intrestedfor,
+          responseType: getTemplateDatails,
+        },
+      };
+      await axios(config).then(function (response) {
+        if (response.status === 200) {
+          console.log("success");
+          // const data =  response.json();
 
-            // Assuming the structure matches your previous example
-            const enquiryId = response.data.EnquiryId;
+          // Assuming the structure matches your previous example
+          const enquiryId = response.data.EnquiryId;
 
-            const responce = response.data;
-            console.log(response.data);
-            console.log(JSON.stringify(responce.data));
-            makeApiCall(JSON.stringify(responce.data.contact1));
-            // navigate(`/enquirydetail/${latestEnquiryId ? latestEnquiryId + 1 : 1}`);
-          }
-        });
-      } catch (error) {
-        console.error(error);
-        if (error.response) {
-          alert(error.response.data.error); // Display error message from the API response
-        } else {
-          alert("An error occurred. Please try again later.");
+          const responce = response.data;
+          console.log(response.data);
+          console.log(JSON.stringify(responce.data));
+          makeApiCall(getTemplateDatails, contact1);
+          navigate(
+            `/enquirydetail/${latestEnquiryId ? latestEnquiryId + 1 : 1}`
+          );
         }
+      });
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        alert(error.response.data.error); // Display error message from the API response
+      } else {
+        alert("An error occurred. Please try again later.");
       }
     }
   };
+  // };
   useEffect(() => {
     getsubcategory();
   }, []);
@@ -143,26 +153,47 @@ function Enquiryadd() {
     }
   };
 
-  const makeApiCall = async (number) => {
+  function stripHtml(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const plainText = doc.body.textContent || "";
+    return plainText.replace(/\r?\n/g, " "); // Remove all HTML tags but keep line breaks
+  }
+  const makeApiCall = async (selectedResponse, contactNumber) => {
     const apiURL =
       "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
     const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
 
-    console.log("91" + number);
-    const contentTemplate = `<p>Dear <strong>{Customer_name}</strong><br><br>This Is test `;
-    const content = contentTemplate.replace("{Customer_name}", name);
-    console.log(content);
+    const contentTemplate = selectedResponse?.template || "";
 
+    console.log("Selected response in the makeapi:", whatsappTemplate);
+    console.log("Content template:", contentTemplate);
+
+    if (!contentTemplate) {
+      console.error("Content template is empty. Cannot proceed.");
+      return;
+    }
+    console.log("91" + contact1);
+    const content = contentTemplate.replace(/\{Customer_name\}/g, name);
+    const contentWithNames = content.replace(
+      /\{Executive_name\}/g,
+      admin?.displayname
+    );
+    const contentWithMobile = contentWithNames.replace(
+      /\{Executive_contact\}/g,
+      admin?.contactno
+    );
+
+    const plainTextContent = stripHtml(contentWithMobile);
+    console.log("plainTextContent", plainTextContent);
     const requestData = [
       {
-        dst: "91" + number,
+        dst: "91" + contactNumber,
         messageType: "0",
         textMessage: {
-          content: content,
+          content: plainTextContent,
         },
       },
     ];
-
     try {
       const response = await axios.post(apiURL, requestData, {
         headers: {
@@ -172,9 +203,8 @@ function Enquiryadd() {
       });
 
       if (response.status === 200) {
-        setResponse(response.data);
-        alert("enquiry added");
-        // navigate(`/enquirydetail/${latestEnquiryId ? latestEnquiryId + 1 : 1}`);
+        setWhatsappTemplate(response.data);
+        alert("Sent");
       } else {
         console.error("API call unsuccessful. Status code:", response.status);
       }
@@ -182,7 +212,6 @@ function Enquiryadd() {
       console.error("Error making API call:", error);
     }
   };
-
   useEffect(() => {
     getcity();
     getcategory();

@@ -2,7 +2,7 @@ const subcategoryModel = require("../model/subcategory");
 
 class subcategory {
   async addsubcategory(req, res) {
-    let { subcategory, category, videolink } = req.body;
+    let { subcategory, category, videolink,serviceName } = req.body;
     // let file = req.file.filename;
     if (!category | !subcategory ) {
       return res.status(500).json({ error: "Field must not be empty" });
@@ -11,6 +11,7 @@ class subcategory {
         subcategory: subcategory,
         category: category,
         videolink: videolink,
+        serviceName,
       });
       let save = add.save();
       if (save) {
@@ -22,11 +23,11 @@ class subcategory {
     //edit user
     async editsubcategory(req, res) {
       let id = req.params.id;
-      let { subcategory, category, videolink } = req.body;
+      let { subcategory, category, videolink,serviceName } = req.body;
   
       let data = await subcategoryModel.findOneAndUpdate(
         { _id: id },
-        { subcategory, category, videolink }
+        { subcategory, category, videolink,serviceName }
       );
       if (data) {
         return res.json({ success: "Updated" });

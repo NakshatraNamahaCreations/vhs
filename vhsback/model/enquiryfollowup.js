@@ -56,6 +56,18 @@ const enquiryfollowSchema = new mongoose.Schema({
   },
   status:{
     type:String
+  },
+  slotid:{
+    type:String
+  },
+  userId:{
+    type:String
+  },
+  type:{
+    type:String
+  },
+  responseType:{
+    type:String
   }
 }, {
   timestamps: true,

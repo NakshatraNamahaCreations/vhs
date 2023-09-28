@@ -3,20 +3,20 @@ import Header from "../layout/Header";
 import Nav from "../Nav1";
 import Modal from "react-bootstrap/Modal";
 import axios from "axios";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 function Whatsapptemplate() {
   const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
+  const [data, setData] = useState({});
   const [templateName, settemplateName] = useState("");
   const [whatsappTemplate, setwhatsappTemplate] = useState("");
   const [copiedData, setCopiedData] = useState("");
   const [filterdata, setfilterdata] = useState([]);
   const [whatsappdata, setwhatsappdata] = useState([]);
   const apiURL = process.env.REACT_APP_API_URL;
-
+  console.log("whatsappdata", whatsappdata);
   const addwhatsappTemplate = async (e) => {
     e.preventDefault();
     try {
@@ -70,7 +70,11 @@ function Whatsapptemplate() {
         console.log(error.response.data);
       });
   };
-  let i = 0;
+
+  const handleEditorChange = (event, editor) => {
+    const data = editor.getData();
+    setwhatsappTemplate(data);
+  };
 
   // Function to insert the clicked variable into the whatsappTemplate
   const insertVariable = (variable) => {
@@ -83,6 +87,22 @@ function Whatsapptemplate() {
       setwhatsappTemplate(whatsappTemplate.slice(0, -1));
     }
   };
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const edit = (data) => {
+    setData(data);
+    handleShow(true);
+  };
+
+  const [editTemplate, setEditTemplate] = useState("");
+
+  const handleEditTemplate = (event, editor) => {
+    const data = editor.getData();
+    setEditTemplate(data);
+  };
+
   return (
     <div className="web">
       <Header />
@@ -111,13 +131,18 @@ function Whatsapptemplate() {
                     <div className="vhs-input-label">
                       WhatsApp Template <span className="text-danger"> *</span>
                     </div>
-                    <textarea
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={whatsappTemplate}
+                      onChange={handleEditorChange}
+                    />
+                    {/* <textarea
                       rows={10}
                       cols={45}
-                      value={copiedData} // Populate textarea with copied data
+                      // value={copiedData} // Populate textarea with copied data
                       onChange={(e) => setwhatsappTemplate(e.target.value)}
                       onKeyDown={handleBackspace}
-                    />
+                    /> */}
                   </div>
 
                   <div className="col-md-4">
@@ -218,10 +243,10 @@ function Whatsapptemplate() {
                   <td className="text-center">1</td>
                   <td>{i.templatename}</td>
                   <td>
-                    {" "}
-                    {i.template.split("\n").map((item, index) => (
+                    <div dangerouslySetInnerHTML={{ __html: i.template }} />
+                    {/* {i.template.split("\n").map((item, index) => (
                       <p key={index}>{item}</p>
-                    ))}
+                    ))} */}
                   </td>
                   <td>
                     <p>Customer_name</p>
@@ -236,9 +261,10 @@ function Whatsapptemplate() {
 
                   <td>
                     <div className="d-flex">
-                      <a href="#" className="hyperlink" onClick={handleShow}>
+                      <a href="#" className="hyperlink" onClick={edit}>
                         Edit
-                      </a>
+                      </a>{" "}
+                      /{" "}
                       <a
                         href="#"
                         className="hyperlink"
@@ -272,7 +298,7 @@ function Whatsapptemplate() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title> Whatsapptemplate</Modal.Title>
+          <Modal.Title> Response: {data.templatename} </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="card" style={{ marginTop: "30px" }}>
@@ -294,11 +320,16 @@ function Whatsapptemplate() {
                   <div className="col-md-4">
                     <div className="vhs-input-label">WhatsApp Template</div>
                     <div className="group pt-1">
-                      <textarea
+                      {/* <textarea
                         rows={6}
                         cols={6}
                         type="text"
                         className="col-md-12 vhs-input-value"
+                      /> */}
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={data.template}
+                        onChange={handleEditTemplate}
                       />
                     </div>
                   </div>

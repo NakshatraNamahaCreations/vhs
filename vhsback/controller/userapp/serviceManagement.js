@@ -25,7 +25,10 @@ class serviceManagement {
       Eximg,
       qty,
       quantity
+      
     } = req.body;
+
+    console.log("sAddons",sAddons)
 
     const parsedServiceDesc = JSON.parse(serviceDesc);
 
@@ -35,6 +38,10 @@ class serviceManagement {
     let file1 = req.files[1]?.filename;
     let file2= req.files[2]?.filename;
     let file3= req.files[3]?.filename;
+
+console.log("parsedServiceDesc",parsedServiceDesc);
+console.log("parsedServiceExcludes",parsedServiceExcludes);
+console.log("parsedServiceIncludes",parsedServiceIncludes);
 
 
     let add = new serviceManagementModel({
@@ -62,12 +69,12 @@ class serviceManagement {
       Eximg:file3,
       qty,
       quantity,
-      sAddons
+      sAddons:sAddons
     });
     // let save = add.save();
     // Save the user
     add.save().then((data) => {
-      console.log(data);
+
       return res
         .status(200)
         .json({ success: "User added successfully", service: data });
@@ -248,7 +255,7 @@ class serviceManagement {
         serviceDirection || findService.serviceDirection;
       findService.serviceHour = serviceHour || findService.serviceHour;
       findService.NofServiceman = NofServiceman || findService.NofServiceman;
-      findService.sAddons = sAddons || findService.sAddons;
+      findService.sAddons = sAddons ;
       if (file) {
         findService.serviceImg = file;
       }

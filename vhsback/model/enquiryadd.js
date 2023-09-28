@@ -130,6 +130,9 @@ const enquiryaddSchema = new mongoose.Schema({
   staffName: {
     type: String,
   },
+  responseType:{
+    type:String
+  },
   creatAt:{
     type:Date,
     default:new Date(),
