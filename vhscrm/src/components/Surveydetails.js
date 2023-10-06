@@ -22,7 +22,11 @@ function Createquote() {
   const [sendSms, setsendSms] = useState(data.sendSms);
   const [whatsappdata, setwhatsappdata] = useState([]);
   const [whatsappTemplate, setWhatsappTemplate] = useState("");
-  const [type, settype] = useState(data.length > 0 ? data.technicianname : "");
+  let defaultChecked = false;
+  if (data.length > 0 && typeof data.Type !== "undefined") {
+    defaultChecked = data.Type || "";
+  }
+  const [type, settype] = useState(defaultChecked);
   const handleChange2 = (event) => {
     settype(event.target.value);
   };
@@ -83,7 +87,7 @@ function Createquote() {
         baseURL: apiURL,
         headers: { "content-type": "application/json" },
         data: {
-          technicianname: technician,
+          technicianname: technician.vhsname,
           appoDate: appoDate,
           appoTime: appoTime,
           sendSms: sendSms,
@@ -152,7 +156,8 @@ function Createquote() {
       data?.category
     );
     const callDate = jobType.replace(/\{Call_date\}/g, data?.nxtfoll);
-    const plainTextContent = stripHtml(callDate);
+    const callTime = callDate.replace(/\{Call_time\}/g, data?.appoTime);
+    const plainTextContent = stripHtml(callTime);
     console.log("plainTextContent", plainTextContent);
     const requestData = [
       {

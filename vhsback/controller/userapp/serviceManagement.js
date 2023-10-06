@@ -24,11 +24,10 @@ class serviceManagement {
       Inimg,
       Eximg,
       qty,
-      quantity
-      
+      quantity,
     } = req.body;
 
-    console.log("sAddons",sAddons)
+    console.log("sAddons", sAddons);
 
     const parsedServiceDesc = JSON.parse(serviceDesc);
 
@@ -36,18 +35,17 @@ class serviceManagement {
     const parsedServiceIncludes = JSON.parse(serviceIncludes);
     let file = req.files[0]?.filename;
     let file1 = req.files[1]?.filename;
-    let file2= req.files[2]?.filename;
-    let file3= req.files[3]?.filename;
+    let file2 = req.files[2]?.filename;
+    let file3 = req.files[3]?.filename;
 
-console.log("parsedServiceDesc",parsedServiceDesc);
-console.log("parsedServiceExcludes",parsedServiceExcludes);
-console.log("parsedServiceIncludes",parsedServiceIncludes);
-
+    console.log("parsedServiceDesc", parsedServiceDesc);
+    console.log("parsedServiceExcludes", parsedServiceExcludes);
+    console.log("parsedServiceIncludes", parsedServiceIncludes);
 
     let add = new serviceManagementModel({
       serviceImg: file,
       serviceName: serviceName,
-      category:category,
+      category: category,
       serviceCategory: serviceCategory,
       NofServiceman: NofServiceman,
       serviceHour: serviceHour,
@@ -64,17 +62,16 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
       servicebelow: servicebelow,
       servicetitle: servicetitle,
       homepagetitle: homepagetitle,
-      Desimg:file1,
-      Inimg:file2,
-      Eximg:file3,
+      Desimg: file1,
+      Inimg: file2,
+      Eximg: file3,
       qty,
       quantity,
-      sAddons:sAddons
+      sAddons: sAddons,
     });
     // let save = add.save();
     // Save the user
     add.save().then((data) => {
-
       return res
         .status(200)
         .json({ success: "User added successfully", service: data });
@@ -121,7 +118,7 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
       existingData.plans = plans || existingData.plans;
       existingData.Plansdetails = Plansdetails || existingData.Plansdetails;
       existingData.store_slots = store_slots || existingData.store_slots;
- 
+
       existingData.morepriceData = morepriceData || existingData.morepriceData;
 
       const updatedData = await existingData.save();
@@ -165,24 +162,24 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
         {
           // serviceImg: file,
           serviceName,
-      category,
-      serviceCategory,
-      NofServiceman,
-      serviceHour,
-      serviceDesc,
-      servicePrice,
-      serviceGst,
-      Subcategory,
-      offerPrice,
-      sub_subcategory,
-      serviceExcludes,
-      serviceIncludes,
-      serviceDirection,
-      quantity,
-      servicebelow,
-      servicetitle,
-      homepagetitle,
-      sAddons
+          category,
+          serviceCategory,
+          NofServiceman,
+          serviceHour,
+          serviceDesc,
+          servicePrice,
+          serviceGst,
+          Subcategory,
+          offerPrice,
+          sub_subcategory,
+          serviceExcludes,
+          serviceIncludes,
+          serviceDirection,
+          quantity,
+          servicebelow,
+          servicetitle,
+          homepagetitle,
+          sAddons,
         },
         { new: true } // Make sure to include this to return the updated document
       );
@@ -238,8 +235,8 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
         ? serviceDesc?.map((i) => JSON.parse(i))
         : [JSON.parse(serviceDesc)] || findService.serviceDesc;
 
-      findService.servicetitle = servicetitle ;
-      findService.servicebelow = servicebelow ;
+      findService.servicetitle = servicetitle;
+      findService.servicebelow = servicebelow;
 
       findService.serviceIncludes = Array.isArray(serviceIncludes)
         ? serviceIncludes?.map((i) => JSON.parse(i))
@@ -255,7 +252,7 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
         serviceDirection || findService.serviceDirection;
       findService.serviceHour = serviceHour || findService.serviceHour;
       findService.NofServiceman = NofServiceman || findService.NofServiceman;
-      findService.sAddons = sAddons ;
+      findService.sAddons = sAddons;
       if (file) {
         findService.serviceImg = file;
       }
@@ -275,9 +272,73 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
     }
   }
 
+  // 27-09
+  async getServiceByCategory(req, res) {
+    try {
+      let { category } = req.body;
+      console.log(category);
 
+      let data = await serviceManagementModel
+        .find({ category })
+        .sort({ _id: -1 });
 
+      if (category) {
+        return res.status(200).json({ serviceData: data });
+      } else {
+        return res.status(400).send("No Data Found");
+      }
+    } catch (error) {
+      console.log(error, "Error in Service Management Controller");
+      return res.status(500).json({ error: "something went wrong" });
+    }
+  }
+  // 03-10
+  async getSlotsByService(req, res) {
+    try {
+      let { serviceId } = req.body;
+      console.log(serviceId);
 
+      let data = await serviceManagementModel
+        .findById(serviceId)
+        .select("store_slots")
+        .sort({ _id: -1 });
+
+      if (data) {
+        return res.status(200).json({ success: data });
+      } else {
+        return res.status(400).send("No Data Found");
+      }
+    } catch (error) {
+      console.log(error, "Error in Service Management Controller");
+      return res.status(500).json({ error: "something went wrong" });
+    }
+  }
+
+  // 04-10
+  async addVideo(req, res) {
+    let serviceId = req.params.id;
+    let { category, serviceName, videoLink } = req.body;
+    let findService = await serviceManagementModel.findOne({
+      _id: serviceId,
+    });
+    if (!findService) {
+      return res.status(404).send("Not found");
+    }
+    findService.videoLink = videoLink || findService.videoLink;
+    findService.category = category || findService.category;
+    findService.serviceName = serviceName || findService.serviceName;
+
+    const saveLink = await serviceManagementModel.findOneAndUpdate(
+      {
+        _id: serviceId,
+      },
+      findService,
+      { new: true }
+    );
+    return res
+      .status(200)
+      .json({ message: "Link added to this serive", saveLink });
+  }
 
   async getserviceManagement(req, res) {
     let service = await serviceManagementModel.find({}).sort({ _id: -1 });
@@ -299,48 +360,41 @@ console.log("parsedServiceIncludes",parsedServiceIncludes);
     }
   }
 
-
-
   async deletebyindex(req, res) {
     const { serviceId, storeSlotId } = req.params;
-    try { // Find the service document by ID
+    try {
+      // Find the service document by ID
       const serviceDocument = await serviceManagementModel.findById(serviceId);
-  
+
       if (!serviceDocument) {
-        return res.status(404).json({ message: 'Service not found' });
+        return res.status(404).json({ message: "Service not found" });
       }
-  
+
       // Assuming that `store_slots` is an array within the document
       // Remove the item from the sub-collection
       const storeSlotsArray = serviceDocument.store_slots;
-      const removedSlotIndex = storeSlotsArray.findIndex(slot => slot.id.toString() === storeSlotId);
-  
+      const removedSlotIndex = storeSlotsArray.findIndex(
+        (slot) => slot.id.toString() === storeSlotId
+      );
+
       if (removedSlotIndex === -1) {
-        return res.status(404).json({ message: 'Store slot not found in the document' });
+        return res
+          .status(404)
+          .json({ message: "Store slot not found in the document" });
       }
-  
+
       // Remove the item from the array
       storeSlotsArray.splice(removedSlotIndex, 1);
-  
+
       // Save the parent document to update the sub-collection
       await serviceDocument.save();
-  
-      res.status(200).json({ message: 'Store slot deleted successfully' });
+
+      res.status(200).json({ message: "Store slot deleted successfully" });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: "Internal server error" });
     }
-    
   }
-  
-    
-  
-  
-  
-  
-  
-  
-  
 
   async deletebyindexofprice(req, res) {
     try {

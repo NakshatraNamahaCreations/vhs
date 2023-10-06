@@ -28,14 +28,15 @@ function Enquiryadd() {
   const [reference2, setreference2] = useState("");
   const [reference3, setreference3] = useState("");
   const [comment, setcomment] = useState("");
-  const [intrestedfor, setinterestedfor] = useState("");
   const [time, settime] = useState(moment().format("h:mm:ss a"));
-
+  const [serivceName, setSeviceName] = useState("");
+  const [serivceId, setSeviceId] = useState("");
   const apiURL = process.env.REACT_APP_API_URL;
   const [subcategorydata, setsubcategorydata] = useState([]);
   const [referecetypedata, setreferecetypedata] = useState([]);
   const [enquirydata, setenquirydata] = useState([]);
   const [whatsappdata, setwhatsappdata] = useState([]);
+  const [serviceData, setServiceData] = useState([]);
 
   useEffect(() => {
     getenquiry();
@@ -75,6 +76,24 @@ function Enquiryadd() {
 
   console.log("whatsappData:", getTemplateDatails);
 
+  const getServiceByCategory = async () => {
+    try {
+      let res = await axios.post(apiURL + `/userapp/getservicebycategory/`, {
+        category,
+      });
+      if (res.status === 200) {
+        setServiceData(res.data?.serviceData);
+      } else {
+        setServiceData([]);
+      }
+    } catch (error) {
+      console.log("err", error);
+    }
+  };
+  useEffect(() => {
+    getServiceByCategory();
+  }, [category]);
+
   const addenquiry = async (e) => {
     e.preventDefault();
 
@@ -111,7 +130,8 @@ function Enquiryadd() {
           city: city,
           reference3: reference3,
           comment: comment,
-          intrestedfor: intrestedfor,
+          intrestedfor: serivceName,
+          serviceID: serivceId,
           responseType: getTemplateDatails,
         },
       };
@@ -153,11 +173,6 @@ function Enquiryadd() {
     }
   };
 
-  function stripHtml(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const plainText = doc.body.textContent || "";
-    return plainText.replace(/\r?\n/g, " "); // Remove all HTML tags but keep line breaks
-  }
   const makeApiCall = async (selectedResponse, contactNumber) => {
     const apiURL =
       "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
@@ -184,13 +199,14 @@ function Enquiryadd() {
     );
 
     const plainTextContent = stripHtml(contentWithMobile);
-    console.log("plainTextContent", plainTextContent);
+    const contentWithLineBreaks = plainTextContent.replace(/\n/g, "%0a");
+    console.log("plainTextContent", contentWithLineBreaks);
     const requestData = [
       {
         dst: "91" + contactNumber,
         messageType: "0",
         textMessage: {
-          content: plainTextContent,
+          content: contentWithLineBreaks,
         },
       },
     ];
@@ -212,6 +228,13 @@ function Enquiryadd() {
       console.error("Error making API call:", error);
     }
   };
+
+  function stripHtml(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const plainText = doc.body.textContent || "";
+    return plainText.replace(/\r?\n/g, " "); // Remove all HTML tags but keep line breaks
+  }
+
   useEffect(() => {
     getcity();
     getcategory();
@@ -438,7 +461,7 @@ function Enquiryadd() {
                       <span className="text-danger"> *</span>
                     </div>
                     <div className="group pt-1">
-                      <select
+                      {/* <select
                         className="col-md-12 vhs-input-value"
                         onChange={(e) => setinterestedfor(e.target.value)}
                       >
@@ -446,6 +469,26 @@ function Enquiryadd() {
                         {subcategorydata.map((item) => (
                           <option value={item.subcategory}>
                             {item.subcategory}
+                          </option>
+                        ))}
+                      </select> */}
+                      <select
+                        className="col-md-12 vhs-input-value"
+                        onChange={(e) => {
+                          const selectedService = serviceData.find(
+                            (item) => item._id === e.target.value
+                          );
+                          setSeviceId(e.target.value);
+                          setSeviceName(
+                            selectedService ? selectedService.serviceName : ""
+                          );
+                        }}
+                        // onChange={(e) => setSeviceName(e.target.value)}
+                      >
+                        <option>---SELECT---</option>
+                        {serviceData.map((item) => (
+                          <option key={item.id} value={item._id}>
+                            {item.serviceName}
                           </option>
                         ))}
                       </select>

@@ -2,13 +2,13 @@ const whatsappmodel = require("../../model/master/whatsapptemplate");
 
 class response {
   async addwhatsapptemplate(req, res) {
-    let { templatename,template } = req.body;
-    if(!templatename || !template){
-        return res.status(500).json({error:"Field doestn't empty"})
+    let { templatename, template } = req.body;
+    if (!templatename || !template) {
+      return res.status(500).json({ error: "Field doestn't empty" });
     }
     let add = new whatsappmodel({
-        templatename: templatename,
-        template:template
+      templatename: templatename,
+      template: template,
     });
     let save = add.save();
     if (save) {
@@ -16,19 +16,15 @@ class response {
     }
   }
 
-  //edit 
-  async editwhatsapptemplate(req,res){
-    let id=req.params.id;
-    let{templatename,template}=req.body;
-    
-    let data=await whatsappmodel.findOneAndUpdate(
-        {_id:id},
-        {templatename,template}
-    );
-    if (data) {
-        return res.json({ success: "Updated" });
-      }
+  //edit
+  async editwhatsapptemplate(req, res) {
+    let id = req.params.id;
+    let { template } = req.body;
 
+    let data = await whatsappmodel.findOneAndUpdate({ _id: id }, { template });
+    if (data) {
+      return res.json({ success: "Updated" });
+    }
   }
 
   async getwhatsapptemplate(req, res) {
@@ -37,8 +33,6 @@ class response {
       return res.json({ whatsapptemplate: whatsapptemplate });
     }
   }
-
-  
 
   async postwhatsapptemplate(req, res) {
     let id = req.params.id;

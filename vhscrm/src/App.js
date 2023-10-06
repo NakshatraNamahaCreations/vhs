@@ -164,6 +164,7 @@ import Report_B2B from "./components/Report/Report_B2B";
 import Report_1Community from "./components/Report/Report_1Community";
 import Paymentinvoice from "./components/Paymentinvoice";
 import SendMessages from "./components/SendMessages";
+import DSR_Invoice from "./components/DSR_Invoice";
 
 function App() {
   return (
@@ -357,7 +358,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/quotationterm" element={<Quotationterm />} />
         <Route path="/servicebill" element={<Servicebill />} />
-        <Route path="/dsrquote" element={<Dsrquote />} />
+        <Route path="/dsrquote/:id" element={<Dsrquote />} />
+        <Route path="/dsr_invoice_bill" element={<DSR_Invoice />} />
         <Route path="/raiseinvoice" element={<Paymentinvoice />} />
 
         <Route path="/onecommnityreport" element={<OneCommunityReports />} />

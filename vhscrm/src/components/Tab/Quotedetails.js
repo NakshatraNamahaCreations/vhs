@@ -472,6 +472,86 @@ function Quotedetails() {
     }
   }
 
+  // function stripHtml(html) {
+  //   const doc = new DOMParser().parseFromString(html, "text/html");
+  //   const plainText = doc.body.textContent || "";
+  //   return plainText.replace(/\r?\n/g, " "); // Remove all HTML tags but keep line breaks
+  // }
+  // const makeApiCall = async (selectedResponse, contactNumber) => {
+  //   const apiURL =
+  //     "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
+  //   const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
+
+  //   const contentTemplate = selectedResponse?.template || "";
+
+  //   console.log("Selected response in the makeapi:", whatsappTemplate);
+  //   console.log("Content template:", contentTemplate);
+
+  //   if (!contentTemplate) {
+  //     console.error("Content template is empty. Cannot proceed.");
+  //     return;
+  //   }
+  //   console.log("91" + data.enquirydata[0].contact1);
+  //   const content = contentTemplate.replace(
+  //     /\{Customer_name\}/g,
+  //     data.enquirydata[0].name
+  //   );
+  //   const contentWithNames = content.replace(
+  //     /\{Staff_name\}/g,
+  //     data?.staffname
+  //   );
+  //   const contentWithMobile = contentWithNames.replace(
+  //     /\{Staff_contact\}/g,
+  //     admin.contactno //check conatct no for Staff_contact
+  //   );
+  //   const technicianName = contentWithMobile.replace(
+  //     /\{Technician_name\}/g,
+  //     technician?.vhsname
+  //   );
+  //   const technicianExperiance = technicianName.replace(
+  //     /\{Technician_experiance\}/g,
+  //     technician?.experiance
+  //   );
+  //   const technicianLanguageKnown = technicianExperiance.replace(
+  //     /\{Technician_languages_known\}/g,
+  //     technician?.languagesknow
+  //   );
+  //   const jobType = technicianLanguageKnown.replace(
+  //     /\{Job_type\}/g,
+  //     data?.category
+  //   );
+  //   const callDate = jobType.replace(/\{Call_date\}/g, data?.nxtfoll);
+  //   const callTime = callDate.replace(/\{Call_time\}/g, data?.appoTime);
+  //   const plainTextContent = stripHtml(callTime);
+  //   console.log("plainTextContent", plainTextContent);
+  //   const requestData = [
+  //     {
+  //       dst: "91" + contactNumber,
+  //       messageType: "0",
+  //       textMessage: {
+  //         content: plainTextContent,
+  //       },
+  //     },
+  //   ];
+  //   try {
+  //     const response = await axios.post(apiURL, requestData, {
+  //       headers: {
+  //         "access-token": accessToken,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     if (response.status === 200) {
+  //       setWhatsappTemplate(response.data);
+  //       alert("Sent");
+  //     } else {
+  //       console.error("API call unsuccessful. Status code:", response.status);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error making API call:", error);
+  //   }
+  // };
+
   return (
     <div className="web">
       <Header />
@@ -905,13 +985,13 @@ function Quotedetails() {
                     </button>
                   </Link>
                 </div>
-                <div className="col-md-2 ">
+                {/* <div className="col-md-2 ">
                   <button className="vhs-button " style={{ width: "150px" }}>
                     Send Quote by SMS
                   </button>
-                </div>
+                </div> */}
                 <div className="col-md-2 ">
-                  <button className="vhs-button " style={{ width: "150px" }}>
+                  <button className="vhs-button" style={{ width: "200px" }}>
                     Send Quote by Whatsapp
                   </button>
                 </div>

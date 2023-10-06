@@ -1,71 +1,8 @@
 const servicedetailsmodel = require("../model/servicedetails");
+const customerModel = require("../model/customer");
 const { v4: uuidv4 } = require("uuid");
 
 class servicedetails {
-  // async addservicedetails(req, res) {
-  //   try {
-  //     let {
-  //       customerData,
-  //       dCategory,
-  //       cardNo,
-  //       contractType,
-  //       service,
-  //       serviceCharge,
-  //       dateofService,
-  //       desc,
-  //       firstserviceDate,
-  //       serviceFrequency,
-  //       startDate,
-  //       category,
-  //       expiryDate,
-  //       date,
-  //       time,
-  //       dividedDates,
-  //       dividedCharges,
-  //       dividedamtDates,
-  //       dividedamtCharges,
-  //       oneCommunity,
-  //       communityId,
-  //       BackofficeExecutive,
-  //     } = req.body;
-  //     if (!category) {
-  //       return res.status(500).json({ error: "Field must not be empty" });
-  //     } else {
-  //       let add = new servicedetailsmodel({
-  //         customerData,
-  //         cardNo: cardNo,
-  //         dCategory,
-  //         category: category,
-  //         contractType: contractType,
-  //         service: service,
-  //         serviceCharge: serviceCharge,
-  //         dateofService: dateofService,
-  //         desc: desc,
-  //         serviceFrequency: serviceFrequency,
-  //         startDate: startDate,
-  //         expiryDate: expiryDate,
-  //         firstserviceDate: firstserviceDate,
-  //         date: date,
-  //         time: time,
-  //         dividedDates,
-  //         dividedCharges,
-  //         dividedamtDates,
-  //         dividedamtCharges,
-  //         oneCommunity, //store only the communityPercentage
-  //         communityId, //store the communityId
-  //         BackofficeExecutive
-  //       });
-  //       let save = add.save();
-  //       if (save) {
-  //         return res.json({ sucess: "Added successfully" });
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("error", error);
-  //     alert(error, "the error you are getting...");
-  //   }
-  // }
-
   async addservicedetails(req, res) {
     try {
       let {
@@ -74,6 +11,7 @@ class servicedetails {
         cardNo,
         contractType,
         service,
+        slots, //  this 03-10
         serviceID,
         serviceCharge,
         dateofService,
@@ -95,15 +33,23 @@ class servicedetails {
         deliveryAddress,
         type,
         userId,
-        selectedSlotText
+        selectedSlotText,
+        AddOns,
+        TotalAmt,
+        GrandTotal,
+        totalSaved,
+        discAmt,
+        couponCode,
+        city,
+        paymentMode,
       } = req.body;
       let file = req.file?.filename;
-  
+
       // Initialize the variables as empty arrays
       let dividedDateObjects = [];
       let dividedamtDateObjects = [];
       let dividedamtChargeObjects = [];
-  
+
       if (contractType === "AMC") {
         if (dividedDates) {
           dividedDateObjects = dividedDates.map((date) => {
@@ -111,14 +57,14 @@ class servicedetails {
             return { id: uniqueId, date: new Date(date) };
           });
         }
-      
+
         if (dividedamtDates) {
           dividedamtDateObjects = dividedamtDates.map((date) => {
             const uniqueId = uuidv4(); // Generate a UUID for the date
             return { id: uniqueId, date: new Date(date) };
           });
         }
-      
+
         if (dividedamtCharges) {
           dividedamtChargeObjects = dividedamtCharges.map((charge) => {
             const uniqueId = uuidv4(); // Generate a UUID for the charge
@@ -133,10 +79,14 @@ class servicedetails {
           });
         }
       }
-      
+      const user = await customerModel.findOneAndUpdate(
+        { _id: customerData[0]?._id },
+        { city: city, category: category },
+        { new: true }
+      );
 
-    
-  
+      console.log("user--", user);
+
       let add = new servicedetailsmodel({
         customerData,
         cardNo: cardNo,
@@ -144,7 +94,8 @@ class servicedetails {
         category: category,
         contractType: contractType,
         service: service,
-        serviceID:serviceID,
+        serviceID: serviceID,
+        slots: slots,
         serviceCharge: serviceCharge,
         dateofService: dateofService,
         desc: desc,
@@ -165,11 +116,18 @@ class servicedetails {
         type,
         userId,
         selectedSlotText,
-        serviceImg:file
+        serviceImg: file,
+        AddOns,
+        GrandTotal,
+        totalSaved,
+        discAmt,
+        couponCode,
+        city,
+        paymentMode,
       });
-  
+
       let save = await add.save();
-  
+
       if (save) {
         return res.json({ success: "Added successfully" });
       }
@@ -178,7 +136,7 @@ class servicedetails {
       res.status(500).json({ error: "An error occurred" });
     }
   }
-  
+
   //edit
   async editservicedetails(req, res) {
     let id = req.params.id;
@@ -199,7 +157,7 @@ class servicedetails {
       dividedDates,
       dividedCharges,
       BackofficeExecutive,
-      deliveryAddress
+      deliveryAddress,
     } = req.body;
 
     let data = await servicedetailsmodel.findOneAndUpdate(
@@ -221,7 +179,7 @@ class servicedetails {
         dividedDates,
         dividedCharges,
         BackofficeExecutive,
-        deliveryAddress
+        deliveryAddress,
       }
     );
     if (data) {

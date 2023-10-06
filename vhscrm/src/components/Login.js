@@ -53,17 +53,17 @@ function Login() {
             />
           </div>
           <div className="col-6">
-            {/* <img src="loginpg.jpeg" style={{width:"100%",height:"50px"}}/> */}
+            {/* <img src="loginpg.jpeg" style={{ width: "100%", height: "50px" }} /> */}
           </div>
         </div>
 
         <div className="col-10" style={{ marginTop: "5%" }}>
           <div style={{ display: "flex" }}>
             <div className="col-6 ">
-              {/* <img
+              <img
                 src="https://www.vijayhomeservices.in/crm/login/map.png "
                 style={{ width: "100%", height: "600px" }}
-              /> */}
+              />
             </div>
             <div style={{}} className="col-6">
               <Card
@@ -79,7 +79,7 @@ function Login() {
                       textAlign: "center",
                     }}
                   >
-                    {/* <img src="/images/vhs.png" style={{ width: "80px" }} /> */}
+                    <img src="/images/vhs.png" style={{ width: "80px" }} />
 
                     <h4 className="mt-3">LOGIN TO YOUR ACCOUNT</h4>
                   </div>

@@ -86,6 +86,8 @@ function Enquirynewdetail() {
     getenquiryfollowup();
   }, []);
 
+  console.log("flwdata=========", flwdata);
+
   let i = 1;
 
   // new and not interested
@@ -337,11 +339,6 @@ function Enquirynewdetail() {
     }
   }
 
-  function stripHtml(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const plainText = doc.body.textContent || "";
-    return plainText.replace(/\r?\n/g, " "); // Remove all HTML tags but keep line breaks
-  }
   const makeApiCall = async (selectedResponse, contactNumber) => {
     const apiURL =
       "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
@@ -371,13 +368,20 @@ function Enquirynewdetail() {
     );
 
     const plainTextContent = stripHtml(contentWithMobile);
-    console.log("plainTextContent", plainTextContent);
+    const contentWithLineBreaks = plainTextContent.replace(
+      /<br\s*[/]?>/gi,
+      "\n"
+    );
+    const contentWithFormatting = contentWithLineBreaks
+      .replace(/\*([^*]+)\*/g, "*$1*") // Bold
+      .replace(/_([^_]+)_/g, "_$1_"); // Italic
+    console.log("plainTextContent", contentWithLineBreaks);
     const requestData = [
       {
         dst: "91" + contactNumber,
         messageType: "0",
         textMessage: {
-          content: plainTextContent,
+          content: contentWithFormatting,
         },
       },
     ];
@@ -400,6 +404,11 @@ function Enquirynewdetail() {
     }
   };
 
+  function stripHtml(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const plainText = doc.body.textContent || "";
+    return plainText.replace(/<[^>]+>/g, ""); // Remove all HTML tags but keep line breaks
+  }
   return (
     <div className="row">
       <Header />

@@ -97,7 +97,7 @@ function Category() {
         <div>
           {row.categoryImg ? (
             <img
-              src={`http://api.vijayhomeservicebengaluru.in/category/${row.categoryImg}`}
+              src={`http://localhost:8080/category/${row.categoryImg}`}
               width="50px"
               height="50px"
             />

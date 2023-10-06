@@ -180,11 +180,11 @@ class addcustomer {
           instructions,
           approach,
           serviceExecute,
-        }
+        },{new:true}
       );
 
       if (data) {
-        return res.json({ success: "Updated" });
+        return res.status(200).json({ success: "Updated" });
       } else {
         return res.status(401).send("Not Updated");
       }

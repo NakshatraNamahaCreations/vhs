@@ -1,7 +1,6 @@
 const enquiryaddmodel = require("../model/enquiryadd");
 
 class addenquiry {
-  
   async Addenquiry(req, res) {
     try {
       // Generate the series number
@@ -22,6 +21,7 @@ class addenquiry {
         reference3,
         comment,
         intrestedfor,
+        serviceID, //05-10
         responseType,
         // counter,
       } = req.body;
@@ -60,13 +60,14 @@ class addenquiry {
         reference3,
         comment,
         intrestedfor,
+        serviceID, //05-10
         responseType,
         // counter,
       });
       newVendor.save().then((data) => {
         return res
           .status(200)
-          .json({ Success: "Account created. Please login",data:newVendor });
+          .json({ Success: "Account created. Please login", data: newVendor });
       });
     } catch (error) {
       console.error("Error enquiry add:", error);
@@ -158,6 +159,7 @@ class addenquiry {
       reference3,
       comment,
       intrestedfor,
+      serviceID, //05-10
       responseType,
     } = req.body;
     let data = await enquiryaddmodel.findOneAndUpdate(
@@ -179,7 +181,8 @@ class addenquiry {
         reference3,
         comment,
         intrestedfor,
-        responseType
+        serviceID, //05-10
+        responseType,
       }
     );
     if (data) {
@@ -247,7 +250,6 @@ class addenquiry {
   //     });
   //   }
   // }
-  
 
   async postsubcategory(req, res) {
     let { category } = req.body;
@@ -303,8 +305,8 @@ class addenquiry {
 
   //Get all
   async getallenquiryid(req, res) {
-    let {id}=req.body;
-    let data = await enquiryaddmodel.find({EnquiryId:id});
+    let { id } = req.body;
+    let data = await enquiryaddmodel.find({ EnquiryId: id });
     if (data) {
       return res.status(200).json({ enquiryadd: data });
     } else {

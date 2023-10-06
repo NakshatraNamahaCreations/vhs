@@ -6,11 +6,22 @@ import axios from "axios";
 import moment from "moment";
 import Moment from "react-moment";
 
-function Dsrdetails() {
+function Dsrdetails({}) {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
   const location = useLocation();
   const { data, data1 } = location.state || {};
   const id = data?._id;
+  // const serviceId = data.serviceID;
+  // const customerName = data.customerData[0]?.customerName;
+  // const serviceName = data.service;
+  // const customerMobileNumber = data.customerData[0]?.mainContact;
+  // console.log(
+  //   "URL passing data",
+  //   id,
+  //   customerMobileNumber,
+  //   serviceId,
+  //   serviceName
+  // );
   const [dsrdata, setdsrdata] = useState([]);
   console.log("service date:", data1);
   console.log("service details:", data);
@@ -74,10 +85,10 @@ function Dsrdetails() {
   );
 
   const [selectedTechId, setSelectedTechId] = useState("");
-
-  const [LatestCardNo, setLatestCardNo] = useState(0);
   const [whatsappTemplate, setWhatsappTemplate] = useState("");
   const [whatsappdata, setwhatsappdata] = useState([]);
+
+  const [LatestCardNo, setLatestCardNo] = useState(0);
 
   useEffect(() => {
     gettechnician();
@@ -135,6 +146,25 @@ function Dsrdetails() {
           (i) => i._id == dsrdata[0]?.TechorPMorVenodrID
         )
       );
+    }
+  };
+
+  useEffect(() => {
+    getwhatsapptemplate();
+  }, []);
+
+  const getwhatsapptemplate = async () => {
+    try {
+      let res = await axios.get(apiURL + "/getwhatsapptemplate");
+      if (res.status === 200) {
+        // console.log("whatsapp template", res.data);
+        let getTemplateDatails = res.data?.whatsapptemplate?.filter(
+          (item) => item.templatename === "Service Added"
+        );
+        setwhatsappdata(getTemplateDatails);
+      }
+    } catch (error) {
+      console.error("err", error);
     }
   };
 
@@ -331,45 +361,21 @@ function Dsrdetails() {
   let i = 1;
   const dataByCity = {};
 
-  useEffect(() => {
-    getwhatsapptemplate();
-  }, []);
-
-  const getwhatsapptemplate = async () => {
-    try {
-      let res = await axios.get(apiURL + "/getwhatsapptemplate");
-      if (res.status === 200) {
-        // console.log("whatsapp template", res.data);
-        let getTemplateDatails = res.data?.whatsapptemplate?.filter(
-          (item) => item.templatename === "Send Invoice Link (Painting)"
-        );
-        setwhatsappdata(getTemplateDatails);
-      }
-    } catch (error) {
-      console.error("err", error);
-    }
-  };
-
-  const GoToInvoice = () => {
+  const sendMessage = () => {
     console.log("Go to Invoice");
     if (whatsappdata.length > 0) {
       const selectedResponse = whatsappdata[0];
-      const invoiceLink = `dsr invoice bill?id=${id}`;
-      makeApiCall(
-        selectedResponse,
-        data.customerData[0]?.mainContact,
-        invoiceLink
-      );
+      makeApiCall(selectedResponse, data.customerData[0]?.mainContact);
+      // Navigate(`dsr invoice bill?id=${id}`);
     } else {
+      // Handle the case where whatsappdata is empty
       console.error("whatsappdata is empty. Cannot proceed.");
       alert("Not Added");
     }
-    // Navigate(`/dsrquote/${data}`);
   };
 
-  // const invoiceURL = Navigate(`dsr invoice bill?id=${id}`);
-
-  const makeApiCall = async (selectedResponse, contactNumber, invoiceId) => {
+  const invoiceURL = Navigate(`dsr invoice bill?id=${id}`);
+  const makeApiCall = async (selectedResponse, contactNumber) => {
     const apiURL =
       "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
     const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
@@ -393,14 +399,8 @@ function Dsrdetails() {
       /\{Service_amount\}/g,
       data.serviceCharge
     );
-
-    const invoiceUrl = `http://localhost:3000/dsr_invoice_bill?id=${id}`;
-
-    const invoiceLink = serivePrice.replace(
-      /\{Invoice_link\}/g,
-      `[Click to view invoice](${invoiceUrl})`
-    );
-    const plainTextContent = stripHtml(invoiceLink);
+    const serviceVideoLink = serivePrice.replace(/\{Video_link\}/g, invoiceURL);
+    const plainTextContent = stripHtml(serviceVideoLink);
     console.log("plainTextContent", plainTextContent);
     const requestData = [
       {
@@ -1103,7 +1103,7 @@ function Dsrdetails() {
           </div>
           <div className="col-md-2">
             {/* <Link to={`/dsr invoice bill?id=${id}`}> */}
-            <button className="vhs-button" onClick={GoToInvoice}>
+            <button className="vhs-button" onClick={sendMessage}>
               Bill Whatsapp
             </button>{" "}
             {/* </Link> */}

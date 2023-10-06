@@ -5,11 +5,11 @@ const serviceSchema = new mongoose.Schema(
     customerData: {
       type: Array,
     },
-    userId:{
-      type:Number,
+    userId: {
+      type: String,
     },
-    selectedSlotText:{
-      type:String,
+    selectedSlotText: {
+      type: String,
     },
     cardNo: {
       type: Number,
@@ -26,8 +26,8 @@ const serviceSchema = new mongoose.Schema(
     service: {
       type: String,
     },
-    serviceID:{
-      type:String
+    serviceID: {
+      type: String,
     },
     serviceCharge: {
       type: String,
@@ -36,8 +36,8 @@ const serviceSchema = new mongoose.Schema(
       type: Array,
       default: "00-00-0000",
     },
-    deliveryAddress:{
-      type:Object
+    deliveryAddress: {
+      type: Object,
     },
     desc: {
       type: String,
@@ -86,6 +86,37 @@ const serviceSchema = new mongoose.Schema(
     },
     oneCommunity: {
       type: String,
+    },
+
+    paymentMode: {
+      type: String,
+    },
+    GrandTotal: {
+      type: String,
+    },
+    AddOns: {
+      type: Array,
+    },
+    discAmt: {
+      type: String,
+    },
+    couponCode: {
+      type: String,
+    },
+    totalSaved: {
+      type: String,
+    },
+    TotalAmt: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    slots: {
+      type: String, //03-10
+    },
+    videoLink: {
+      type: String, //03-10
     },
     communityId: { type: mongoose.Schema.Types.ObjectId, ref: "community" },
     creatAt: {

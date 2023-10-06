@@ -66,6 +66,7 @@ const work=require("./route/work");
 const b2bfollowup=require("./route/B2Bfollowup");
 const communitPayments = require("./route/communityPayment");
 const advPayments = require("./route/advpayment");
+const AddPaymentGetWay = require("./route/paymentgatway/payment");
 
 
 
@@ -87,11 +88,12 @@ const ufeq = require("./route/userapp/feq");
 const addOnsRoute = require("./route/userapp/serviceAddons");
 const numbersRoute = require("./route/userapp/whatsappNumber");
 const paymentgateway = require("./route/paymentgatway/payment");
+const sPayment = require("./route/paymentgatway/servicePayment");
 
 const webbanner = require("./route/websitebanner");
 
 
-
+const otp = require("./route/otp");
 
 
 
@@ -103,7 +105,7 @@ const profile = require("./route/profile");
 
 
 
-
+app.use("/api", otp);
 app.use("/api", admin);
 app.use("/api", technician);
 app.use("/api", category);
@@ -168,9 +170,11 @@ app.use("/api/userapp", addOnsRoute);
 app.use("/api/userapp", numbersRoute);
 app.use("/api", profile);
 app.use("/api/payment", paymentgateway);
+app.use("/api/payment/service",sPayment);
 
 //website
 app.use("/api/website",webbanner);
+app.use("/api/payment", AddPaymentGetWay);
 
 
 

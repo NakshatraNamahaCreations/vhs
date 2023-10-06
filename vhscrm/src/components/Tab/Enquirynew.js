@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Enquirynav from "../Enquirynav";
 
 function Enquirynew() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [filterdata, setfilterdata] = useState([]);
   const apiURL = process.env.REACT_APP_API_URL;
   const [searchResults, setSearchResults] = useState([]);
@@ -25,7 +25,7 @@ function Enquirynew() {
   const [searchStaff, setSearchStaff] = useState("");
   const [searchResponse, setSearchResponse] = useState("");
   const [searchDesc, setSearchDesc] = useState("");
-  const [searchNxtfoll, setSearchNxtfoll] = useState("")
+  const [searchNxtfoll, setSearchNxtfoll] = useState("");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,15 +35,41 @@ function Enquirynew() {
     getenquiry();
   }, []);
 
-  let i = 0;
   const getenquiry = async () => {
     let res = await axios.get(apiURL + "/getallflwdata");
     if ((res.status = 200)) {
-      setfilterdata(
-        res.data?.enquiryfollowup.filter((i)=>i.response === "New"));
-        setSearchResults(
-          res.data?.enquiryfollowup.filter((i)=>i.response === "New")
+      const data = res.data?.enquiryfollowup;
+
+      console.log("new dta===", data);
+
+      const getLastAddedDataByEnquiryId = (data, enquiryIdToFilter) => {
+        const reversedData = data.slice().reverse();
+        console.log("reversedData", reversedData);
+        const lastAddedData = reversedData.find(
+          (item) => item.EnquiryId === enquiryIdToFilter
         );
+        return lastAddedData;
+      };
+
+      const enquiryIdToFilter = 1; // Specify the EnquiryId to filter (can be dynamic)
+
+      const lastAddedDataForEnquiryId = getLastAddedDataByEnquiryId(
+        data,
+        enquiryIdToFilter
+      );
+
+      console.log(
+        `Last added data for EnquiryId ${enquiryIdToFilter}:`,
+        lastAddedDataForEnquiryId
+      );
+
+      setfilterdata(
+        res.data?.enquiryfollowup.filter((i) => i.response === "New")
+      );
+
+      setSearchResults(
+        res.data?.enquiryfollowup.filter((i) => i.response === "New")
+      );
     }
   };
   const enquirydetail = (data) => {
@@ -51,7 +77,7 @@ function Enquirynew() {
     navigate(`/enquirydetail/${data.EnquiryId}`);
   };
 
-
+  console.log("filterdata", filterdata);
   useEffect(() => {
     const filterResults = () => {
       let results = filterdata;
@@ -65,32 +91,38 @@ function Enquirynew() {
       if (searchDateTime) {
         results = results.filter(
           (item) =>
-            (item.enquirydata[0]?.enquirydate &&
-              item.enquirydate
-                .toLowerCase()
-                .includes(searchDateTime.toLowerCase())) 
+            item.enquirydata[0]?.enquirydate &&
+            item.enquirydate
+              .toLowerCase()
+              .includes(searchDateTime.toLowerCase())
         );
       }
-     
+
       if (searchName) {
         results = results.filter(
           (item) =>
             item.enquirydata[0]?.name &&
-            item.enquirydata[0]?.name.toLowerCase().includes(searchName.toLowerCase())
+            item.enquirydata[0]?.name
+              .toLowerCase()
+              .includes(searchName.toLowerCase())
         );
       }
       if (searchContact) {
         results = results.filter(
           (item) =>
             item.enquirydata[0]?.contact1 &&
-            item.enquirydata[0]?.contact1.toLowerCase().includes(searchContact.toLowerCase())
+            item.enquirydata[0]?.contact1
+              .toLowerCase()
+              .includes(searchContact.toLowerCase())
         );
       }
       if (searchAddress) {
         results = results.filter(
           (item) =>
             item.enquirydata[0]?.address &&
-            item.enquirydata[0]?.address.toLowerCase().includes(searchAddress.toLowerCase())
+            item.enquirydata[0]?.address
+              .toLowerCase()
+              .includes(searchAddress.toLowerCase())
         );
       }
       if (searchReference) {
@@ -115,7 +147,9 @@ function Enquirynew() {
         results = results.filter(
           (item) =>
             item.enquirydata[0]?.city &&
-            item.enquirydata[0]?.city.toLowerCase().includes(searchCity.toLowerCase())
+            item.enquirydata[0]?.city
+              .toLowerCase()
+              .includes(searchCity.toLowerCase())
         );
       }
       if (searchInterest) {
@@ -138,9 +172,7 @@ function Enquirynew() {
         results = results.filter(
           (item) =>
             item.staffname &&
-            item.staffname
-              .toLowerCase()
-              .includes(searchStaff.toLowerCase())
+            item.staffname.toLowerCase().includes(searchStaff.toLowerCase())
         );
       }
       if (searchResponse) {
@@ -154,18 +186,14 @@ function Enquirynew() {
         results = results.filter(
           (item) =>
             item.desc &&
-            item.desc
-              .toLowerCase()
-              .includes(searchDesc.toLowerCase())
+            item.desc.toLowerCase().includes(searchDesc.toLowerCase())
         );
       }
       if (searchNxtfoll) {
         results = results.filter(
           (item) =>
-            (item.nxtfoll &&
-              item.nxtfoll
-                .toLowerCase()
-                .includes(searchNxtfoll.toLowerCase())) 
+            item.nxtfoll &&
+            item.nxtfoll.toLowerCase().includes(searchNxtfoll.toLowerCase())
         );
       }
       // results = results.map((item) => ({
@@ -188,9 +216,8 @@ function Enquirynew() {
     searchStaff,
     searchResponse,
     searchDesc,
-    searchNxtfoll
+    searchNxtfoll,
   ]);
-
 
   function getColor(colorcode) {
     if (colorcode === "easy") {
@@ -203,36 +230,35 @@ function Enquirynew() {
       return "transparent";
     }
   }
-// Pagination logic
-const totalPages = Math.ceil(searchResults.length / itemsPerPage);
-const pageOptions = Array.from(
-  { length: totalPages },
-  (_, index) => index + 1
-);
+  // Pagination logic
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  const pageOptions = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1
+  );
 
-// Get current items for the current page
-const indexOfLastItem = currentPage * itemsPerPage;
-const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-const currentItems = searchResults.slice(indexOfFirstItem, indexOfLastItem);
+  // Get current items for the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = searchResults.slice(indexOfFirstItem, indexOfLastItem);
 
-// Change page
-const handlePageChange = (selectedPage) => {
-  setCurrentPage(selectedPage);
-};
+  // Change page
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage);
+  };
   return (
     <div>
       <Header />
-    
+
       <Enquirynav />
 
       <div className="row m-auto">
         <div className="col-md-12">
-
-           {/* Pagination */}
-           <div className="pagination">
+          {/* Pagination */}
+          <div className="pagination">
             <span>Page </span>
             <select
-            className="m-1"
+              className="m-1"
               value={currentPage}
               onChange={(e) => handlePageChange(Number(e.target.value))}
             >
@@ -244,7 +270,7 @@ const handlePageChange = (selectedPage) => {
             </select>
             <span> of {totalPages}</span>
           </div>
-        <table>
+          <table>
             <thead>
               <tr className="tr ">
                 <th scope="col">
@@ -433,12 +459,8 @@ const handlePageChange = (selectedPage) => {
           </table>
         </div>
       </div>
-
-     
     </div>
   );
 }
 
 export default Enquirynew;
-
-

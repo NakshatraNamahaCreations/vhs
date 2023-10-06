@@ -25,10 +25,13 @@ const paymentgetwaymodel = new Schema({
   },
   base64: String,
   sha256encode: String,
+
   amount: {
     type: String,
   },
-
+  serviceId:{
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -36,6 +39,11 @@ const paymentgetwaymodel = new Schema({
   cardNumber: { type: String },
   expiryDate: { type: String },
   cvv: { type: String },
+  expire_at: {
+    type: Date,
+    default: Date.now,
+    expires: 300,
+  },
 });
 const Paymentgetwaymodel = mongoose.model(
   "paymentgetwaymodel",

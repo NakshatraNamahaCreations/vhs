@@ -7,7 +7,7 @@ const multer=require("multer");
  
 var storage = multer.diskStorage({
     destination:function(req,file,cb){
-        cb(null,"public/service");
+        cb(null,"public/services");
     },
     filename: function (req, file, cb) {
 		cb(null, Date.now() + "_" + file.originalname);
@@ -15,7 +15,7 @@ var storage = multer.diskStorage({
 });
 const  upload =multer({storage:storage});
 
-router.post("/addservicedetails",upload.any(),servicedetailscontroller.addservicedetails);
+router.post("/addservicedetails",upload.single("serviceImg"),servicedetailscontroller.addservicedetails);
 router.get("/getservicedetails",servicedetailscontroller.getservicedetails);
 router.post("/deleteservicedetails/:id",servicedetailscontroller.deleteservicedetails);
 router.post("/editservicedetails/:id",servicedetailscontroller.editservicedetails);

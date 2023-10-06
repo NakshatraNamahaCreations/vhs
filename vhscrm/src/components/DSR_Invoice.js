@@ -1,61 +1,43 @@
 import React, { useState, useEffect } from "react";
-import Header from "../components/layout/Header";
+import Header from "./layout/Header";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { da } from "date-fns/locale";
 import numberToWords from "number-to-words";
 
-function Dsrquote() {
+function DSR_Invoice() {
   const [tcdata, settcdata] = useState([]);
   const [headerimgdata, setheaderimgdata] = useState([]);
   const [footerimgdata, setfooterimgdata] = useState([]);
   const [bankdata, setbankdata] = useState([]);
-  const [treatmentdata, settreatmentdata] = useState([]);
   const location = useLocation();
-  const { data, data1, id } = location.state || null;
-  console.log("dataId", id);
+  const getURLDATA = new URLSearchParams(location.search)?.get("id");
+  const [treatmentData, settreatmentData] = useState([]);
   const apiURL = process.env.REACT_APP_API_URL;
   const imgURL = process.env.REACT_APP_IMAGE_API_URL;
 
   // const [section2data, setsection2data] = useState([]);
   const [termsAndCondition, setTemsAndCondition] = useState([]);
+  // useEffect(() => {
+  //   gettermsgroup();
+  // }, []);
 
-  console.log("data---------------------", data);
-
-  useEffect(() => {
-    gettermsgroup();
-  }, []);
-
-  const gettermsgroup = async () => {
-    let res = await axios.get(apiURL + "/master/gettermgroup");
-    if ((res.status = 200)) {
-      setTemsAndCondition(res.data?.termsgroup);
-      const invoicType = res.data?.termsgroup.filter(
-        (i) => i.type === "INVOICE"
-      );
-      const filterByCategory = invoicType.filter(
-        (item) => item.category === data.category
-      );
-      settcdata(filterByCategory);
-    }
-  };
-
-  // const gettermsgroup2 = async () => {
-  //   let res = await axios.get(apiURL + "/master/gettermgroup2");
-  //   if (res.status === 200) {
-  //     setTemsAndCondition(res.data?.termsgroup2);
-  //     const invoicType = res.data?.termsgroup2.filter(
+  // const gettermsgroup = async () => {
+  //   let res = await axios.get(apiURL + "/master/gettermgroup");
+  //   if ((res.status = 200)) {
+  //     setTemsAndCondition(res.data?.termsgroup);
+  //     const invoicType = res.data?.termsgroup.filter(
   //       (i) => i.type === "INVOICE"
   //     );
   //     const filterByCategory = invoicType.filter(
   //       (item) => item.category === data.category
   //     );
-  //     setsection2data(filterByCategory);
+  //     settcdata(filterByCategory);
   //   }
   // };
 
-  console.log("termsAndCondition", termsAndCondition);
+  // console.log("termsAndCondition", termsAndCondition);
   let i = 1;
 
   useEffect(() => {
@@ -86,6 +68,30 @@ function Dsrquote() {
       setbankdata(res.data?.bankacct);
     }
   };
+
+  const getServiceData = async () => {
+    try {
+      let res = await axios.get(apiURL + "/getrunningdata");
+      if (res.status === 200) {
+        const data = res.data?.runningdata;
+        const filteredService = data.find((item) => item._id === getURLDATA);
+        settreatmentData(filteredService);
+      } else {
+        settreatmentData([]);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // console.log(
+  //   "filteredService",
+  //  const  treatmentData?.customerData?.flat().map((ele) => ele.approach)
+  // );
+
+  useEffect(() => {
+    getServiceData();
+  }, []);
 
   return (
     <div className="row">
@@ -133,14 +139,21 @@ function Dsrquote() {
                   BILLED TO
                 </div>
 
-                <h5>{data?.customerData[0]?.customerName}</h5>
-                <p className="mb-0">
-                  {data?.customerData[0]?.lnf}
-                  {data?.customerData[0]?.rbhf}
-                  {data?.customerData[0]?.mainArea}
-                  {data?.customerData[0]?.pinCode}
-                </p>
-                <p className="mb-0">{data?.customerData[0]?.mainContact}</p>
+                <h5> {treatmentData?.customerData?.customerName} </h5>
+
+                {treatmentData?.customerData?.flat().map((ele) => {
+                  return (
+                    <p className="mb-0">
+                      {ele.lnf} {ele.rbhf} {ele.mainArea} - {ele.pinCode}
+                    </p>
+                  );
+                })}
+                {/* {treatmentData?.customerData?.rbhf}
+                  {treatmentData?.customerData?.mainArea}
+                  {treatmentData?.customerData?.pinCode} */}
+                {treatmentData?.customerData?.flat().map((ele) => {
+                  return <p className="mb-0">{ele.mainContact}</p>;
+                })}
                 <b> GSTIN</b>
               </div>
             </div>
@@ -166,16 +179,18 @@ function Dsrquote() {
                         {i++}
                       </td>
                       <td scope="row" className="text-center">
-                        {data.category}
+                        {treatmentData.category}
                       </td>
                       <td scope="row" className="text-center">
-                        {data.desc}
+                        {treatmentData.desc}
                       </td>
 
-                      <td className="text-center">{data?.contractType}</td>
-                      {data?.contractType === "AMC" ? (
+                      <td className="text-center">
+                        {treatmentData?.contractType}
+                      </td>
+                      {treatmentData?.contractType === "AMC" ? (
                         <td>
-                          {data.dividedDates.map((item) => (
+                          {treatmentData.dividedDates.map((item) => (
                             <div>
                               <p className="text-center">
                                 {new Date(item).toLocaleDateString()}
@@ -184,12 +199,12 @@ function Dsrquote() {
                           ))}
                         </td>
                       ) : (
-                        <td>{data?.dateofService}</td>
+                        <td> {treatmentData?.dateofService} </td>
                       )}
 
-                      {data?.contractType === "AMC" ? (
+                      {treatmentData?.contractType === "AMC" ? (
                         <td>
-                          {data.dividedamtDates.map((item) => (
+                          {treatmentData.dividedamtDates.map((item) => (
                             <div>
                               <p className="text-end">
                                 {new Date(item).toLocaleDateString()}
@@ -198,34 +213,32 @@ function Dsrquote() {
                           ))}
                         </td>
                       ) : (
-                        <td>{data?.dateofService}</td>
+                        <td>{treatmentData?.dateofService}</td>
                       )}
 
-                      {data?.contractType === "AMC" ? (
+                      {treatmentData?.contractType === "AMC" ? (
                         <td>
-                          {data.dividedamtCharges.map((item) => (
+                          {treatmentData.dividedamtCharges.map((item) => (
                             <div>
-                              <p className="text-end">{item}</p>
+                              <p className="text-end"> {item} </p>
                             </div>
                           ))}
                         </td>
                       ) : (
-                        <td>{data?.serviceCharge}</td>
+                        <td>{treatmentData?.serviceCharge} </td>
                       )}
                     </tr>
                   </tbody>
                 </table>
                 <div className="float-end px-1">
-                  <h5>Total : {data.serviceCharge}</h5>
+                  <h5>Total : {treatmentData.serviceCharge} </h5>
                 </div>
-
-                {/* <div className="row m-auto mt-3 hclr">Terms & Condition</div> */}
               </div>
             </div>
             <div className="text-end px-2" style={{ fontWeight: "bold" }}>
               Amount In Words :{" "}
               <span style={{ fontWeight: 400 }}>
-                {numberToWords.toWords(data.serviceCharge) + " Only"}
+                {/* {numberToWords.toWords(treatmentData.serviceCharge) + " Only"} */}
               </span>
             </div>
 
@@ -321,43 +334,16 @@ function Dsrquote() {
                           </div>
                         </div>
                       </td>
-                      {/* <td className="">{item.content}</td> */}
                     </tr>
                   </tbody>
                 </table>
               </div>
             ))}
           </div>
-          {/* <div
-            className=" shadow  "
-            style={{ border: "none" }}
-          >
-           
-
-            <div className="row m-auto">
-              <div className="mt-3 text-center" style={{ color: "#a9042e" }}>
-                website : www.vijayhomeservices | mail :
-                support@vijayhomeservices.com
-              </div>
-
-              <div className="mt-2 text-center" style={{ color: "black" }}>
-                BANGALORE - HYDERABAD - CHENNAI - PUNE - MUMBAI - AHMEDABAD -
-                VADODARA - SURAT - LUCKNOW - NCR - INDIA - GURGAON - FARIDABAD -
-                GHAZIABAD - BHUVANESHWAR - KOCHI
-              </div>
-
-              <div
-                className="mt-2 text-center pb-2"
-                style={{ color: "#a9042e" }}
-              >
-                Customer Care : +91 845 374 8478
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>
   );
 }
 
-export default Dsrquote;
+export default DSR_Invoice;

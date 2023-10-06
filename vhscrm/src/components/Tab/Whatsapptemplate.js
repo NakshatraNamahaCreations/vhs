@@ -17,6 +17,7 @@ function Whatsapptemplate() {
   const [whatsappdata, setwhatsappdata] = useState([]);
   const apiURL = process.env.REACT_APP_API_URL;
   console.log("whatsappdata", whatsappdata);
+
   const addwhatsappTemplate = async (e) => {
     e.preventDefault();
     try {
@@ -103,6 +104,30 @@ function Whatsapptemplate() {
     setEditTemplate(data);
   };
 
+  const updateTemplate = async (e) => {
+    e.preventDefault();
+    try {
+      const config = {
+        url: `/editwhatsapptemplate/${data._id}`,
+        method: "post",
+        baseURL: apiURL,
+        headers: { "content-type": "application/json" },
+        data: {
+          template: editTemplate,
+        },
+      };
+      await axios(config).then(function (response) {
+        if (response.status === 200) {
+          alert("Successfully Added");
+          window.location.reload("");
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      alert("category  Not Added");
+    }
+  };
+
   return (
     <div className="web">
       <Header />
@@ -114,20 +139,18 @@ function Whatsapptemplate() {
             <div className="card-body p-3">
               <form>
                 <div className="row">
-                  <div className="col-md-4">
+                  <div className="col-md-7">
                     <div className="vhs-input-label">
                       Template Name <span className="text-danger"> *</span>
                     </div>
                     <div className="group pt-1">
                       <input
                         type="text"
-                        className="col-md-12 vhs-input-value"
+                        className="col-md-6 vhs-input-value"
                         onChange={(e) => settemplateName(e.target.value)}
                       />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
+                    </div>{" "}
+                    <br />
                     <div className="vhs-input-label">
                       WhatsApp Template <span className="text-danger"> *</span>
                     </div>
@@ -136,46 +159,107 @@ function Whatsapptemplate() {
                       data={whatsappTemplate}
                       onChange={handleEditorChange}
                     />
-                    {/* <textarea
-                      rows={10}
-                      cols={45}
-                      // value={copiedData} // Populate textarea with copied data
-                      onChange={(e) => setwhatsappTemplate(e.target.value)}
-                      onKeyDown={handleBackspace}
-                    /> */}
                   </div>
-
-                  <div className="col-md-4">
-                    <div>
-                      <b>Click to Copy to WhatsApp Template</b>
-                    </div>
-                    <div onClick={() => insertVariable("Customer_name")}>
-                      <b>Customer_name</b>
-                    </div>
-                    <div onClick={() => insertVariable("Call_date")}>
-                      <b>Call_date</b>
-                    </div>
-                    <div>
-                      <b>Category</b>
-                    </div>
-                    <div>
-                      <b> Staff_name</b>
-                    </div>
-                    <div>
-                      <b> Staff_contact</b>
-                    </div>
-                    <div>
-                      <b>Technician_name</b>
-                    </div>
-                    <div>
-                      <b>Technician_experiance</b>
-                    </div>
-                    <div>
-                      <b>Technician_languages_known</b>
+                  <div className="col-md-5">
+                    <div>Click and drag the Variables</div> <br />
+                    <div className="row" style={{ fontSize: "15px" }}>
+                      <div className="col-md-6">
+                        <b>Customer_name</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Call_date</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Job_type</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Technician_name</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b> Technician_name</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Technician_experiance</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Technician_languages_known</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Staff_name</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Staff_contact</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Project_manager_name</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Project_start_date</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b> Customer_contact</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Worker_names</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Worker_amount</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Executive_name</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Executive_contact</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Days_to_complete</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Service_name</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Service_date</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b> Service_amount</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b> Video_link</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Paid_amount</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Payment_mode</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Payment_date</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Quote_link</b>
+                      </div>{" "}
+                      <hr />
+                      <div className="col-md-6">
+                        <b>Invoice_link</b>
+                      </div>
+                      <div className="col-md-6">
+                        <b>Appointment_datetime</b>
+                      </div>{" "}
+                      <hr />
                     </div>
                   </div>
                 </div>
-
                 <div className="row pt-3">
                   <div className="col-md-2">
                     <button
@@ -238,9 +322,9 @@ function Whatsapptemplate() {
               </tr>
             </thead>
             <tbody>
-              {whatsappdata.map((i) => (
+              {whatsappdata.map((i, index) => (
                 <tr className="user-tbale-body">
-                  <td className="text-center">1</td>
+                  <td className="text-center">{index + 1} </td>
                   <td>{i.templatename}</td>
                   <td>
                     <div dangerouslySetInnerHTML={{ __html: i.template }} />
@@ -261,17 +345,10 @@ function Whatsapptemplate() {
 
                   <td>
                     <div className="d-flex">
-                      <a href="#" className="hyperlink" onClick={edit}>
-                        Edit
-                      </a>{" "}
-                      /{" "}
-                      <a
-                        href="#"
-                        className="hyperlink"
-                        onClick={() => deletereferencetype(i._id)}
-                      >
+                      <div onClick={() => edit(i)}>Edit</div>/
+                      <div onClick={() => deletereferencetype(i._id)}>
                         Delete
-                      </a>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -305,27 +382,9 @@ function Whatsapptemplate() {
             <div className="card-body p-3">
               <form>
                 <div className="row">
-                  <div className="col-md-4">
-                    <div className="vhs-input-label">
-                      Template Name <span className="text-danger"> *</span>
-                    </div>
-                    <div className="group pt-1">
-                      <input
-                        type="text"
-                        className="col-md-12 vhs-input-value"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
+                  <div className="col-md-8">
                     <div className="vhs-input-label">WhatsApp Template</div>
                     <div className="group pt-1">
-                      {/* <textarea
-                        rows={6}
-                        cols={6}
-                        type="text"
-                        className="col-md-12 vhs-input-value"
-                      /> */}
                       <CKEditor
                         editor={ClassicEditor}
                         data={data.template}
@@ -335,23 +394,97 @@ function Whatsapptemplate() {
                   </div>
 
                   <div className="col-md-4">
-                    <div className="vhs-input-label">
-                      Double Click On Below VARIABLE
-                    </div>
-                    <div className="vhs-input-label">
-                      To Add In Message Text
-                    </div>
-                    <div className="group pt-1">
-                      <p>Customer_name</p>
-                      <p>Executive_name</p>
-                      <p>Executive_contact</p>
+                    <div className="row" style={{ fontSize: "15px" }}>
+                      <div>
+                        <b>Customer_name</b>
+                      </div>
+                      <div>
+                        <b>Call_date</b>
+                      </div>{" "}
+                      <div>
+                        <b>Job_type</b>
+                      </div>
+                      <div>
+                        <b>Technician_name</b>
+                      </div>{" "}
+                      <div>
+                        <b> Technician_name</b>
+                      </div>
+                      <div>
+                        <b>Technician_experiance</b>
+                      </div>{" "}
+                      <div>
+                        <b>Technician_languages_known</b>
+                      </div>
+                      <div>
+                        <b>Staff_name</b>
+                      </div>{" "}
+                      <div>
+                        <b>Staff_contact</b>
+                      </div>
+                      <div>
+                        <b>Project_manager_name</b>
+                      </div>{" "}
+                      <div>
+                        <b>Project_start_date</b>
+                      </div>
+                      <div>
+                        <b> Customer_contact</b>
+                      </div>{" "}
+                      <div>
+                        <b>Worker_names</b>
+                      </div>
+                      <div>
+                        <b>Worker_amount</b>
+                      </div>{" "}
+                      <div>
+                        <b>Executive_name</b>
+                      </div>
+                      <div>
+                        <b>Executive_contact</b>
+                      </div>{" "}
+                      <div>
+                        <b>Days_to_complete</b>
+                      </div>
+                      <div>
+                        <b>Service_name</b>
+                      </div>{" "}
+                      <div>
+                        <b>Service_date</b>
+                      </div>
+                      <div>
+                        <b> Service_amount</b>
+                      </div>{" "}
+                      <div>
+                        <b> Video_link</b>
+                      </div>
+                      <div>
+                        <b>Paid_amount</b>
+                      </div>
+                      <div>
+                        <b>Payment_mode</b>
+                      </div>{" "}
+                      <div>
+                        <b>Payment_date</b>
+                      </div>
+                      <div>
+                        <b>Quote_link</b>
+                      </div>{" "}
+                      <div>
+                        <b>Invoice_link</b>
+                      </div>
+                      <div>
+                        <b>Appointment_datetime</b>
+                      </div>{" "}
                     </div>
                   </div>
                 </div>
 
                 <div className="row pt-3">
                   <div className="col-md-2">
-                    <button className="vhs-button">Save</button>
+                    <button className="vhs-button" onClick={updateTemplate}>
+                      Save
+                    </button>
                   </div>
                 </div>
               </form>

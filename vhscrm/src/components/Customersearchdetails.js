@@ -11,7 +11,7 @@ function Customersearchdetails() {
   const admin = JSON.parse(sessionStorage.getItem("admin"));
   const navigate = useNavigate();
   const { id } = useParams();
-  console.log("id", id);
+  //console.log("id", id);
   const apiURL = process.env.REACT_APP_API_URL;
   const [serviceCharge, setserviceCharge] = useState("");
   const [dateofService, setdateofService] = useState([]);
@@ -23,6 +23,7 @@ function Customersearchdetails() {
   const [firstserviceDate, setfirstserviceDate] = useState("00-00-0000");
   const [contractType, setcontractType] = useState("");
   const [serviceId, setServiceId] = useState("");
+  const [selectedVideoLink, setSelectedVideoLink] = useState("");
   const [treatment, settreatment] = useState("");
   const [oneCommunity, setOneCommunity] = useState({}); //string to obj
   const [treatmentdata, settreatmentdata] = useState([]);
@@ -34,6 +35,9 @@ function Customersearchdetails() {
   const [expiryDateamt, setexpiryDateamt] = useState("");
   const [communityData, setCommunityData] = useState([]);
   const [serviceDetails, setServiceDetails] = useState([]);
+  const [whatsappTemplate, setWhatsappTemplate] = useState("");
+  const [whatsappdata, setwhatsappdata] = useState([]);
+
   const [newCharge, setnewCharge] = useState("");
   // delivery address
   const [houseNumber, setHouseNumber] = useState("");
@@ -42,6 +46,8 @@ function Customersearchdetails() {
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
   const [landmark, setLankmark] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [serviceSlots, setServiceSlots] = useState([]);
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -53,14 +59,17 @@ function Customersearchdetails() {
       try {
         let res = await axios.get(apiURL + "/getcustomer");
         if (res.status === 200) {
-          setcustomerdata(res.data?.customers.filter((i) => i.cardNo == id));
+          const filteredCustomers = res.data?.customers.filter(
+            (item) => item.cardNo == id
+          );
+          setcustomerdata(filteredCustomers);
         }
       } catch (error) {
         console.log("error", error);
       }
     };
     getcustomer();
-  }, []);
+  }, [id]);
 
   // useEffect(() => {
   //   getsubcategory();
@@ -100,7 +109,13 @@ function Customersearchdetails() {
           category,
         });
         if (res.status === 200) {
+          // console.log("service details by category", res.data);
           setServiceDetails(res.data?.serviceData);
+          if (res.data?.serviceData.length > 0) {
+            setServiceId(res.data.serviceData[0]._id);
+          } else {
+            setServiceSlots([]);
+          }
         }
       } catch (error) {
         console.log("Error", error);
@@ -111,11 +126,59 @@ function Customersearchdetails() {
   }, [category]);
 
   useEffect(() => {
+    const getSlotsByService = async () => {
+      try {
+        let res = await axios.post(apiURL + `/userapp/getslotsbyservice/`, {
+          serviceId: serviceId,
+        });
+        if (res.status === 200) {
+          setServiceSlots(res.data?.success.store_slots);
+        }
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+
+    if (serviceId) {
+      getSlotsByService();
+    }
+  }, [serviceId]);
+
+  // const getServiceSlot = serviceDetails.map((slots) =>
+  //   slots.store_slots.filter((item) => item.slotCity === customerdata[0]?.city)
+  // );
+  // const getServiceSlot = serviceDetails.filter((slots) =>  slots. );
+
+  // console.log("serviceDetails", getServiceSlot);
+  //
+  // console.log("selectedSlot", selectedSlot);
+
+  // useEffect(() => {
+  //   const getSlotsByService = async () => {
+  //     try {
+  //       let res = await axios.post(apiURL + `/userapp/getslotsbyservice/`, {
+  //         serviceName,
+  //       });
+  //       if (res.status === 200) {
+  //         setSlotDetails(res.data?.success);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error", error);
+  //     }
+  //   };
+
+  //   getSlotsByService();
+  // }, [serviceName]);
+
+  // console.log("");
+
+  // console.log("treatmentdata", treatmentdata);
+  useEffect(() => {
     const gettreatment = async () => {
       try {
         let res = await axios.get(apiURL + "/getservicedetails");
         if (res.status === 200) {
-          console.log("treatmentdata", res);
+          // console.log("treatmentdata", res);
           const filteredData = res.data?.servicedetails.filter(
             (i) => i.cardNo == id
           );
@@ -127,12 +190,12 @@ function Customersearchdetails() {
 
             if (!isNaN(oneCommunity) && !isNaN(serviceCharge)) {
               const totalCharge = serviceCharge - oneCommunity;
-              console.log(
-                "Total Charge for item with cardNo " +
-                  item.cardNo +
-                  ": " +
-                  totalCharge
-              );
+              // console.log(
+              //   "Total Charge for item with cardNo " +
+              //     item.cardNo +
+              //     ": " +
+              //     totalCharge
+              // );
               // You can choose to store the totalCharge value back to the item if needed.
               // Store the difference (divided charges) in the item object
               item.dividedCharges = totalCharge;
@@ -140,10 +203,10 @@ function Customersearchdetails() {
 
               console.log("hey", totalCharge);
             } else {
-              console.log(
-                "One or both values are not valid numbers for item with cardNo " +
-                  item.cardNo
-              );
+              // console.log(
+              //   "One or both values are not valid numbers for item with cardNo " +
+              //     item.cardNo
+              // );
             }
           });
 
@@ -210,9 +273,31 @@ function Customersearchdetails() {
     dividedamtCharges.push(charge);
   }
 
+  useEffect(() => {
+    getwhatsapptemplate();
+  }, []);
+
+  const getwhatsapptemplate = async () => {
+    try {
+      let res = await axios.get(apiURL + "/getwhatsapptemplate");
+      if (res.status === 200) {
+        // console.log("whatsapp template", res.data);
+        let getTemplateDatails = res.data?.whatsapptemplate?.filter(
+          (item) => item.templatename === "Service Added"
+        );
+        setwhatsappdata(getTemplateDatails);
+      }
+    } catch (error) {
+      console.error("err", error);
+    }
+  };
+
+  // console.log("whatsapp template data", whatsappdata);
+
   const addtreatmentdetails = async (e) => {
     e.preventDefault();
     if (!contractType || !treatment) {
+      console.log(contractType, treatment, "qywfk");
       alert("Fill all feilds");
     } else {
       try {
@@ -233,10 +318,12 @@ function Customersearchdetails() {
             contractType: contractType,
             service: treatment,
             serviceID: serviceId,
+            slots: selectedSlot,
             serviceCharge: serviceCharge,
             dateofService: dateofService,
             deliveryAddress: addingDeliveryAddress,
             desc: desc,
+            city: customerdata[0].city,
             serviceFrequency: serviceFrequency,
             startDate: dateofService,
             expiryDate: expiryDate,
@@ -248,12 +335,30 @@ function Customersearchdetails() {
             BackofficeExecutive: admin.displayname,
           },
         };
-        await axios(config).then(function (response) {
-          if (response.status === 200) {
-            alert("Added");
-            window.location.reload("");
-          }
-        });
+
+        if (whatsappdata.length > 0) {
+          // Assuming you want the first item from whatsappdata for the API call
+          const selectedResponse = whatsappdata[0];
+          makeApiCall(selectedResponse, customerdata[0]?.mainContact);
+
+          await axios(config).then(function (response) {
+            if (response.status === 200) {
+              alert("Added");
+              window.location.reload("");
+            }
+          });
+        } else {
+          // Handle the case where whatsappdata is empty
+          console.error("whatsappdata is empty. Cannot proceed.");
+          alert("Not Added");
+        }
+        // await axios(config).then(function (response) {
+        //   if (response.status === 200) {
+        //     makeApiCall(whatsappdata, customerdata[0]?.mainContact);
+        //     alert("Added");
+        // window.location.reload("");
+        //   }
+        // });
       } catch (error) {
         console.error(error);
         alert(" Not Added");
@@ -385,6 +490,77 @@ function Customersearchdetails() {
       ...address,
     }))
   );
+
+  console.log("treatment", treatment);
+
+  const customerNames = customerdata[0]?.city;
+  // console.log("Customer names:", customerNames);
+
+  function stripHtml(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const plainText = doc.body.textContent || "";
+    return plainText.replace(/\r?\n/g, " ");
+  }
+
+  const makeApiCall = async (selectedResponse, contactNumber) => {
+    const apiURL =
+      "https://wa.chatmybot.in/gateway/waunofficial/v1/api/v2/message";
+    const accessToken = "c7475f11-97cb-4d52-9500-f458c1a377f4";
+
+    const contentTemplate = selectedResponse?.template || "";
+
+    console.log("Selected response in the makeapi:", whatsappTemplate);
+    console.log("Content template:", contentTemplate);
+
+    if (!contentTemplate) {
+      console.error("Content template is empty. Cannot proceed.");
+      return;
+    }
+    console.log("91" + customerdata[0]?.mainContact);
+    const content = contentTemplate.replace(
+      /\{Customer_name\}/g,
+      customerdata[0]?.customerName
+    );
+    const serviceName = content.replace(/\{Service_name\}/g, treatment);
+    const slotTiming = serviceName.replace(/\{Slot_timing\}/g, selectedSlot);
+    const serivePrice = slotTiming.replace(
+      /\{Service_amount\}/g,
+      serviceCharge
+    );
+    const serviceDate = serivePrice.replace(/\{Service_date\}/g, dateofService);
+    const serviceVideoLink = serviceDate.replace(
+      /\{Video_link\}/g,
+      selectedVideoLink
+    );
+    const plainTextContent = stripHtml(serviceVideoLink);
+    console.log("plainTextContent", plainTextContent);
+    const requestData = [
+      {
+        dst: "91" + contactNumber,
+        messageType: "0",
+        textMessage: {
+          content: plainTextContent,
+        },
+      },
+    ];
+    try {
+      const response = await axios.post(apiURL, requestData, {
+        headers: {
+          "access-token": accessToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        setWhatsappTemplate(response.data);
+        alert("Sent");
+      } else {
+        console.error("API call unsuccessful. Status code:", response.status);
+      }
+    } catch (error) {
+      console.error("Error making API call:", error);
+    }
+  };
 
   return (
     <div className="web">
@@ -559,9 +735,14 @@ function Customersearchdetails() {
                           name="material"
                         >
                           <option>--select--</option>
-                          {categoryData.map((category, index) => (
+                          {/* {categoryData.map((category, index) => (
                             <option key={index} value={category.category}>
                               {category.category}
+                            </option>
+                          ))} */}
+                          {admin?.category.map((category, index) => (
+                            <option key={index} value={category.name}>
+                              {category.name}
                             </option>
                           ))}
                         </select>
@@ -591,16 +772,31 @@ function Customersearchdetails() {
                         <select
                           className="col-md-12 vhs-input-value"
                           onChange={(e) => {
+                            console.log(
+                              "serviceDetails before",
+                              serviceDetails
+                            );
+
                             const selectedService = serviceDetails.find(
                               (item) => item._id === e.target.value
                             );
-                            setServiceId(e.target.value);
-                            settreatment(
-                              selectedService
-                                ? selectedService.serviceName &&
-                                    selectedService.servicetitle
-                                : ""
-                            );
+                            console.log("Selected value", e.target.value);
+                            if (selectedService) {
+                              setServiceId(e.target.value);
+                              const serviceName =
+                                selectedService.serviceName || "";
+                              const serviceTitle =
+                                selectedService.servicetitle || "";
+                              const combinedTreatment = `${serviceName}/${serviceTitle}`;
+                              settreatment(combinedTreatment);
+                              setSelectedVideoLink(
+                                selectedService.videoLink || ""
+                              );
+                            } else {
+                              console.log(
+                                "Service not found for the selected ID."
+                              );
+                            }
                           }}
                           name="material"
                         >
@@ -610,6 +806,31 @@ function Customersearchdetails() {
                               {item.serviceName}/{item.servicetitle}
                             </option>
                           ))}
+                        </select>
+                      </div>
+                      <div className="col-md-4 mt-2">
+                        <div className="vhs-input-label">
+                          Slot
+                          <span className="text-danger">*</span>
+                        </div>
+                        <select
+                          className="col-md-12 vhs-input-value"
+                          onChange={(e) => setSelectedSlot(e.target.value)}
+                          name="material"
+                        >
+                          <option>--select--</option>
+                          {serviceSlots
+                            ?.filter(
+                              (slot) => slot.slotCity === customerdata[0]?.city // Filter based on city match
+                            )
+                            .map((slot, index) => (
+                              <option
+                                key={index}
+                                value={`${slot.startTime}-${slot.endTime}`}
+                              >
+                                {`${slot.startTime} - ${slot.endTime}`}
+                              </option>
+                            ))}
                         </select>
                       </div>
                     </div>

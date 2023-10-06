@@ -12,6 +12,8 @@ function Services() {
   const [categoryData, setCategoryData] = useState([]);
   const [category, setcategory] = useState("");
   const [serivceName, setSeviceName] = useState("");
+  const [serivceId, setSeviceId] = useState("");
+
   const [videolink, setvideolink] = useState("");
   const [search, setsearch] = useState("");
   const [filterdata, setfilterdata] = useState([]);
@@ -31,7 +33,7 @@ function Services() {
   const handleShow = () => setShow(true);
   useEffect(() => {
     getcategory();
-    getsubcategory();
+    getService();
   }, []);
 
   const getcategory = async () => {
@@ -60,13 +62,15 @@ function Services() {
     getServiceByCategory();
   }, [category]);
 
+  console.log("service id", serivceId);
+
   const addSerive = async (e) => {
     e.preventDefault();
 
     try {
       const config = {
-        url: "/addsubcategory",
-        method: "post",
+        url: `/userapp/addlink/${serivceId}`,
+        method: "put",
         baseURL: apiURL,
         headers: { "content-type": "application/json" },
         // data: { categoryName: categoryName, subcategoryName: subcategoryName },
@@ -78,14 +82,14 @@ function Services() {
         data: {
           category: category,
           serviceName: serivceName,
-          videolink: videolink,
+          videoLink: videolink,
         },
       };
       await axios(config).then(function (response) {
         if (response.status === 200) {
           console.log("success");
           alert("Service added successfuly");
-          // window.location.reload();
+          window.location.reload();
         }
       });
     } catch (error) {
@@ -93,12 +97,14 @@ function Services() {
       alert(error.response.data.error);
     }
   };
-  const getsubcategory = async () => {
-    let res = await axios.get(apiURL + "/getsubcategory");
-    if ((res.status = 200)) {
+  const getService = async () => {
+    let res = await axios.get(apiURL + "/userapp/getservices");
+    if (res.status === 200) {
       console.log(res);
-      setsubcategorydata(res.data?.subcategory);
-      setfilterdata(res.data?.subcategory);
+      const getVideoLinkData = res.data.service.filter((e) => e.videoLink);
+      console.log("getVideoLinkData", getVideoLinkData);
+      setsubcategorydata(getVideoLinkData);
+      setfilterdata(getVideoLinkData);
     }
   };
 
@@ -141,10 +147,10 @@ function Services() {
       selector: (row) => row.serviceName,
     },
     {
-      name: "Videolink",
+      name: "video Link",
       selector: (row) => (
-        <a href={row.videolink} target="_blank" alt="">
-          {row.videolink}
+        <a href={row.videoLink} target="_blank" alt="">
+          {row.videoLink}
         </a>
       ),
     },
@@ -213,9 +219,9 @@ function Services() {
                         onChange={(e) => setcategory(e.target.value)}
                       >
                         <option>---SELECT---</option>
-                        {categoryData.map((category, index) => (
-                          <option key={index} value={category.category}>
-                            {category.category}
+                        {admin?.category.map((category, index) => (
+                          <option key={index} value={category.name}>
+                            {category.name}
                           </option>
                         ))}
                       </select>
@@ -229,11 +235,20 @@ function Services() {
                     <div className="group pt-1">
                       <select
                         className="col-md-12 vhs-input-value"
-                        onChange={(e) => setSeviceName(e.target.value)}
+                        onChange={(e) => {
+                          const selectedService = serviceData.find(
+                            (item) => item._id === e.target.value
+                          );
+                          setSeviceId(e.target.value);
+                          setSeviceName(
+                            selectedService ? selectedService.serviceName : ""
+                          );
+                        }}
+                        // onChange={(e) => setSeviceName(e.target.value)}
                       >
                         <option>---SELECT---</option>
                         {serviceData.map((item) => (
-                          <option value={item.serviceName}>
+                          <option key={item.id} value={item._id}>
                             {item.serviceName}
                           </option>
                         ))}

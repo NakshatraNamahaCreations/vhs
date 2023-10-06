@@ -145,12 +145,13 @@ function Responce() {
       name: "Action",
       cell: (row) => (
         <div>
-          <a className="hyperlink" onClick={() => edit(row)}>
-            Edit |
-          </a>
-          <a onClick={() => deleteresponse(row._id)} className="hyperlink mx-1">
+          <div onClick={() => edit(row)}>Edit |</div>
+          <div
+            onClick={() => deleteresponse(row._id)}
+            className="hyperlink mx-1"
+          >
             Delete
-          </a>
+          </div>
         </div>
       ),
     },
